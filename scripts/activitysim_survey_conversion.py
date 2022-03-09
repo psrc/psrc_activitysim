@@ -14,27 +14,42 @@ import urllib
 import pyodbc
 import sqlalchemy
 
+from activitysim.abm.models.util import canonical_ids as ci
+
 # Survey input files, in Daysim format
 survey_input_dir = r'R:\e2projects_two\SoundCast\Inputs\dev\base_year\2018\survey'
-output_dir = r'C:\users\bnichols\documents'
+output_dir = r'C:\Stefan\estimation'
 
 # Example survey data for formatting template
 example_survey_dir = r'https://raw.githubusercontent.com/ActivitySim/activitysim/master/activitysim/examples/example_estimation/data_sf/survey_data/'
-parcel_block_file = r'R:\e2projects_two\activitysim\inputs\data\psrc\two_zone_maz\psrc_data_mtc_model\parcel_block_lookup.csv'
+parcel_block_file = r'R:\e2projects_two\activitysim\conversion\geographic_crosswalks\parcel_taz_block_lookup.csv'
 parcel_block = pd.read_csv(parcel_block_file)
-parcel_file = r'R:\e2projects_two\SoundCast\Inputs\dev\landuse\2018\with_race\parcels_urbansim.txt'
+parcel_file = r'R:\e2projects_two\SoundCast\Inputs\dev\landuse\2018\new_emp\parcels_urbansim.txt'
 
 #zone_type_list = ['TAZ','MAZ','parcel']
 zone_type_list = ['MAZ']
 
+    #+---------+----------------------------------------------+
+    #| race_id | description |
+    #+---------+----------------------------------------------+
+    #| 1 | White alone non-Hispanic |
+    #| 2 | Black or African American alone non-Hispanic |
+    #| 3 | Asian alone non-Hispanic |
+    #| 4 | Some Other Race alone non-Hispanic |
+    #| 5 | Two or More Races non-Hispanic |
+    #| 6 | White Hispanic |
+    #| 7 | Non-white Hispanic |
+    #| 8 | Child
+    #+---------+----------------------------------------------+
+
 race_dict = {
-    'African American': 1,
-    'Asian': 2,
-    'Child': 3,
-    'Hispanic': 4,
-    'Missing': 5,
-    'Other': 6,
-    'White Only': 7}
+    'African American': 2,
+    'Asian': 3,
+    'Child': 8,    
+    'Hispanic': 7,
+    'Missing': 8,
+    'Other': 4,
+    'White Only': 1}
 
 def process_hh(df, parcel_block, zone_type):
 
@@ -62,13 +77,12 @@ def process_hh(df, parcel_block, zone_type):
     # 7 - non-family household: female householder, not living alone
 
     if zone_type != 'TAZ':
-        parcel_block = parcel_block[-parcel_block['psrc_block_id'].isnull()]
-        parcel_block['psrc_block_id'] = parcel_block['psrc_block_id'].astype('int')
+        parcel_block['maz_id'] = parcel_block['maz_id'].astype('int')
         df = df.merge(parcel_block, left_on='hhparcel', right_on='parcel_id', how='left')
 
     if zone_type == 'MAZ':
-        # Use psrc_block_id as the MAZ definition
-        df.rename(columns={'psrc_block_id':'home_zone_id'}, inplace=True)
+        # Use maz_id as the MAZ definition
+        df.rename(columns={'maz_id':'home_zone_id'}, inplace=True)
         print(df['home_zone_id'].head())
     elif zone_type == 'parcel':
         df.rename(columns={'hhparcel': 'home_zone_id'}, inplace=True)
@@ -81,8 +95,8 @@ def process_hh(df, parcel_block, zone_type):
     sql_conn = pyodbc.connect(conn_string)
     params = urllib.parse.quote_plus(conn_string)
     engine = sqlalchemy.create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
-    df_orig_survey = pd.read_sql(sql='SELECT hhid, hh_race_category FROM HHSurvey.household_dim_2017_2019', con=engine)
-    df = df.merge(df_orig_survey, left_on='household_id', right_on='hhid', how='left')
+    df_orig_survey = pd.read_sql(sql='SELECT household_id, hh_race_category FROM HHSurvey.households_2017_2019', con=engine)
+    df = df.merge(df_orig_survey, on='household_id', how='left')
     df['hh_race'] = df['hh_race_category'].map(race_dict)
         
     return df
@@ -92,15 +106,15 @@ def process_person(df, parcel_block, df_tour, zone_type):
 
     # For MAZ geography, merge parcel to MAZ lookup
     if zone_type != 'TAZ':
-        parcel_block = parcel_block[-parcel_block['psrc_block_id'].isnull()]
-        parcel_block['psrc_block_id'] = parcel_block['psrc_block_id'].astype('int')
+        parcel_block = parcel_block[-parcel_block['maz_id'].isnull()]
+        parcel_block['maz_id'] = parcel_block['maz_id'].astype('int')
         # Work
-        df = df.merge(parcel_block[['parcel_id','psrc_block_id']], left_on='pwpcl', right_on='parcel_id', how='left')
-        df.rename(columns={'psrc_block_id':'pwmaz'},inplace=True)
+        df = df.merge(parcel_block[['parcel_id','maz_id']], left_on='pwpcl', right_on='parcel_id', how='left')
+        df.rename(columns={'maz_id':'pwmaz'},inplace=True)
         df.drop('parcel_id', axis=1, inplace=True)
         # School
-        df = df.merge(parcel_block[['parcel_id','psrc_block_id']], left_on='pspcl', right_on='parcel_id', how='left')
-        df.rename(columns={'psrc_block_id':'psmaz'},inplace=True)
+        df = df.merge(parcel_block[['parcel_id','maz_id']], left_on='pspcl', right_on='parcel_id', how='left')
+        df.rename(columns={'maz_id':'psmaz'},inplace=True)
 
     # These output columns tend to change, need to be referenced below
     school_col = 'school_taz'
@@ -165,8 +179,8 @@ def process_person(df, parcel_block, df_tour, zone_type):
     sql_conn = pyodbc.connect(conn_string)
     params = urllib.parse.quote_plus(conn_string)
     engine = sqlalchemy.create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
-    df_orig_survey = pd.read_sql(sql='SELECT hhid, pernum, race_category FROM HHSurvey.person_dim_2017_2019', con=engine)
-    df = df.merge(df_orig_survey, left_on=['household_id','PNUM'], right_on=['hhid','pernum'], how='left')
+    df_orig_survey = pd.read_sql(sql='SELECT household_id, pernum, race_category FROM HHSurvey.persons_2017_2019', con=engine)
+    df = df.merge(df_orig_survey, left_on=['household_id','PNUM'], right_on=['household_id','pernum'], how='left')
     # Code race variables as values
 
     df['race'] = df['race_category'].map(race_dict)
@@ -185,11 +199,11 @@ def process_person(df, parcel_block, df_tour, zone_type):
     
     # If MAZ, update the parcel destination to MAZ
     if zone_type == 'MAZ':
-        df_school = df_school.merge(parcel_block[['parcel_id','psrc_block_id']], left_on='updated_school_taz', right_on='parcel_id', how='left')
+        df_school = df_school.merge(parcel_block[['parcel_id','maz_id']], left_on='updated_school_taz', right_on='parcel_id', how='left')
         df_school.drop('updated_school_taz',inplace=True, axis=1)
-        df_school.rename(columns={'psrc_block_id':'updated_school_taz'},inplace=True)
+        df_school.rename(columns={'maz_id':'updated_school_taz'},inplace=True)
     if zone_type == 'parcel':
-        df_school = df_school.merge(parcel_block[['parcel_id','psrc_block_id']], left_on='updated_school_taz', right_on='parcel_id', how='left')
+        df_school = df_school.merge(parcel_block[['parcel_id','maz_id']], left_on='updated_school_taz', right_on='parcel_id', how='left')
         df_school.drop('updated_school_taz',inplace=True, axis=1)
         df_school.rename(columns={'parcel_id':'updated_school_taz'},inplace=True)
         
@@ -206,7 +220,8 @@ def process_person(df, parcel_block, df_tour, zone_type):
     else:
         df['updated_school_taz'] = df['updated_school_taz'].fillna(-1)
         df['updated_school_taz'] = df['updated_school_taz'].astype('int')
-    df[school_col].replace(-1, df['updated_school_taz'], regex=True, inplace=True)
+    #df[school_col].replace(-1, df['updated_school_taz'], regex=True, inplace=True)
+    df[school_col] = np.where(df[school_col]==-1, df['updated_school_taz'], df[school_col])
     
 
     # Similarly, workplace is missing for people who make work tours
@@ -215,11 +230,11 @@ def process_person(df, parcel_block, df_tour, zone_type):
 
     # If MAZ, update the parcel destination to MAZ
     if zone_type == 'MAZ':
-        df_work = df_work.merge(parcel_block[['parcel_id','psrc_block_id']], left_on='updated_work_taz', right_on='parcel_id', how='left')
+        df_work = df_work.merge(parcel_block[['parcel_id','maz_id']], left_on='updated_work_taz', right_on='parcel_id', how='left')
         df_work.drop('updated_work_taz',inplace=True, axis=1)
-        df_work.rename(columns={'psrc_block_id':'updated_work_taz'},inplace=True)
+        df_work.rename(columns={'maz_id':'updated_work_taz'},inplace=True)
     if zone_type == 'parcel':
-        df_work = df_work.merge(parcel_block[['parcel_id','psrc_block_id']], left_on='updated_work_taz', right_on='parcel_id', how='left')
+        df_work = df_work.merge(parcel_block[['parcel_id','maz_id']], left_on='updated_work_taz', right_on='parcel_id', how='left')
         df_work.drop('updated_school_taz',inplace=True, axis=1)
         df_work.rename(columns={'parcel_id':'updated_work_taz'},inplace=True)
 
@@ -363,15 +378,15 @@ def process_tour(df, df_person, parcel_block, template, zone_type, raw_survey=Tr
 
     # For MAZ geography, merge parcel to MAZ lookup
     if zone_type == 'MAZ':
-        parcel_block = parcel_block[-parcel_block['psrc_block_id'].isnull()]
-        parcel_block['psrc_block_id'] = parcel_block['psrc_block_id'].astype('int')
+        parcel_block = parcel_block[-parcel_block['maz_id'].isnull()]
+        parcel_block['maz_id'] = parcel_block['maz_id'].astype('int')
         # Work
-        df = df.merge(parcel_block[['parcel_id','psrc_block_id']], left_on='topcl', right_on='parcel_id', how='left')
-        df.rename(columns={'psrc_block_id':'tomaz'},inplace=True)
+        df = df.merge(parcel_block[['parcel_id','maz_id']], left_on='topcl', right_on='parcel_id', how='left')
+        df.rename(columns={'maz_id':'tomaz'},inplace=True)
         df.drop('parcel_id', axis=1, inplace=True)
         # School
-        df = df.merge(parcel_block[['parcel_id','psrc_block_id']], left_on='tdpcl', right_on='parcel_id', how='left')
-        df.rename(columns={'psrc_block_id':'tdmaz'},inplace=True)
+        df = df.merge(parcel_block[['parcel_id','maz_id']], left_on='tdpcl', right_on='parcel_id', how='left')
+        df.rename(columns={'maz_id':'tdmaz'},inplace=True)
 
     # tour purpose type
     purp_map = {
@@ -455,7 +470,9 @@ def process_tour(df, df_person, parcel_block, template, zone_type, raw_survey=Tr
     df['tour_type_num'] = df.sort_values(by=group_cols).groupby(group_cols).cumcount() + 1
 
     # Import canoncial tour list from activitysim
-    possible_tours = list(pd.read_csv('canonical_tours.csv')['0'])
+    
+    possible_tours = ci.canonical_tours()
+    #possible_tours = list(pd.read_csv('canonical_tours.csv')['0'])
     possible_tours_count = len(possible_tours)
     tour_num_col = 'tour_type_num'
     df['tour_type_id'] = df.tour_type + df['tour_type_num'].map(str)
@@ -605,12 +622,12 @@ for zone_type in zone_type_list:
     ####################
     # Trip
     ####################
-    #trip = process_trip(results_dict['trip'], template_dict['trip'])
-    #trip[template_dict['trip'].columns].to_csv(os.path.join(output_dir,'survey_trips.csv'), index=False)
+    trip = process_trip(results_dict['trip'], template_dict['trip'])
+    trip[template_dict['trip'].columns].to_csv(os.path.join(output_dir,'survey_trips.csv'), index=False)
 
     
     ####################
     # Joint Tour
     ####################
-    #joint_tour = process_joint_tour(results_dict['joint_tour'], template_dict['joint_tour'])
-    #joint_tour[template_dict['joint_tour'].columns].to_csv(os.path.join(output_dir,'survey_joint_tour_participants.csv'), index=False)
+    joint_tour = process_joint_tour(results_dict['joint_tour'], template_dict['joint_tour'])
+    joint_tour[template_dict['joint_tour'].columns].to_csv(os.path.join(output_dir,'survey_joint_tour_participants.csv'), index=False)

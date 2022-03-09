@@ -4,22 +4,27 @@ import h5py
 import os
 
 # Supply a base 
-base_dir = r'\\modelstation1\c$\workspace\activitysim\activitysim\examples\e_e_psrc'
-syn_hh_file = r'R:\e2projects_two\SyntheticPopulation_2018\keep\2018\populationsim_files\outputs\synthetic_households.csv'
+land_use_dir = r'R:\e2projects_two\SoundCast\Inputs\dev\landuse\2018\new_emp'
+parcel_area_file = r'R:\e2projects_two\activitysim\conversion\parcel_area.csv'
+syn_hh_file = r'R:\e2projects_two\SyntheticPopulation_2018\keep\2018\populationsim_files\output\synthetic_households.csv'
 seed_hh_file = r'R:\e2projects_two\SyntheticPopulation_2018\keep\2018\populationsim_files\data\seed_households.csv'
 seed_person_file = r'R:\e2projects_two\SyntheticPopulation_2018\keep\2018\populationsim_files\data\seed_persons.csv'
-parcel_block_file = r'R:\e2projects_two\activitysim\conversion\parcel_taz_block_lookup.csv'
-raw_parcel_file = r'R:\e2projects_two\SoundCast\Inputs\dev\landuse\2018\with_race\parcels_urbansim.txt'
-buffered_parcel_path = r'R:\e2projects_two\activitysim\conversion\land_use\buffered_parcels.csv'
+#parcel_block_file = r'R:\e2projects_two\activitysim\conversion\parcel_taz_block_lookup.csv'
+parcel_block_file = r'R:\e2projects_two\activitysim\conversion\geographic_crosswalks\parcel_taz_block_lookup.csv'
+#raw_parcel_file = r'R:\e2projects_two\SoundCast\Inputs\dev\landuse\2018\new_emp\parcels_urbansim.txt'
+#buffered_parcel_path = r'R:\e2projects_two\activitysim\conversion\land_use\buffered_parcels.csv'
+buffered_parcel_path = r'\\modelstation2\c$\Workspace\sc_2018_rtp_final\soundcast\outputs\landuse\buffered_parcels.txt'
+#\\modelstation2\c$\Workspace\sc_2018_rtp_final\soundcast\outputs\landuse
 
 #parcels_file = 
-hh_persons_file = r'R:\e2projects_two\SoundCast\Inputs\dev\landuse\2018\base_year\hh_and_persons.h5'
+hh_persons_file = os.path.join(land_use_dir, 'hh_and_persons.h5')
+
 
 # transit score
 transit_score_file = r'R:\e2projects_two\activitysim\inputs\data\psrc\two_zone_maz\transit_index\block_transit_score2018.csv'
 
 ##### Outputs
-output_dir = r'C:\Users\bnichols'
+output_dir = r'C:\Stefan'
 
 #zone_types = ['TAZ','MAZ','parcel']
 zone_types = ['MAZ']
@@ -27,8 +32,8 @@ zone_types = ['MAZ']
 # If true, create new persons.csv and households.csv; otherwise load existing files from the output directory
 ##run_hh = True
 ##run_person = True
-run_hh = False
-run_person = False
+run_hh = True
+run_person = True
 use_buffered_parcels = True
 
 lu_aggregate_dict = {'hh_p': 'sum',
@@ -48,6 +53,8 @@ lu_aggregate_dict = {'hh_p': 'sum',
                           'hh_2' : 'mean',
                           'emptot_1' : 'mean',
                           'emptot_2' : 'mean',
+                          'empret_1' : 'mean',
+                          'empsvc_1' : 'mean',
                           'sfunits' : 'sum',
                           'mfunits' : 'sum',
                           'TAZ' : 'first'}
@@ -101,15 +108,17 @@ def log2(df, col1, col2, min):
     #1 * (df[col1] / total * np.log1p(df[col1]/total) + df[col2]/total * np.log1p(df[col2]/total)) / np.log1p(2)
     #df['color'] = np.where(((df[col1] > min) & ((df[col2] > min)), 1 * (df[col1] / total * np.log1p(df[col1]/total) + df[col2]/total * np.log1p(df[col2]/total)) / np.log1p(2), 0)
 
+def log3(df, col1, col2, col3, min):
+    total = df[col1] + df[col2] + df[col3] 
+    return np.where(((df[col1] > min) & (df[col2] > min) & (df[col3] > min)), -1 * (df[col1] / total * np.log(df[col1]/total) + df[col2]/total * np.log(df[col2]/total) + df[col3]/total * np.log(df[col3]/total)) / np.log(3), 0)
+
 def log4(df, col1, col2, col3, col4, min):
     total = df[col1] + df[col2] + df[col3] + df[col4]
     return np.where(((df[col1] > min) & (df[col2] > min)), -1 * (df[col1] / total * np.log(df[col1]/total) + df[col2]/total * np.log(df[col2]/total)) / np.log(4), 0)
 
 
 
-
-
-def process_households(zone_type, raw_parcel_path):
+def process_households(zone_type, land_use_dir):
     """ Convert Daysim-formatted household data to MTC TM1 format for activitysim.
         Write necessary df columns to file and return full df for downstream processing.
     """
@@ -121,7 +130,7 @@ def process_households(zone_type, raw_parcel_path):
     seed_persons = pd.read_csv(seed_person_file)
     parcel_block = pd.read_csv(parcel_block_file)
 
-    raw_parcels_df = pd.read_csv(raw_parcel_file, sep = ' ')
+    raw_parcels_df = pd.read_csv(os.path.join(land_use_dir, 'parcels_urbansim.txt'), sep = ' ')
     raw_parcels_df = raw_parcels_df[['parcelid', 'sfunits', 'mfunits']] 
     
 
@@ -155,6 +164,7 @@ def process_households(zone_type, raw_parcel_path):
     df_psrc['HHID'] = df_psrc['hhno'].copy()
 
     # Household income categorization, coarse (1-4) and detailed (1-9)
+    df_psrc['income'] = np.where(df_psrc['income'] < 0, 0, df_psrc['income'])
     df_psrc['hinccat1'] = pd.cut(df_psrc['income'], 
                                      [-1,20000,50000,100000,99999999999999],
                                     labels=[1,2,3,4])
@@ -258,11 +268,11 @@ def process_households(zone_type, raw_parcel_path):
 
     # If 2-zone system, add the MAZ
     if zone_type == 'MAZ':
-        # Use psrc_block_id as the MAZ definition
-        parcel_block = parcel_block[-parcel_block['psrc_block_id'].isnull()]
-        parcel_block['psrc_block_id'] = parcel_block['psrc_block_id'].astype('int')
+        # Use maz_id as the MAZ definition
+        parcel_block = parcel_block[-parcel_block['maz_id'].isnull()]
+        parcel_block['maz_id'] = parcel_block['maz_id'].astype('int')
         df_psrc = df_psrc.merge(parcel_block, left_on='hhparcel', right_on='parcel_id', how='left')
-        df_psrc.rename(columns={'psrc_block_id':'MAZ'}, inplace=True)
+        df_psrc.rename(columns={'maz_id':'MAZ'}, inplace=True)
         df = write_csv(df_psrc, df_mtc, os.path.join(output_dir,zone_type), 'households.csv', additional_cols=['MAZ', 'is_mf'])
     elif zone_type == 'parcel':
         df_psrc['parcel'] = df_psrc['hhparcel'].copy()
@@ -321,7 +331,7 @@ def process_landuse(df_psrc, df_psrc_person, zone_type):
         # Load block to parcel lookup and join to parcels
         parcel_block = pd.read_csv(parcel_block_file)
         df_parcel = df_parcel.merge(parcel_block, left_on='parcelid', right_on='parcel_id', how='left')
-        df_parcel.rename(columns={'psrc_block_id': 'MAZ'}, inplace=True)
+        df_parcel.rename(columns={'maz_id': 'MAZ'}, inplace=True)
     if zone_type == 'parcel':
         df_psrc['parcel'] = df_psrc['hhparcel'].copy()
         df_parcel['parcel'] = df_parcel['parcelid'].copy()
@@ -489,15 +499,13 @@ def process_landuse(df_psrc, df_psrc_person, zone_type):
     taz_geog = pd.read_csv(r'R:\e2projects_two\SoundCast\Inputs\db_inputs\taz_geography.csv')
     # df_lu.columns
     # taz_geog.columns
-    df_lu = df_lu.merge(taz_geog[['taz','geog_name','district_id']],left_on='TAZ', right_on='taz', how='left')
+    df_lu = df_lu.merge(taz_geog[['taz','geog_name']],left_on='TAZ', right_on='taz', how='left')
 
     county_map = {'King County': 1,
                  'Kitsap County': 2,
                  'Pierce County': 3,
                  'Snohomish County': 4}
     df_lu['COUNTY'] = df_lu['geog_name'].map(county_map)
-    df_lu.rename(columns={'district_id': 'DISTRICT'}, inplace=True)
-
 
     for col in df_mtc_lu.columns:
         if col not in df_lu.columns:
@@ -534,14 +542,14 @@ def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict)
     #df_parcel_path = r'C:\Stefan\scratch\buffered_parcels.csv'
     
     df_mtc_lu = pd.read_csv(mtc_lu_path)
-    df_parcel = pd.read_csv(buffered_parcel_path)
+    df_parcel = pd.read_csv(buffered_parcel_path, sep = ' ')
     df_parcel.rename(columns={'taz_p': 'TAZ'}, inplace=True)
 
     if zone_type == 'MAZ':
         # Load block to parcel lookup and join to parcels
         parcel_block = pd.read_csv(parcel_block_file)
         df_parcel = df_parcel.merge(parcel_block, left_on='parcelid', right_on='parcel_id', how='left')
-        df_parcel.rename(columns={'psrc_block_id': 'MAZ'}, inplace=True)
+        df_parcel.rename(columns={'maz_id': 'MAZ'}, inplace=True)
     if zone_type == 'parcel':
         df_psrc['parcel'] = df_psrc['hhparcel'].copy()
         df_parcel['parcel'] = df_parcel['parcelid'].copy()
@@ -549,6 +557,8 @@ def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict)
     assert df_parcel.MAZ.isnull().values.any() == False
  
     #df_lu = df_parcel.groupby(zone_type).sum()
+    units_df = df_psrc.groupby('parcel_id', as_index = False).agg({'mfunits' : sum, 'sfunits' : sum})
+    df_parcel = df_parcel.merge(units_df, how = 'left', on = 'parcel_id')
     df_lu = df_parcel.groupby(zone_type, as_index = False).agg(aggregate_dict)
     # Regardless of the aggregation we need to retain the TAZ field
     if zone_type != 'TAZ':
@@ -616,8 +626,15 @@ def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict)
     df_lu = df_lu.merge(df, on=zone_type, how='left')
 
     # Total acres, based on parcel size
-    df = (df_parcel.groupby(zone_type).sum()[['sqft_p']]/43560).reset_index()
-    df.rename(columns={'sqft_p': 'TOTACRE'}, inplace=True)
+    df_parcel_area = pd.read_csv(parcel_area_file)
+    #df_parcel_area['parcel_id'] = df_parcel_area['pin'].astype(int)
+    df_parcel = df_parcel.merge(df_parcel_area, how='left', on = 'parcel_id')
+    df_parcel['area'].fillna(0, inplace = True)
+    df_parcel['area'] = np.where(df_parcel['area']<1, df_parcel['area'].mean(), df_parcel['area'])
+
+    #df = (df_parcel.groupby(zone_type).sum()[['sqft_p']]/43560).reset_index()
+    df = (df_parcel.groupby(zone_type).sum()[['area']]/43560).reset_index()
+    df.rename(columns={'area': 'TOTACRE'}, inplace=True)
     df_lu = df_lu.merge(df, on=zone_type, how='left')
 
     # Some TAZs have 0 TOTACRE fields.
@@ -633,9 +650,16 @@ def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict)
     df_lu.loc[df_lu['TOTPOP'].isnull(), 'CIACRE'] = df_lu['TOTACRE']/2.0
 
     # Calculate density index as a check; should not be null
-    df_lu['household_density'] = df_lu.TOTHH / (df_lu.RESACRE + df_lu.CIACRE)
-    df_lu['employment_density'] = df_lu.TOTEMP / (df_lu.RESACRE + df_lu.CIACRE)
-    df_lu['density_index'] = (df_lu['household_density'] *df_lu['employment_density']) / (df_lu['household_density'] + df_lu['employment_density']).clip(lower=1)
+    df_lu['household_density'] = df_lu.TOTHH / df_lu.TOTACRE
+    df_lu['employment_density'] = df_lu.TOTEMP / (df_lu.TOTACRE)
+
+    df_lu['density_index'] = (df_lu.household_density * df_lu.employment_density) / (df_lu.household_density + df_lu.employment_density).clip(lower=1)
+    df_lu['density_index'] = df_lu['density_index'].replace(np.nan, 0)
+    df_lu['buff_density_index'] = (df_lu.hh_1 * df_lu.emptot_1) / (df_lu.hh_1 + df_lu.emptot_1).clip(lower=1)
+    df_lu['buff_density_index'] = df_lu['buff_density_index'].replace(np.nan, 0)
+    #df_lu['household_density'] = df_lu.TOTHH / (df_lu.RESACRE + df_lu.CIACRE)
+    #df_lu['employment_density'] = df_lu.TOTEMP / (df_lu.RESACRE + df_lu.CIACRE)
+    #df_lu['density_index'] = (df_lu['household_density'] *df_lu['employment_density']) / (df_lu['household_density'] + df_lu['employment_density']).clip(lower=1)
 
     # Share of population 62 or older
     df_psrc_person.loc[df_psrc_person['age'] >= 62, 'SHPOP62P'] = 1
@@ -712,18 +736,19 @@ def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict)
     taz_geog = pd.read_csv(r'R:\e2projects_two\SoundCast\Inputs\db_inputs\taz_geography.csv')
     # df_lu.columns
     # taz_geog.columns
-    df_lu = df_lu.merge(taz_geog[['taz','geog_name','district_id']],left_on='TAZ', right_on='taz', how='left')
+    df_lu = df_lu.merge(taz_geog[['taz','geog_name']],left_on='TAZ', right_on='taz', how='left')
 
     county_map = {'King County': 1,
                  'Kitsap County': 2,
                  'Pierce County': 3,
                  'Snohomish County': 4}
     df_lu['COUNTY'] = df_lu['geog_name'].map(county_map)
-    df_lu.rename(columns={'district_id': 'DISTRICT'}, inplace=True)
 
     # mixed use variable from buffered parcels:
-    df_lu['mixed_use1'] = log2(df_lu, 'hh_1', 'emptot_1', 0.0001)
-    df_lu['mixed_use2'] = log2(df_lu, 'hh_2', 'emptot_2', 0.0001)
+    df_lu['mixed_use2_1'] = log2(df_lu, 'hh_1', 'emptot_1', 0.0001)
+    df_lu['mixed_use2_2'] = log2(df_lu, 'hh_2', 'emptot_2', 0.0001)
+    df_lu['mixed_use3_1'] = log3(df_lu, 'hh_1', 'empret_1', 'empsvc_1', 0.0001)
+    #df_lu['mixed_use2_maz'] = log2(df_lu, 'TOTHH', 'TOTEMP')
     
     # transit index
     transit_index_df = pd.read_csv(transit_score_file)
@@ -746,7 +771,7 @@ def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict)
 
 
     if zone_type == 'MAZ':
-        additional_cols = ['MAZ', 'transit_score', 'transit_score_scaled', 'sfunits', 'mfunits', 'percent_mf']
+        additional_cols = ['MAZ', 'transit_score', 'transit_score_scaled', 'sfunits', 'mfunits', 'percent_mf', 'mixed_use2_1', 'density_index', 'buff_density_index', 'density', 'mixed_use3_1',  'hh_1', 'emptot_1',  'hh_2', 'emptot_2']
         # create the MAZ and TAZ lookup files
         df_lu[['MAZ','TAZ']] = df_lu[['MAZ','TAZ']].astype('int')
         df_lu[['MAZ','TAZ']].to_csv(os.path.join(output_dir,zone_type,'maz.csv'), index=False)
@@ -773,7 +798,7 @@ for zone_type in zone_types:
 
     print(zone_type)
     if run_hh:
-        df_psrc, df_psrc_person = process_households(zone_type, raw_parcel_file)
+        df_psrc, df_psrc_person = process_households(zone_type, land_use_dir)
     else:
         df_psrc = pd.read_csv(os.path.join(output_dir,zone_type,'households.csv'))
     if run_person:
@@ -784,3 +809,7 @@ for zone_type in zone_types:
         df_lu = process_buffered_landuse(df_psrc, df_psrc_person, zone_type, lu_aggregate_dict)
     else:
         df_lu = process_landuse(df_psrc, df_psrc_person, zone_type)
+
+#df = pd.read_csv(r'C:\Users\bnichols\MAZ\land_use.csv')
+#df_psrc = pd.read_csv(r'C:\Users\bnichols\MAZ\households.csv')
+#df_psrc_person = pd.read_csv(r'C:\Users\bnichols\MAZ\persons.csv')
