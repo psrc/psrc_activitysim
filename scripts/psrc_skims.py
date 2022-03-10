@@ -4,8 +4,10 @@ import h5py
 import openmatrix as omx
 import json
 
+
+
 # Get a list of MTC skims to make sure we create all of them
-mtc_skim_path = r'E:\test_example_mtc\data\full\skims.omx'
+mtc_skim_path = r'\\modelstation3\c$\Workspace\activitysim\activitysim\examples\example_psrc\skims.omx'
 mtc_omx = omx.open_file(mtc_skim_path)
 mtc_skim_list = mtc_omx.list_matrices()
 mtc_omx.close()
@@ -14,7 +16,7 @@ mtc_omx.close()
 mtc_skims = h5py.File(r'R:\e2projects_two\activitysim\inputs\data\psrc\skims\old\skims.omx')
 
 # Bike and walk skims
-myh5 = h5py.File(r'L:\RTP_2022\soundcast_rtp2050_tests_BASE\inputs\model\roster\5to6.h5')
+myh5 = h5py.File(r'L:\RTP_2022\final_runs\sc_2018_rtp_final\soundcast\inputs\model\roster\5to6.h5')
 
 results_dict = {}
 matrix_size = len(myh5['Skims']['sov_inc2t'])
@@ -23,11 +25,31 @@ matrix_size = len(myh5['Skims']['sov_inc2t'])
 results_dict['DISTBIKE'] = myh5['Skims']['biket'][:matrix_size,:matrix_size]*(10.0/60.0)/100 # Assuming 10 mph bike speed
 results_dict['DISTWALK'] = myh5['Skims']['walkt'][:matrix_size,:matrix_size]*(3.0/60.0)/100 # Assuming 10 mph bike speed
 
-myh5 = h5py.File(r'L:\RTP_2022\soundcast_rtp2050_tests_BASE\inputs\model\roster\6to7.h5')
+myh5 = h5py.File(r'L:\RTP_2022\final_runs\sc_2018_rtp_final\soundcast\inputs\model\roster\6to7.h5')
+
+def get_trn_sub_component_skim(index, h5_file, sub_component_name):
+    
+    bus = myh5['Skims'][sub_component_name + 'a'][:matrix_size,:matrix_size] 
+    
+    rail = myh5['Skims'][sub_component_name + 'r'][:matrix_size,:matrix_size] 
+
+    ferry = myh5['Skims'][sub_component_name + 'f'][:matrix_size,:matrix_size] 
+
+    p_ferry = myh5['Skims'][sub_component_name + 'p'][:matrix_size,:matrix_size]
+
+    commuter_rail = myh5['Skims'][sub_component_name + 'c'][:matrix_size,:matrix_size] 
+
+    arr = arr = np.array((bus, rail, ferry, p_ferry, commuter_rail))
+    
+    condition = arr==arr.min(axis=0)
+
+    skim = np.where([condition[0]], bus, 0) + np.where([condition[1]], rail, 0) + np.where([condition[2]], ferry, 0) + np.where([condition[2]], p_ferry, 0) + np.where([condition[2]], commuter_rail, 0)
+    skim = skim.reshape([matrix_size, matrix_size])
+    return (skim)
 
 for tod in ['AM','MD','PM','EV','EA']:
     # note- we are not using 'TRN', will all be set to 0 later in code
-    for mtc_mode in ['COM', 'EXP','HVY','LOC','LRF','TRN']:
+    for mtc_mode in ['COM', 'EXP','HVY','LOC','LRF']:
     # Fare
         # Using AM fares for all time periods for now
         results_dict['WLK_'+mtc_mode+'_WLK_FAR__'+tod] = myh5['Skims']['mfafarbx'][:matrix_size,:matrix_size]
@@ -35,7 +57,7 @@ for tod in ['AM','MD','PM','EV','EA']:
         results_dict['DRV_'+mtc_mode+'_WLK_FAR__'+tod] = myh5['Skims']['mfafarbx'][:matrix_size,:matrix_size]
 
 
-myh5 = h5py.File(r'L:\RTP_2022\soundcast_rtp2050_tests_BASE\inputs\model\roster\7to8.h5')
+myh5 = h5py.File(r'L:\RTP_2022\final_runs\sc_2018_rtp_final\soundcast\inputs\model\roster\7to8.h5')
 # Looks like DIST is some auto distance averaged over different time periods, use AM for now. 
 results_dict['DIST'] = myh5['Skims']['sov_inc2d'][:matrix_size,:matrix_size]/100 # Assuming 3 mph walk speed
 
@@ -87,7 +109,7 @@ egress_time = {'COM': 15.93, 'EXP': 15.936, 'HVY': 20.08, 'LOC': 17.479, 'LRF': 
 for tod, hour in time_dict.items():
     print(tod)
     print(hour)
-    myh5 = h5py.File(os.path.join(r'L:\RTP_2022\soundcast_rtp2050_tests_BASE\inputs\model\roster',hour+'.h5'))
+    myh5 = h5py.File(os.path.join(r'L:\RTP_2022\final_runs\sc_2018_rtp_final\soundcast\inputs\model\roster',hour+'.h5'))
     
     # Auto Time
     results_dict['SOV_TIME__'+tod] = myh5['Skims']['sov_inc2t'][:matrix_size,:matrix_size]/100
@@ -102,6 +124,37 @@ for tod, hour in time_dict.items():
     results_dict['HOV3TOLL_VTOLL__'+tod] = myh5['Skims']['hov3_inc2c'][:matrix_size,:matrix_size]/100
 
     submode_dict = {'COM':'c', 'EXP':'p', 'HVY':'r', 'LOC':'a','LRF':'f', 'TRN': 'r'}
+
+    #TRN mode, which we think we think is all transit:
+    bus_time = myh5['Skims']['auxwa'][:matrix_size,:matrix_size] + myh5['Skims']['twtwa'][:matrix_size,:matrix_size] + myh5['Skims']['ivtwa'][:matrix_size,:matrix_size]
+    
+    rail_time = myh5['Skims']['auxwr'][:matrix_size,:matrix_size] + myh5['Skims']['twtwr'][:matrix_size,:matrix_size] + myh5['Skims']['ivtwr'][:matrix_size,:matrix_size]
+
+    ferry_time = myh5['Skims']['auxwf'][:matrix_size,:matrix_size] + myh5['Skims']['twtwf'][:matrix_size,:matrix_size] + myh5['Skims']['ivtwf'][:matrix_size,:matrix_size]
+
+    p_ferry_time = myh5['Skims']['auxwp'][:matrix_size,:matrix_size] + myh5['Skims']['twtwp'][:matrix_size,:matrix_size] + myh5['Skims']['ivtwp'][:matrix_size,:matrix_size]
+
+    commuter_rail_time = myh5['Skims']['auxwc'][:matrix_size,:matrix_size] + myh5['Skims']['twtwc'][:matrix_size,:matrix_size] + myh5['Skims']['ivtwc'][:matrix_size,:matrix_size]
+
+    arr = arr = np.array((bus_time, rail_time, ferry_time, p_ferry_time, commuter_rail_time))
+    skim_index = arr==arr.min(axis=0)
+
+    # we dont break walks skims out for access, egress and transfer. 
+    # used in accessbility and combined so hopefully not a big 
+    # deal if we leave the transfer 0 for now. 
+    transit_walk = get_trn_sub_component_skim(skim_index, myh5, 'auxw')
+    results_dict['WLK_TRN_WLK_WAUX__'+tod] = transit_walk * 0
+    results_dict['WLK_TRN_WLK_WACC__'+tod] = transit_walk /2
+    results_dict['WLK_TRN_WLK_WEGR__'+tod] = transit_walk /2
+    # Initial Wait Time
+    results_dict['WLK_TRN_WLK_IWAIT__'+tod] = get_trn_sub_component_skim(skim_index, myh5, 'iwtw')
+    # Transfer Wait Time
+    results_dict['WLK_TRN_WLK_XWAIT__'+tod] = get_trn_sub_component_skim(skim_index, myh5, 'xfrw')
+    # Total Wait Time
+    results_dict['WLK_TRN_WLK_WAIT__'+tod] = get_trn_sub_component_skim(skim_index, myh5, 'twtw')
+    # In vehicle time for Walk access/egress
+    results_dict['WLK_TRN_WLK_IVT__'+tod] = get_trn_sub_component_skim(skim_index, myh5, 'ivtw')
+
 
     for mtc_mode, psrc_mode in submode_dict.items():
         print(mtc_mode)
@@ -127,12 +180,12 @@ for tod, hour in time_dict.items():
         results_dict['DRV_'+mtc_mode+'_WLK_TOTIVT__'+tod] = myh5['Skims']['ivtw'+psrc_mode][:matrix_size,:matrix_size]
 
         # Not using TRN- will set all to 0 later in code
-        if mtc_mode == 'TRN':
-            results_dict['WLK_'+mtc_mode+'_WLK_IVT__'+tod] = myh5['Skims']['ivtw'+ psrc_mode + psrc_mode][:matrix_size,:matrix_size]
-            results_dict['WLK_'+mtc_mode+'_WLK_WACC__'+tod] = myh5['Skims']['ivtw'+ psrc_mode + psrc_mode][:matrix_size,:matrix_size]
-            results_dict['WLK_'+mtc_mode+'_WLK_WEGR__'+tod] = myh5['Skims']['ivtw'+ psrc_mode + psrc_mode][:matrix_size,:matrix_size]
+        #if mtc_mode == 'TRN':
+        #    # find least 
+        #    results_dict['WLK_'+mtc_mode+'_WLK_IVT__'+tod] = myh5['Skims']['ivtw'+ psrc_mode + psrc_mode][:matrix_size,:matrix_size]
+        #    results_dict['WLK_'+mtc_mode+'_WLK_WACC__'+tod] = myh5['Skims']['ivtw'+ psrc_mode + psrc_mode][:matrix_size,:matrix_size]
+        #    results_dict['WLK_'+mtc_mode+'_WLK_WEGR__'+tod] = myh5['Skims']['ivtw'+ psrc_mode + psrc_mode][:matrix_size,:matrix_size]
            
-
         if not mtc_mode == 'LOC':
             results_dict['WLK_'+mtc_mode+'_WLK_KEYIVT__'+tod] = myh5['Skims']['ivtw'+ psrc_mode + psrc_mode][:matrix_size,:matrix_size]
             results_dict['DRV_'+mtc_mode+'_WLK_KEYIVT__'+tod] = myh5['Skims']['ivtw'+ psrc_mode + psrc_mode][:matrix_size,:matrix_size]
@@ -214,21 +267,21 @@ for tod, hour in time_dict.items():
 # See if any are mising
 missing = [matrix_name for matrix_name in results_dict.keys() if matrix_name not in mtc_skim_list]
 extra_psrc_skims = [matrix_name for matrix_name in missing if 'AM' in matrix_name]
-with open(r'E:\extra_psrc.yaml', 'w') as outfile:
+with open(r'C:\Workspace\extra_psrc.yaml', 'w') as outfile:
     json.dump(extra_psrc_skims, outfile)
 
 missing = [matrix_name for matrix_name in mtc_skim_list if matrix_name not in results_dict.keys()]
 extra_mtc_skims = [matrix_name for matrix_name in missing if 'AM' in matrix_name]
-with open(r'E:\extra_mtc.yaml', 'w') as outfile:
+with open(r'C:\Workspace\extra_mtc.yaml', 'w') as outfile:
     json.dump(extra_mtc_skims, outfile)
 
 # We are not using 'TRN', set all to 0:
-for matrix_name in results_dict.keys():
-    if 'TRN' in matrix_name:
-        print ('setting %s to 0' % (matrix_name,))
-        results_dict[matrix_name] = results_dict[matrix_name] * 0
+#for matrix_name in results_dict.keys():
+#    if 'TRN' in matrix_name:
+#        print ('setting %s to 0' % (matrix_name,))
+#        results_dict[matrix_name] = results_dict[matrix_name] * 0
 
-f = omx.open_file(r'E:/new.omx','w')
+f = omx.open_file(r'C:\Workspace\new.omx','w')
 
 for skim_matrix in results_dict.keys():
     if skim_matrix in mtc_skims['data'].keys():
