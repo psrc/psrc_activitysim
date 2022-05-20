@@ -1,6 +1,6 @@
 coefficient_name,value,constrain
 coef_one,1,T
-coef_nest_root,1.00,T
+coef_nest_root,1,T
 coef_nest_AUTO,0.72,T
 coef_nest_AUTO_DRIVEALONE,0.35,T
 coef_nest_AUTO_SHAREDRIDE2,0.35,T
@@ -280,15 +280,9 @@ local_bus_ASC_work,0.06689507,F
 walk_light_rail_ASC_eatout_escort_othdiscr_othmaint_shopping_social_atwork,0.76895475,F
 walk_light_rail_ASC_school_univ,1.6814003,F
 walk_light_rail_ASC_work,0.8255567,F
-drive_light_rail_ASC_eatout_escort_othdiscr_othmaint_shopping_social_atwork,0.76895475,F
-drive_light_rail_ASC_school_univ,1.6814003,F
-drive_light_rail_ASC_work,0.8255567,F
 walk_ferry_ASC_eatout_escort_othdiscr_othmaint_shopping_social_atwork,0.9401238,F
 walk_ferry_ASC_school_univ,2.0202317,F
 walk_ferry_ASC_work,0.93322605,F
-drive_ferry_ASC_eatout_escort_othdiscr_othmaint_shopping_social_atwork,0.9401238,F
-drive_ferry_ASC_school_univ,2.0202317,F
-drive_ferry_ASC_work,0.93322605,F
 express_bus_ASC_eatout_escort_othdiscr_othmaint_shopping_social_atwork,0.9692316,F
 express_bus_ASC_school_univ,0.32496938,F
 express_bus_ASC_work,-0.5165474,F
