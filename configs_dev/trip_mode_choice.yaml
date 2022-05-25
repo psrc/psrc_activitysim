@@ -47,11 +47,7 @@ NESTS:
             - name: DRIVEACCESS
               coefficient: coef_nest_TRANSIT_DRIVEACCESS
               alternatives:
-              - DRIVE_LOC
-              - DRIVE_LRF
-              - DRIVE_EXP
-              - DRIVE_HVY
-              - DRIVE_COM
+              - DRIVE_TRN
       - name: RIDEHAIL
         coefficient: coef_nest_RIDEHAIL
         alternatives:
@@ -92,14 +88,10 @@ CONSTANTS:
     WALK_EXP: 11
     WALK_HVY: 12
     WALK_COM: 13
-    DRIVE_LOC: 14
-    DRIVE_LRF: 15
-    DRIVE_EXP: 16
-    DRIVE_HVY: 17
-    DRIVE_COM: 18
-    TAXI: 19
-    TNC_SINGLE: 20
-    TNC_SHARED: 21
+    DRIVE_TRN: 14
+    TAXI: 15
+    TNC_SINGLE: 16
+    TNC_SHARED: 17
   I_SOV_MODES: [1, 2]
   I_SR2_MODES: [3, 4]
   I_SR3P_MODES: [5, 6]
