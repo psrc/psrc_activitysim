@@ -18,20 +18,11 @@ Description,Target,Expression
 ,WALK_EA,((trips.trip_mode == 'WALK') & is_ea) * tour_participants
 ,BIKE_EA,((trips.trip_mode == 'BIKE') & is_ea) * tour_participants
 ,WALK_LOC_WALK_EA,((trips.trip_mode == 'WALK_LOC') & is_ea) * tour_participants
-,WALK_LRF_WALK_EA,((trips.trip_mode == 'WALK_LRF') & is_ea) * tour_participants
-,WALK_EXP_WALK_EA,((trips.trip_mode == 'WALK_EXP') & is_ea) * tour_participants
-,WALK_HVY_WALK_EA,((trips.trip_mode == 'WALK_HVY') & is_ea) * tour_participants
+,WALK_LR_WALK_EA,((trips.trip_mode == 'WALK_LR') & is_ea) * tour_participants
+,WALK_FRY_WALK_EA,((trips.trip_mode == 'WALK_FRY') & is_ea) * tour_participants
 ,WALK_COM_WALK_EA,((trips.trip_mode == 'WALK_COM') & is_ea) * tour_participants
-,DRIVE_LOC_WALK_EA,((trips.trip_mode == 'DRIVE_LOC') & is_ea & trips.outbound) * tour_participants
-,DRIVE_LRF_WALK_EA,((trips.trip_mode == 'DRIVE_LRF') & is_ea & trips.outbound) * tour_participants
-,DRIVE_EXP_WALK_EA,((trips.trip_mode == 'DRIVE_EXP') & is_ea & trips.outbound) * tour_participants
-,DRIVE_HVY_WALK_EA,((trips.trip_mode == 'DRIVE_HVY') & is_ea & trips.outbound) * tour_participants
-,DRIVE_COM_WALK_EA,((trips.trip_mode == 'DRIVE_COM') & is_ea & trips.outbound) * tour_participants
-,WALK_LOC_DRIVE_EA,((trips.trip_mode == 'DRIVE_LOC') & is_ea & ~trips.outbound) * tour_participants
-,WALK_LRF_DRIVE_EA,((trips.trip_mode == 'DRIVE_LRF') & is_ea & ~trips.outbound) * tour_participants
-,WALK_EXP_DRIVE_EA,((trips.trip_mode == 'DRIVE_EXP') & is_ea & ~trips.outbound) * tour_participants
-,WALK_DRIVE_HVY_EA,((trips.trip_mode == 'DRIVE_HVY') & is_ea & ~trips.outbound) * tour_participants
-,WALK_COM_DRIVE_EA,((trips.trip_mode == 'DRIVE_COM') & is_ea & ~trips.outbound) * tour_participants
+,DRIVE_TRN_WALK_EA,((trips.trip_mode == 'DRIVE_TRN') & is_ea & trips.outbound) * tour_participants
+,WALK_TRN_DRIVE_EA,((trips.trip_mode == 'DRIVE_TRN') & is_ea & ~trips.outbound) * tour_participants
 # am trips,,
 ,DRIVEALONEFREE_AM,((trips.trip_mode == 'DRIVEALONEFREE') & is_am) * tour_participants
 ,DRIVEALONEPAY_AM,((trips.trip_mode == 'DRIVEALONEPAY') & is_am) * tour_participants
@@ -42,20 +33,11 @@ Description,Target,Expression
 ,WALK_AM,((trips.trip_mode == 'WALK') & is_am) * tour_participants
 ,BIKE_AM,((trips.trip_mode == 'BIKE') & is_am) * tour_participants
 ,WALK_LOC_WALK_AM,((trips.trip_mode == 'WALK_LOC') & is_am) * tour_participants
-,WALK_LRF_WALK_AM,((trips.trip_mode == 'WALK_LRF') & is_am) * tour_participants
-,WALK_EXP_WALK_AM,((trips.trip_mode == 'WALK_EXP') & is_am) * tour_participants
-,WALK_HVY_WALK_AM,((trips.trip_mode == 'WALK_HVY') & is_am) * tour_participants
+,WALK_LR_WALK_AM,((trips.trip_mode == 'WALK_LR') & is_am) * tour_participants
+,WALK_FRY_WALK_AM,((trips.trip_mode == 'WALK_FRY') & is_am) * tour_participants
 ,WALK_COM_WALK_AM,((trips.trip_mode == 'WALK_COM') & is_am) * tour_participants
-,DRIVE_LOC_WALK_AM,((trips.trip_mode == 'DRIVE_LOC') & is_am & trips.outbound) * tour_participants
-,DRIVE_LRF_WALK_AM,((trips.trip_mode == 'DRIVE_LRF') & is_am & trips.outbound) * tour_participants
-,DRIVE_EXP_WALK_AM,((trips.trip_mode == 'DRIVE_EXP') & is_am & trips.outbound) * tour_participants
-,DRIVE_HVY_WALK_AM,((trips.trip_mode == 'DRIVE_HVY') & is_am & trips.outbound) * tour_participants
-,DRIVE_COM_WALK_AM,((trips.trip_mode == 'DRIVE_COM') & is_am & trips.outbound) * tour_participants
-,WALK_LOC_DRIVE_AM,((trips.trip_mode == 'DRIVE_LOC') & is_am & ~trips.outbound) * tour_participants
-,WALK_LRF_DRIVE_AM,((trips.trip_mode == 'DRIVE_LRF') & is_am & ~trips.outbound) * tour_participants
-,WALK_EXP_DRIVE_AM,((trips.trip_mode == 'DRIVE_EXP') & is_am & ~trips.outbound) * tour_participants
-,WALK_DRIVE_HVY_AM,((trips.trip_mode == 'DRIVE_HVY') & is_am & ~trips.outbound) * tour_participants
-,WALK_COM_DRIVE_AM,((trips.trip_mode == 'DRIVE_COM') & is_am & ~trips.outbound) * tour_participants
+,DRIVE_TRN_WALK_AM,((trips.trip_mode == 'DRIVE_TRN') & is_am & trips.outbound) * tour_participants
+,WALK_TRN_DRIVE_AM,((trips.trip_mode == 'DRIVE_TRN') & is_am & ~trips.outbound) * tour_participants
 # md trips,,
 ,DRIVEALONEFREE_MD,((trips.trip_mode == 'DRIVEALONEFREE') & is_md) * tour_participants
 ,DRIVEALONEPAY_MD,((trips.trip_mode == 'DRIVEALONEPAY') & is_md) * tour_participants
@@ -66,20 +48,11 @@ Description,Target,Expression
 ,WALK_MD,((trips.trip_mode == 'WALK') & is_md) * tour_participants
 ,BIKE_MD,((trips.trip_mode == 'BIKE') & is_md) * tour_participants
 ,WALK_LOC_WALK_MD,((trips.trip_mode == 'WALK_LOC') & is_md) * tour_participants
-,WALK_LRF_WALK_MD,((trips.trip_mode == 'WALK_LRF') & is_md) * tour_participants
-,WALK_EXP_WALK_MD,((trips.trip_mode == 'WALK_EXP') & is_md) * tour_participants
-,WALK_HVY_WALK_MD,((trips.trip_mode == 'WALK_HVY') & is_md) * tour_participants
+,WALK_LR_WALK_MD,((trips.trip_mode == 'WALK_LR') & is_md) * tour_participants
+,WALK_FRY_WALK_MD,((trips.trip_mode == 'WALK_FRY') & is_md) * tour_participants
 ,WALK_COM_WALK_MD,((trips.trip_mode == 'WALK_COM') & is_md) * tour_participants
-,DRIVE_LOC_WALK_MD,((trips.trip_mode == 'DRIVE_LOC') & is_md & trips.outbound) * tour_participants
-,DRIVE_LRF_WALK_MD,((trips.trip_mode == 'DRIVE_LRF') & is_md & trips.outbound) * tour_participants
-,DRIVE_EXP_WALK_MD,((trips.trip_mode == 'DRIVE_EXP') & is_md & trips.outbound) * tour_participants
-,DRIVE_HVY_WALK_MD,((trips.trip_mode == 'DRIVE_HVY') & is_md & trips.outbound) * tour_participants
-,DRIVE_COM_WALK_MD,((trips.trip_mode == 'DRIVE_COM') & is_md & trips.outbound) * tour_participants
-,WALK_LOC_DRIVE_MD,((trips.trip_mode == 'DRIVE_LOC') & is_md & ~trips.outbound) * tour_participants
-,WALK_LRF_DRIVE_MD,((trips.trip_mode == 'DRIVE_LRF') & is_md & ~trips.outbound) * tour_participants
-,WALK_EXP_DRIVE_MD,((trips.trip_mode == 'DRIVE_EXP') & is_md & ~trips.outbound) * tour_participants
-,WALK_DRIVE_HVY_MD,((trips.trip_mode == 'DRIVE_HVY') & is_md & ~trips.outbound) * tour_participants
-,WALK_COM_DRIVE_MD,((trips.trip_mode == 'DRIVE_COM') & is_md & ~trips.outbound) * tour_participants
+,DRIVE_TRN_WALK_MD,((trips.trip_mode == 'DRIVE_TRN') & is_md & trips.outbound) * tour_participants
+,WALK_TRN_DRIVE_MD,((trips.trip_mode == 'DRIVE_TRN') & is_md & ~trips.outbound) * tour_participants
 # pm trips,,
 ,DRIVEALONEFREE_PM,((trips.trip_mode == 'DRIVEALONEFREE') & is_pm) * tour_participants
 ,DRIVEALONEPAY_PM,((trips.trip_mode == 'DRIVEALONEPAY') & is_pm) * tour_participants
@@ -90,20 +63,11 @@ Description,Target,Expression
 ,WALK_PM,((trips.trip_mode == 'WALK') & is_pm) * tour_participants
 ,BIKE_PM,((trips.trip_mode == 'BIKE') & is_pm) * tour_participants
 ,WALK_LOC_WALK_PM,((trips.trip_mode == 'WALK_LOC') & is_pm) * tour_participants
-,WALK_LRF_WALK_PM,((trips.trip_mode == 'WALK_LRF') & is_pm) * tour_participants
-,WALK_EXP_WALK_PM,((trips.trip_mode == 'WALK_EXP') & is_pm) * tour_participants
-,WALK_HVY_WALK_PM,((trips.trip_mode == 'WALK_HVY') & is_pm) * tour_participants
+,WALK_LR_WALK_PM,((trips.trip_mode == 'WALK_LR') & is_pm) * tour_participants
+,WALK_FRY_WALK_PM,((trips.trip_mode == 'WALK_FRY') & is_pm) * tour_participants
 ,WALK_COM_WALK_PM,((trips.trip_mode == 'WALK_COM') & is_pm) * tour_participants
-,DRIVE_LOC_WALK_PM,((trips.trip_mode == 'DRIVE_LOC') & is_pm & trips.outbound) * tour_participants
-,DRIVE_LRF_WALK_PM,((trips.trip_mode == 'DRIVE_LRF') & is_pm & trips.outbound) * tour_participants
-,DRIVE_EXP_WALK_PM,((trips.trip_mode == 'DRIVE_EXP') & is_pm & trips.outbound) * tour_participants
-,DRIVE_HVY_WALK_PM,((trips.trip_mode == 'DRIVE_HVY') & is_pm & trips.outbound) * tour_participants
-,DRIVE_COM_WALK_PM,((trips.trip_mode == 'DRIVE_COM') & is_pm & trips.outbound) * tour_participants
-,WALK_LOC_DRIVE_PM,((trips.trip_mode == 'DRIVE_LOC') & is_pm & ~trips.outbound) * tour_participants
-,WALK_LRF_DRIVE_PM,((trips.trip_mode == 'DRIVE_LRF') & is_pm & ~trips.outbound) * tour_participants
-,WALK_EXP_DRIVE_PM,((trips.trip_mode == 'DRIVE_EXP') & is_pm & ~trips.outbound) * tour_participants
-,WALK_DRIVE_HVY_PM,((trips.trip_mode == 'DRIVE_HVY') & is_pm & ~trips.outbound) * tour_participants
-,WALK_COM_DRIVE_PM,((trips.trip_mode == 'DRIVE_COM') & is_pm & ~trips.outbound) * tour_participants
+,DRIVE_TRN_WALK_PM,((trips.trip_mode == 'DRIVE_TRN') & is_pm & trips.outbound) * tour_participants
+,WALK_TRN_DRIVE_PM,((trips.trip_mode == 'DRIVE_TRN') & is_pm & ~trips.outbound) * tour_participants
 # ev trips,,
 ,DRIVEALONEFREE_EV,((trips.trip_mode == 'DRIVEALONEFREE') & is_ev) * tour_participants
 ,DRIVEALONEPAY_EV,((trips.trip_mode == 'DRIVEALONEPAY') & is_ev) * tour_participants
@@ -114,17 +78,8 @@ Description,Target,Expression
 ,WALK_EV,((trips.trip_mode == 'WALK') & is_ev) * tour_participants
 ,BIKE_EV,((trips.trip_mode == 'BIKE') & is_ev) * tour_participants
 ,WALK_LOC_WALK_EV,((trips.trip_mode == 'WALK_LOC') & is_ev) * tour_participants
-,WALK_LRF_WALK_EV,((trips.trip_mode == 'WALK_LRF') & is_ev) * tour_participants
-,WALK_EXP_WALK_EV,((trips.trip_mode == 'WALK_EXP') & is_ev) * tour_participants
-,WALK_HVY_WALK_EV,((trips.trip_mode == 'WALK_HVY') & is_ev) * tour_participants
+,WALK_LR_WALK_EV,((trips.trip_mode == 'WALK_LR') & is_ev) * tour_participants
+,WALK_FRY_WALK_EV,((trips.trip_mode == 'WALK_FRY') & is_ev) * tour_participants
 ,WALK_COM_WALK_EV,((trips.trip_mode == 'WALK_COM') & is_ev) * tour_participants
-,DRIVE_LOC_WALK_EV,((trips.trip_mode == 'DRIVE_LOC') & is_ev & trips.outbound) * tour_participants
-,DRIVE_LRF_WALK_EV,((trips.trip_mode == 'DRIVE_LRF') & is_ev & trips.outbound) * tour_participants
-,DRIVE_EXP_WALK_EV,((trips.trip_mode == 'DRIVE_EXP') & is_ev & trips.outbound) * tour_participants
-,DRIVE_HVY_WALK_EV,((trips.trip_mode == 'DRIVE_HVY') & is_ev & trips.outbound) * tour_participants
-,DRIVE_COM_WALK_EV,((trips.trip_mode == 'DRIVE_COM') & is_ev & trips.outbound) * tour_participants
-,WALK_LOC_DRIVE_EV,((trips.trip_mode == 'DRIVE_LOC') & is_ev & ~trips.outbound) * tour_participants
-,WALK_LRF_DRIVE_EV,((trips.trip_mode == 'DRIVE_LRF') & is_ev & ~trips.outbound) * tour_participants
-,WALK_EXP_DRIVE_EV,((trips.trip_mode == 'DRIVE_EXP') & is_ev & ~trips.outbound) * tour_participants
-,WALK_DRIVE_HVY_EV,((trips.trip_mode == 'DRIVE_HVY') & is_ev & ~trips.outbound) * tour_participants
-,WALK_COM_DRIVE_EV,((trips.trip_mode == 'DRIVE_COM') & is_ev & ~trips.outbound) * tour_participants
+,DRIVE_TRN_WALK_EV,((trips.trip_mode == 'DRIVE_TRN') & is_ev & trips.outbound) * tour_participants
+,WALK_TRN_DRIVE_EV,((trips.trip_mode == 'DRIVE_TRN') & is_ev & ~trips.outbound) * tour_participants

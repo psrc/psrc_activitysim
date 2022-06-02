@@ -35,9 +35,8 @@ NESTS:
               coefficient: coef_nest_TRANSIT_WALKACCESS
               alternatives:
               - WALK_LOC
-              - WALK_LRF
-              - WALK_EXP
-              - WALK_HVY
+              - WALK_LR
+              - WALK_FRY
               - WALK_COM
             - name: DRIVEACCESS
               coefficient: coef_nest_TRANSIT_DRIVEACCESS

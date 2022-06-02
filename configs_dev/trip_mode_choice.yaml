@@ -40,9 +40,8 @@ NESTS:
               coefficient: coef_nest_TRANSIT_WALKACCESS
               alternatives:
               - WALK_LOC
-              - WALK_LRF
-              - WALK_EXP
-              - WALK_HVY
+              - WALK_LR
+              - WALK_FERRY
               - WALK_COM
             - name: DRIVEACCESS
               coefficient: coef_nest_TRANSIT_DRIVEACCESS
@@ -84,14 +83,13 @@ CONSTANTS:
     WALK: 7
     BIKE: 8
     WALK_LOC: 9
-    WALK_LRF: 10
-    WALK_EXP: 11
-    WALK_HVY: 12
-    WALK_COM: 13
-    DRIVE_TRN: 14
-    TAXI: 15
-    TNC_SINGLE: 16
-    TNC_SHARED: 17
+    WALK_LR: 10
+    WALK_FRY: 11
+    WALK_COM: 12
+    DRIVE_TRN: 13
+    TAXI: 14
+    TNC_SINGLE: 15
+    TNC_SHARED: 16
   I_SOV_MODES: [1, 2]
   I_SR2_MODES: [3, 4]
   I_SR3P_MODES: [5, 6]
