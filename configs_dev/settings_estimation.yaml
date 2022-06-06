@@ -1,7 +1,7 @@
 #inherit_settings: True
 
 # activitysim run -c configs -d data -o output
-
+#-c C:\Workspace\asim_run_inputs\psrc_estimation\configs_estimation\configs -c C:\Workspace\asim_run_inputs\psrc_estimation\configs -d C:\Workspace\asim_run_inputs\data_rtp_2018 -o C:\Workspace\asim_run_inputs\psrc_estimation\output
 
 # number of households to simulate
 #households_sample_size:  100
@@ -11,6 +11,7 @@
 #chunk_size: 
 #chunk_size: 123_000_000_000
 #chunk_training_mode: production
+
 # set false to disable variability check in simple_simulate and interaction_simulate
 check_for_variability: False
 
@@ -37,6 +38,20 @@ trace_hh_id: 559104
 
 # input tables
 input_table_list:
+  - tablename: accessibility
+    filename: accessibility.csv
+    index_col: zone_id
+    keep_columns:
+      - auPkRetail
+      - auPkTotal
+      - auOpRetail
+      - auOpTotal
+      - trPkRetail
+      - trPkTotal
+      - trOpRetail
+      - trOpTotal
+      - nmRetail
+      - nmTotal
   - tablename: households
     filename: households.csv
     index_col: household_id
@@ -53,6 +68,7 @@ input_table_list:
       - HHT
       - auto_ownership
       - num_workers
+      - hh_race
   - tablename: persons
     filename: persons.csv
     index_col: person_id
@@ -102,14 +118,15 @@ input_table_list:
       - density_index
       - buff_density_index
       - GSENROLL
+
 #      - access_dist_transit
 
 # to resume after last successful checkpoint, specify resume_after: _
-#resume_after: trip_purpose
+#resume_after: workplace_location
 
 models:
   - initialize_landuse
-  - compute_accessibility
+  #- compute_accessibility
   - initialize_households
   - school_location
   - workplace_location
