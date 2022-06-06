@@ -18,7 +18,7 @@ from activitysim.abm.models.util import canonical_ids as ci
 
 # Survey input files, in Daysim format
 survey_input_dir = r'R:\e2projects_two\SoundCast\Inputs\dev\base_year\2018\survey'
-output_dir = r'C:\Stefan\estimation'
+output_dir = r'C:\brice\estimation'
 
 # Example survey data for formatting template
 example_survey_dir = r'https://raw.githubusercontent.com/ActivitySim/activitysim/master/activitysim/examples/example_estimation/data_sf/survey_data/'
@@ -331,11 +331,10 @@ def process_trip(df, template):
 
     # all walk access assumed
     df.loc[df['pathtype']==3, 'trip_mode'] = 'WALK_LOC' # local bus, 
-    df.loc[df['pathtype']==4, 'trip_mode'] = 'WALK_HVY' # Assign light rail as heavy rail (no such thing as light rail in MTC TM1)
+    df.loc[df['pathtype']==4, 'trip_mode'] = 'WALK_LR' # light rail
+    df.loc[df['pathtype']==6, 'trip_mode'] = 'WALK_EXP'  # premium/express bus
     df.loc[df['pathtype']==6, 'trip_mode'] = 'WALK_COM'
-    # Fix me!!!
-    # NO FERRY MODE; use the EXP mode?
-    df.loc[df['pathtype']==7, 'trip_mode'] = 'WALK_EXP'  # No ferry mode...
+    df.loc[df['pathtype']==7, 'trip_mode'] = 'WALK_FRY'  
 
     # Fix me!!!
     # Drop the null trips (other and school bus) for now
@@ -450,11 +449,10 @@ def process_tour(df, df_person, parcel_block, template, zone_type, raw_survey=Tr
 
     # all walk access assumed
     df.loc[df['tpathtp']==3, 'tour_mode'] = 'WALK_LOC' # local bus, 
-    df.loc[df['tpathtp']==4, 'tour_mode'] = 'WALK_HVY' # Assign light rail as heavy rail (no such thing as light rail in MTC TM1)
-    df.loc[df['tpathtp']==6, 'tour_mode'] = 'WALK_COM'
-    # Fix me!!!
-    # NO FERRY MODE; use the EXP mode?
-    df.loc[df['tpathtp']==7, 'tour_mode'] = 'WALK_EXP'  # No ferry mode...
+    df.loc[df['tpathtp']==4, 'tour_mode'] = 'WALK_LR' # LIGHT RAIL
+    df.loc[df['tpathtp']==5, 'tour_mode'] = 'WALK_EXP' # EXPRESS/PREMIUM BUS 
+    df.loc[df['tpathtp']==6, 'tour_mode'] = 'WALK_COM' # COMMUTER RAIL
+    df.loc[df['tpathtp']==7, 'tour_mode'] = 'WALK_FRY'  # ferry
 
     # Fix me!!!
     # Drop the null trips (other and school bus) for now
@@ -568,7 +566,7 @@ results_dict = {}
 template_dict = {}
 
 # Note: trip and joint tour files not yet available for estimation; add to this list later
-for table in ['household','person','tour']:
+for table in ['household','person','tour','trip']:
     results_dict[table] = pd.read_csv(os.path.join(survey_input_dir,'_'+table+'.tsv'), delim_whitespace=True)
     template_dict[table] = pd.read_csv(os.path.join(example_survey_dir, 'survey_'+table+'s.csv'))
 
@@ -623,7 +621,7 @@ for zone_type in zone_type_list:
     # Trip
     ####################
     trip = process_trip(results_dict['trip'], template_dict['trip'])
-    trip[template_dict['trip'].columns].to_csv(os.path.join(output_dir,'survey_trips.csv'), index=False)
+    trip[template_dict['trip'].columns].to_csv(os.path.join(output_dir, zone_type,'survey_trips.csv'), index=False)
 
     
     ####################
