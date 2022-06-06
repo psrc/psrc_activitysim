@@ -68,7 +68,7 @@ input_table_list:
       - HHT
       - auto_ownership
       - num_workers
-      - hh_race
+      #- hh_race
   - tablename: persons
     filename: persons.csv
     index_col: person_id
