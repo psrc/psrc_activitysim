@@ -6,6 +6,21 @@ chunk_training_mode: disabled
 
 # input tables
 input_table_list:
+  # accessibility
+  - tablename: accessibility
+    filename: accessibility.csv
+    index_col: zone_id
+    keep_columns:
+      - auPkRetail
+      - auPkTotal
+      - auOpRetail
+      - auOpTotal
+      - trPkRetail
+      - trPkTotal
+      - trOpRetail
+      - trOpTotal
+      - nmRetail
+      - nmTotal
   #
   # households (table index 'household_id')
   #
@@ -87,7 +102,7 @@ want_dest_choice_sample_tables: False
 households_sample_size:  0
 
 # to resume after last successful checkpoint, specify resume_after: _
-resume_after: workplace_location
+#resume_after: workplace_location
 
 trace_hh_id:
 
@@ -107,7 +122,7 @@ output_tables:
 models:
   - initialize_landuse
   - initialize_households
-#  - compute_accessibility
+ # - compute_accessibility
   - school_location
   - workplace_location
   - auto_ownership_simulate
