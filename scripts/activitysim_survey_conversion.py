@@ -176,6 +176,7 @@ def process_person(df, parcel_block, df_tour, zone_type):
     df.loc[df['pptyp'] == 3, 'ptype'] = 5
     df.loc[df['pptyp'] == 5, 'ptype'] = 3
 
+
     # Free parking at work
     df.loc[df['ppaidprk'] == 1, 'free_parking_at_work'] = True
     df.loc[df['ppaidprk'] < 1, 'free_parking_at_work'] = False
@@ -289,8 +290,16 @@ def process_person(df, parcel_block, df_tour, zone_type):
     # Make sure pre-school age kids are not classified as a student in pemploy if they are not students
     df.loc[(df['age'] < 16) & (df['pstudent'] == 3), 'pemploy'] = 3
 
-    # If full-time student and full-time worker, change school status to part-time
-    df.loc[(df['pemploy'] == 1) & (df['pstudent'] == 1), 'pstudent'] = 2
+    # If full-time student and full-time worker, change school status and work status both to part-time
+    # also change the ptype field to be part time
+    #### FIXME: this is a functional change but I don't know if it's how we should represent students/workers
+    filter = ((df['pemploy'] == 1) & (df['pstudent'].isin([1,2])))
+    df.loc[filter, 'pstudent'] = 2
+    df.loc[filter, 'pemploy'] = 2
+    df.loc[filter, 'ptype'] = 2
+
+    # Some part-time workers are also getting coded as university studnets; set ptype as part-time worker
+    df.loc[(df['pstudent'] == 3) & (df['pemploy'] == 2), 'ptype'] = 2
 
     # If this person has no usual workplace and doesn't have work trips, remove this household from the dataset
     hh_list = []
@@ -453,9 +462,9 @@ def process_tour(df, df_person, parcel_block, template, zone_type, raw_survey=Tr
 
     # Set start hour to time within modeled hours 
     # Group anything from midnight to 5 together 
-    df.loc[(df['start'] < 5) & (df['end'] < 5), 'start'] = 4.0
-    df.loc[(df['start'] < 5) & (df['end'] < 5), 'end'] = 4.0
-    df.loc[(df['start'] < 5) & (df['end'] >= 5), 'start'] = 4.0
+    df.loc[(df['start'] <= 5) & (df['end'] <= 5), 'start'] = 5.0
+    df.loc[(df['start'] <= 5) & (df['end'] <= 5), 'end'] = 5.0
+    df.loc[(df['start'] <= 5) & (df['end'] >= 5), 'start'] = 5.0
     df.loc[(df['start'] > 5) & (df['end'] < 5), 'end'] = 23.0
 
     # assign some modes directly

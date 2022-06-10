@@ -43,13 +43,17 @@ survey_tables = {
     'joint_tour_participants': {
         'file_name': 'survey_joint_tour_participants.csv'
     },
+    'trips': {
+        'file_name': 'survey_trips.csv'
+    },
 }
 
 outputs = {
     'households': 'override_households.csv',
     'persons': 'override_persons.csv',
     'tours': 'override_tours.csv',
-    'joint_tour_participants': 'override_joint_tour_participants.csv'
+    'joint_tour_participants': 'override_joint_tour_participants.csv',
+    'trips': 'override_trips.csv'
 }
 
 control_tables = {
@@ -66,6 +70,9 @@ control_tables = {
     },
     'joint_tour_participants': {
         'file_name': 'final_joint_tour_participants.csv'
+    },
+    'trips': {
+        'file_name': 'final_trips.csv'
     },
 }
 apply_controls = False
@@ -514,8 +521,9 @@ def read_tables(input_dir, tables):
     persons = tables['persons'].get('table')
     tours = tables['tours'].get('table')
     joint_tour_participants = tables['joint_tour_participants'].get('table')
+    trips = tables['trips'].get('table')
 
-    return households, persons, tours, joint_tour_participants
+    return households, persons, tours, joint_tour_participants, trips
 
 
 def check_controls(table_name, column_name):
@@ -543,7 +551,7 @@ def check_controls(table_name, column_name):
 
 def infer(configs_dir, input_dir, output_dir):
 
-    households, persons, tours, joint_tour_participants = read_tables(input_dir, survey_tables)
+    households, persons, tours, joint_tour_participants, trips = read_tables(input_dir, survey_tables)
 
     # be explicit about all tour_ids to avoid confusion between asim and survey ids
     tours = tours.rename(columns={'tour_id': SURVEY_TOUR_ID, 'parent_tour_id': SURVEY_PARENT_TOUR_ID})
@@ -600,6 +608,9 @@ def infer(configs_dir, input_dir, output_dir):
     persons.to_csv(os.path.join(output_dir, outputs['persons']), index=True)
     tours.to_csv(os.path.join(output_dir, outputs['tours']), index=False)
     joint_tour_participants.to_csv(os.path.join(output_dir, outputs['joint_tour_participants']), index=False)
+    trips.to_csv(os.path.join(output_dir, outputs['trips']), index=False)
+    # Copy trip file
+
 
 
 # python infer.py data
@@ -620,3 +631,6 @@ if apply_controls:
     read_tables(input_dir, control_tables)
 
 infer(configs_dir, input_dir, output_dir)
+
+
+# Do some additional cleaning!
