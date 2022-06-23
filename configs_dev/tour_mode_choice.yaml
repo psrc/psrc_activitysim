@@ -8,21 +8,9 @@ NESTS:
       - name: AUTO
         coefficient: coef_nest_AUTO
         alternatives:
-            - name: DRIVEALONE
-              coefficient: coef_nest_AUTO_DRIVEALONE
-              alternatives:
-                - DRIVEALONEFREE
-                - DRIVEALONEPAY
-            - name: SHAREDRIDE2
-              coefficient: coef_nest_AUTO_SHAREDRIDE2
-              alternatives:
-                - SHARED2FREE
-                - SHARED2PAY
-            - name: SHAREDRIDE3
-              coefficient: coef_nest_AUTO_SHAREDRIDE3
-              alternatives:
-                - SHARED3FREE
-                - SHARED3PAY
+          - DRIVEALONEFREE
+          - SHARED2FREE
+          - SHARED3FREE
       - name: NONMOTORIZED
         coefficient: coef_nest_NONMOTORIZED
         alternatives:
@@ -45,9 +33,8 @@ NESTS:
       - name: RIDEHAIL
         coefficient: coef_nest_RIDEHAIL
         alternatives:
-          - TAXI
           - TNC_SINGLE
-          - TNC_SHARED
+     
 
 SPEC: tour_mode_choice.csv
 COEFFICIENTS: tour_mode_choice_coeffs.csv
