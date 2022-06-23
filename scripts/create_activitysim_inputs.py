@@ -13,7 +13,7 @@ seed_person_file = r'R:\e2projects_two\SyntheticPopulation_2018\keep\2018\popula
 parcel_block_file = r'R:\e2projects_two\activitysim\conversion\geographic_crosswalks\parcel_taz_block_lookup.csv'
 #raw_parcel_file = r'R:\e2projects_two\SoundCast\Inputs\dev\landuse\2018\new_emp\parcels_urbansim.txt'
 #buffered_parcel_path = r'R:\e2projects_two\activitysim\conversion\land_use\buffered_parcels.csv'
-buffered_parcel_path = r'\\modelstation2\c$\Workspace\sc_2018_rtp_final\soundcast\outputs\landuse\buffered_parcels.txt'
+buffered_parcel_path = r'L:\RTP_2022\final_runs\sc_rtp_2018_final\soundcast\outputs\landuse\buffered_parcels.txt'
 #\\modelstation2\c$\Workspace\sc_2018_rtp_final\soundcast\outputs\landuse
 
 #parcels_file = 
@@ -38,6 +38,7 @@ use_buffered_parcels = True
 
 lu_aggregate_dict = {'hh_p': 'sum',
                           'emptot_p': 'sum',
+                          'stugrd_p': 'sum',
                           'stuhgh_p': 'sum', 
                           'stuuni_p': 'sum',
                           'empedu_p': 'sum', # educational: health, education, and recreational
@@ -570,6 +571,7 @@ def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict)
 
     df_lu.rename(columns={'hh_p': 'TOTHH',
                           'emptot_p': 'TOTEMP',
+                          'stugrd_p': 'GSENROLL',
                           'stuhgh_p': 'HSENROLL', 
                           'stuuni_p': 'COLLFTE',
                           'empedu_p': 'HEREMPN', # educational: health, education, and recreational
@@ -702,6 +704,16 @@ def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict)
     df = df/8
     df = pd.DataFrame(df,columns=['OPRKCST']).reset_index().fillna(0)
 
+    # Distance to transit
+    # Get closest for now
+    
+    df = df_parcel.groupby(zone_type)['raw_dist_transit'].mean()
+    df.reset_index(inplace=True)
+
+    # recode greater than 5 miles to 0, which means no access to transit in ActivitySim
+    df['access_dist_transit'] = np.where(df['access_dist_transit']>5,0,df['access_dist_transit'])
+    df = df[[zone_type, 'access_dist_transit']]
+
     df_lu = df_lu.merge(df, on=zone_type, how='left')
 
     df_lu["density"] = (df_lu.TOTPOP + (2.5 * df_lu.TOTEMP)) / df_lu.TOTACRE
@@ -760,7 +772,7 @@ def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict)
     total = df_lu['sfunits'] + df_lu['mfunits']
     df_lu['percent_mf'] = np.where(total > 0, df_lu['mfunits']/total, 0)
     
-
+    
 
     for col in df_mtc_lu.columns:
         if col not in df_lu.columns:
@@ -769,9 +781,8 @@ def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict)
     df_lu['TAZ'] = df_lu['taz']
     df_lu['zone_id'] = df_lu['taz']
 
-
     if zone_type == 'MAZ':
-        additional_cols = ['MAZ', 'transit_score', 'transit_score_scaled', 'sfunits', 'mfunits', 'percent_mf', 'mixed_use2_1', 'density_index', 'buff_density_index', 'density', 'mixed_use3_1',  'hh_1', 'emptot_1',  'hh_2', 'emptot_2']
+        additional_cols = ['MAZ', 'GSENROLL', 'transit_score', 'transit_score_scaled', 'sfunits', 'mfunits', 'percent_mf', 'mixed_use2_1', 'density_index', 'buff_density_index', 'density', 'mixed_use3_1',  'hh_1', 'emptot_1',  'hh_2', 'emptot_2', 'access_dist_transit']
         # create the MAZ and TAZ lookup files
         df_lu[['MAZ','TAZ']] = df_lu[['MAZ','TAZ']].astype('int')
         df_lu[['MAZ','TAZ']].to_csv(os.path.join(output_dir,zone_type,'maz.csv'), index=False)
@@ -780,10 +791,12 @@ def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict)
     else:
         additional_cols = []
     # Do some other clean up
-    cols = ['AGE0004','AGE0519','AGE2044','AGE4564','AGE65P','HHINCQ1','HHINCQ2','HHINCQ3','HHINCQ4','HHPOP','TOTPOP', 'transit_score', 'transit_score_scaled']
+    cols = ['AGE0004','AGE0519','AGE2044','AGE4564','AGE65P','HHINCQ1','HHINCQ2','HHINCQ3','HHINCQ4','HHPOP','TOTPOP', 'transit_score', 'transit_score_scaled', 'access_dist_transit']
     df_lu[cols] = df_lu[cols].fillna(0)
     df_lu[cols] = df_lu[cols].replace(-1,0)
     df_lu_out = write_csv(df_lu, df_mtc_lu, os.path.join(output_dir,zone_type), 'land_use.csv', additional_cols=additional_cols)
+
+    
 
     return df_lu
 
