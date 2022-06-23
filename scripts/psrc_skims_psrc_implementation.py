@@ -1,58 +1,29 @@
+import array as _array
+import time
+import inro.emme.desktop.app as app
+import inro.modeller as _m
+import inro.emme.matrix as ematrix
+import inro.emme.database.matrix
+import inro.emme.database.emmebank as _eb
 import pandas as pd
 import numpy as np
 import h5py
 import openmatrix as omx
 import json
 import os
+from EmmeProject import *
 
-# Get a list of MTC skims to make sure we create all of them
-mtc_skim_path = r"\\modelstation3\c$\Workspace\activitysim\activitysim\examples\example_psrc\skims.omx"
-mtc_omx = omx.open_file(mtc_skim_path)
-mtc_skim_list = mtc_omx.list_matrices()
-mtc_omx.close()
+def get_trn_sub_component_skim(condition, my_project, sub_component_name):
+    bus = emmeMatrix_to_numpyMatrix(sub_component_name + 'a', my_project.bank, 'float32')
 
-# Park and Ride skim path
-p_r_skims_path = r'C:\Workspace\sc_park_and_ride\soundcast\pnr_skims.h5'
+    rail = emmeMatrix_to_numpyMatrix(sub_component_name + 'r', my_project.bank, 'float32')
 
-# Bike and walk skims
-mtc_skims = h5py.File(
-    r"R:\e2projects_two\activitysim\inputs\data\psrc\skims\old\skims.omx"
-)
+    ferry = emmeMatrix_to_numpyMatrix(sub_component_name + 'f', my_project.bank, 'float32')
 
-# Bike and walk skims
-myh5 = h5py.File(
-    r"L:\RTP_2022\final_runs\sc_rtp_2018_final\soundcast\inputs\model\roster\5to6.h5"
-)
+    p_ferry = emmeMatrix_to_numpyMatrix(sub_component_name + 'f', my_project.bank, 'float32')
 
-results_dict = {}
-matrix_size = len(myh5["Skims"]["sov_inc2t"])
+    commuter_rail = emmeMatrix_to_numpyMatrix(sub_component_name + 'c', my_project.bank, 'float32')
 
-
-results_dict["DISTBIKE"] = (
-    myh5["Skims"]["biket"][:matrix_size, :matrix_size] * (10.0 / 60.0) / 100
-)  # Assuming 10 mph bike speed
-results_dict["DISTWALK"] = (
-    myh5["Skims"]["walkt"][:matrix_size, :matrix_size] * (3.0 / 60.0) / 100
-)  # Assuming 3 mph bike speed
-
-
-
-
-def get_trn_sub_component_skim(condition, h5_file, sub_component_name):
-
-    bus = myh5["Skims"][sub_component_name + "a"][:matrix_size, :matrix_size]
-
-    rail = myh5["Skims"][sub_component_name + "r"][:matrix_size, :matrix_size]
-
-    ferry = myh5["Skims"][sub_component_name + "f"][:matrix_size, :matrix_size]
-
-    p_ferry = myh5["Skims"][sub_component_name + "p"][:matrix_size, :matrix_size]
-
-    commuter_rail = myh5["Skims"][sub_component_name + "c"][:matrix_size, :matrix_size]
-
-    # arr = arr = np.array((bus, rail, ferry, p_ferry, commuter_rail))
-
-    # condition = arr==arr.min(axis=0)
     condition[1] = np.where(condition[0] == True, False, condition[1])
     condition[2] = np.where((condition[0] + condition[1]), False, condition[2])
     condition[3] = np.where(
@@ -72,52 +43,73 @@ def get_trn_sub_component_skim(condition, h5_file, sub_component_name):
     skim = skim.reshape([matrix_size, matrix_size])
     return skim
 
-myh5 = h5py.File(r'L:\RTP_2022\final_runs\sc_rtp_2018_final\soundcast\inputs\model\roster\6to7.h5')
+def emmeMatrix_to_numpyMatrix(matrix_name, emmebank, np_data_type, multiplier=1, max_value = None):
+    matrix_id = emmebank.matrix(matrix_name).id
+    emme_matrix = emmebank.matrix(matrix_id)
+    matrix_data = emme_matrix.get_data()
+    np_matrix = np.matrix(matrix_data.raw_data) 
+    np_matrix = np_matrix * multiplier
+    
+    if np_data_type == 'uint16':
+        max_value = np.iinfo(np_data_type).max
+        np_matrix = np.where(np_matrix > max_value, max_value, np_matrix)
+    
+    if np_data_type != 'float32':
+        np_matrix = np.where(np_matrix > np.iinfo(np_data_type).max, np.iinfo(np_data_type).max, np_matrix)
+
+    return np_matrix
+
+results_dict = {}
+#matrix_size = len(myh5["Skims"]["sov_inc2t"])
+my_project = EmmeProject('C:/Workspace/sc_park_and_ride2/soundcast/projects/LoadTripTables/LoadTripTables.emp')
+
+# Bike and walk skims
+my_project.change_active_database('5to6')
+
+# Assuming 10 mph bike speed
+results_dict["DISTBIKE"] = (emmeMatrix_to_numpyMatrix('walkt', my_project.bank, 'float32') * (10.0 / 60.0))
+  
+# Assuming 3 mph bike speed
+results_dict["DISTWALK"] = (emmeMatrix_to_numpyMatrix('walkt', my_project.bank, 'float32') * (3.0 / 60.0))  
+
+
+# Transit fares
+my_project.change_active_database('6to7')
+
 for tod in ["AM", "MD", "PM", "EV", "EA"]:
-    results_dict["WLK_TRN_DRV_FAR__" + tod] = myh5["Skims"][
-            "mfafarbx"
-        ][:matrix_size, :matrix_size]
-    for mtc_mode in ["COM", "EXP", "HVY", "LOC", "LRF"]:
+    results_dict["WLK_TRN_DRV_FAR__" + tod] = emmeMatrix_to_numpyMatrix('mfafarbx', my_project.bank, 'float32')
+    results_dict["DRV_TRN_WLK_FAR__" + tod] = emmeMatrix_to_numpyMatrix('mfafarbx', my_project.bank, 'float32')
+    for mtc_mode in ["COM", "FRY", "HVY", "LOC", "LR"]:
         # Fare
         # Using AM fares for all time periods for now
-        results_dict["WLK_" + mtc_mode + "_WLK_FAR__" + tod] = myh5["Skims"][
-            "mfafarbx"
-        ][:matrix_size, :matrix_size]
+        results_dict["WLK_" + mtc_mode + "_WLK_FAR__" + tod] = emmeMatrix_to_numpyMatrix('mfafarbx', my_project.bank, 'float32')
         
         
 
-
-myh5 = h5py.File(
-    r"L:\RTP_2022\final_runs\sc_rtp_2018_final\soundcast\inputs\model\roster\7to8.h5"
-)
+# Distance Skims:
+my_project.change_active_database('7to8')
 # Looks like DIST is some auto distance averaged over different time periods, use AM for now.
-results_dict["DIST"] = (
-    myh5["Skims"]["sov_inc2d"][:matrix_size, :matrix_size] / 100
-)  # Assuming 3 mph walk speed
+results_dict["DIST"] = emmeMatrix_to_numpyMatrix('sov_inc2d', my_project.bank, 'float32')  
 
+#fix later
+matrix_size = len(results_dict['DISTBIKE'])
 zero_array = np.zeros((matrix_size, matrix_size))
+
 # Vehicle matrices
 #### DISTANCE ####
 # Distance is only skimmed for once (7to8); apply to all TOD periods
 for tod in ["AM", "MD", "PM", "EV", "EA"]:  # EA=early AM
-    results_dict["SOV_DIST__" + tod] = (
-        myh5["Skims"]["sov_inc2d"][:matrix_size, :matrix_size] / 100
-    )
-    results_dict["HOV2_DIST__" + tod] = (
-        myh5["Skims"]["hov2_inc2d"][:matrix_size, :matrix_size] / 100
-    )
-    results_dict["HOV3_DIST__" + tod] = (
-        myh5["Skims"]["hov3_inc2d"][:matrix_size, :matrix_size] / 100
-    )
-    results_dict["SOVTOLL_DIST__" + tod] = (
-        myh5["Skims"]["sov_inc2d"][:matrix_size, :matrix_size] / 100
-    )
-    results_dict["HOV2TOLL_DIST__" + tod] = (
-        myh5["Skims"]["hov2_inc2d"][:matrix_size, :matrix_size] / 100
-    )
-    results_dict["HOV3TOLL_DIST__" + tod] = (
-        myh5["Skims"]["hov3_inc2d"][:matrix_size, :matrix_size] / 100
-    )
+    results_dict["SOV_DIST__" + tod] = emmeMatrix_to_numpyMatrix('sov_inc2d', my_project.bank, 'float32')
+    
+    results_dict["HOV2_DIST__" + tod] = emmeMatrix_to_numpyMatrix('hov2_inc2d', my_project.bank, 'float32')
+
+    results_dict["HOV3_DIST__" + tod] = emmeMatrix_to_numpyMatrix('hov3_inc2d', my_project.bank, 'float32')
+
+    results_dict["SOVTOLL_DIST__" + tod] = emmeMatrix_to_numpyMatrix('sov_inc2d', my_project.bank, 'float32')
+
+    results_dict["HOV2TOLL_DIST__" + tod] = emmeMatrix_to_numpyMatrix('hov2_inc2d', my_project.bank, 'float32')
+
+    results_dict["HOV3TOLL_DIST__" + tod] = emmeMatrix_to_numpyMatrix('hov3_inc2d', my_project.bank, 'float32')
 
     # Cost
     # BTOLL is bridge toll
@@ -129,256 +121,140 @@ for tod in ["AM", "MD", "PM", "EV", "EA"]:  # EA=early AM
     results_dict["HOV2TOLL_BTOLL__" + tod] = zero_array
     results_dict["HOV3TOLL_BTOLL__" + tod] = zero_array
 
-
-
 time_dict = {"AM": "7to8", "MD": "10to14", "PM": "17to18", "EV": "18to20", "EA": "5to6"}
 
-
-# Averages taken from daysim outputs (see below)
-# need to actually model this
-access_dist = {
-    "COM": 6.561,
-    "EXP": 6.948,
-    "HVY": 9.31,
-    "LOC": 7.69,
-    "LRF": 7.6803,
-    "TRN": 9.31,
-}
-access_time = {
-    "COM": 16.195,
-    "EXP": 16.71,
-    "HVY": 20.66,
-    "LOC": 17.759,
-    "LRF": 15.892,
-    "TRN": 20.66,
-}
-
-egress_dist = {
-    "COM": 6.338,
-    "EXP": 6.71,
-    "HVY": 9.04,
-    "LOC": 7.41,
-    "LRF": 7.321,
-    "TRN": 9.04,
-}
-egress_time = {
-    "COM": 15.93,
-    "EXP": 15.936,
-    "HVY": 20.08,
-    "LOC": 17.479,
-    "LRF": 15.325,
-    "TRN": 20.08,
-}
 
 for tod, hour in time_dict.items():
     print(tod)
     print(hour)
-    myh5 = h5py.File(
-        os.path.join(
-            r"L:\RTP_2022\final_runs\sc_rtp_2018_final\soundcast\inputs\model\roster",
-            hour + ".h5",
-        )
-    )
+    my_project.change_active_database(hour)
 
     # Auto Time
-    results_dict["SOV_TIME__" + tod] = (
-        myh5["Skims"]["sov_inc2t"][:matrix_size, :matrix_size] / 100
-    )
-    results_dict["HOV2_TIME__" + tod] = (
-        myh5["Skims"]["hov2_inc2t"][:matrix_size, :matrix_size] / 100
-    )
-    results_dict["HOV3_TIME__" + tod] = (
-        myh5["Skims"]["hov3_inc2t"][:matrix_size, :matrix_size] / 100
-    )
-    results_dict["SOVTOLL_TIME__" + tod] = (
-        myh5["Skims"]["sov_inc2t"][:matrix_size, :matrix_size] / 100
-    )
-    results_dict["HOV2TOLL_TIME__" + tod] = (
-        myh5["Skims"]["hov2_inc2t"][:matrix_size, :matrix_size] / 100
-    )
-    results_dict["HOV3TOLL_TIME__" + tod] = (
-        myh5["Skims"]["hov3_inc2t"][:matrix_size, :matrix_size] / 100
-    )
+    results_dict["SOV_TIME__" + tod] = emmeMatrix_to_numpyMatrix('sov_inc2t', my_project.bank, 'float32')
 
-    results_dict["SOVTOLL_VTOLL__" + tod] = (
-        myh5["Skims"]["sov_inc2c"][:matrix_size, :matrix_size] / 100
-    )
-    results_dict["HOV2TOLL_VTOLL__" + tod] = (
-        myh5["Skims"]["hov2_inc2c"][:matrix_size, :matrix_size] / 100
-    )
-    results_dict["HOV3TOLL_VTOLL__" + tod] = (
-        myh5["Skims"]["hov3_inc2c"][:matrix_size, :matrix_size] / 100
-    )
+    results_dict["HOV2_TIME__" + tod] = emmeMatrix_to_numpyMatrix('hov2_inc2t', my_project.bank, 'float32')
 
-    submode_dict = {"COM": "c", "EXP": "p", "HVY": "r", "LOC": "a", "LRF": "f"}
+    results_dict["HOV3_TIME__" + tod] = emmeMatrix_to_numpyMatrix('hov3_inc2t', my_project.bank, 'float32')
 
-    # TRN mode, which we think is all transit:
-    bus_time = (
-        myh5["Skims"]["auxwa"][:matrix_size, :matrix_size]
-        + myh5["Skims"]["twtwa"][:matrix_size, :matrix_size]
-        + myh5["Skims"]["ivtwa"][:matrix_size, :matrix_size]
-    )
+    results_dict["SOVTOLL_TIME__" + tod] = emmeMatrix_to_numpyMatrix('sov_inc2t', my_project.bank, 'float32')
 
-    rail_time = (
-        myh5["Skims"]["auxwr"][:matrix_size, :matrix_size]
-        + myh5["Skims"]["twtwr"][:matrix_size, :matrix_size]
-        + myh5["Skims"]["ivtwr"][:matrix_size, :matrix_size]
-    )
+    results_dict["HOV2TOLL_TIME__" + tod] = emmeMatrix_to_numpyMatrix('hov2_inc2t', my_project.bank, 'float32')
 
-    ferry_time = (
-        myh5["Skims"]["auxwf"][:matrix_size, :matrix_size]
-        + myh5["Skims"]["twtwf"][:matrix_size, :matrix_size]
-        + myh5["Skims"]["ivtwf"][:matrix_size, :matrix_size]
-    )
+    results_dict["HOV3TOLL_TIME__" + tod] = emmeMatrix_to_numpyMatrix('hov3_inc2t', my_project.bank, 'float32')
 
-    p_ferry_time = (
-        myh5["Skims"]["auxwp"][:matrix_size, :matrix_size]
-        + myh5["Skims"]["twtwp"][:matrix_size, :matrix_size]
-        + myh5["Skims"]["ivtwp"][:matrix_size, :matrix_size]
-    )
+    results_dict["SOVTOLL_VTOLL__" + tod] = emmeMatrix_to_numpyMatrix('sov_inc2c', my_project.bank, 'float32')
 
-    commuter_rail_time = (
-        myh5["Skims"]["auxwc"][:matrix_size, :matrix_size]
-        + myh5["Skims"]["twtwc"][:matrix_size, :matrix_size]
-        + myh5["Skims"]["ivtwc"][:matrix_size, :matrix_size]
-    )
+    results_dict["HOV2TOLL_VTOLL__" + tod] = emmeMatrix_to_numpyMatrix('hov2_inc2c', my_project.bank, 'float32')
+    
+    results_dict["HOV3TOLL_VTOLL__" + tod] = emmeMatrix_to_numpyMatrix('hov3_inc2c', my_project.bank, 'float32')
 
-    arr = np.array((bus_time, rail_time, ferry_time, p_ferry_time, commuter_rail_time))
-    skim_index = arr == arr.min(axis=0)
+    submode_dict = {"COM": "c", "LR": "r", "LOC": "a", "FRY": "f"}
 
-    # we dont break walks skims out for access, egress and transfer.
-    # used in accessbility and combined so hopefully not a big
-    # deal if we leave the transfer 0 for now.
-    transit_walk = get_trn_sub_component_skim(skim_index, myh5, "auxw")
-    results_dict["WLK_TRN_WLK_WAUX__" + tod] = transit_walk * 0
-    results_dict["WLK_TRN_WLK_WACC__" + tod] = transit_walk / 2
-    results_dict["WLK_TRN_WLK_WEGR__" + tod] = transit_walk / 2
-    # Initial Wait Time
-    results_dict["WLK_TRN_WLK_IWAIT__" + tod] = get_trn_sub_component_skim(
-        skim_index, myh5, "iwtw"
-    )
-    # Transfer Wait Time
-    results_dict["WLK_TRN_WLK_XWAIT__" + tod] = get_trn_sub_component_skim(
-        skim_index, myh5, "xfrw"
-    )
-    # Total Wait Time
-    results_dict["WLK_TRN_WLK_WAIT__" + tod] = get_trn_sub_component_skim(
-        skim_index, myh5, "twtw"
-    )
-    # In vehicle time for Walk access/egress
-    results_dict["WLK_TRN_WLK_IVT__" + tod] = get_trn_sub_component_skim(
-        skim_index, myh5, "ivtw"
-    )
+    ## TRN mode, which we think is all transit:
+    #bus_time = (
+    #    emmeMatrix_to_numpyMatrix('auxwa', my_project.bank, 'float32') +
+    #    emmeMatrix_to_numpyMatrix('twtwa', my_project.bank, 'float32') +
+    #    emmeMatrix_to_numpyMatrix('ivtwa', my_project.bank, 'float32')
+    #    )
+
+    #rail_time = (
+    #    emmeMatrix_to_numpyMatrix('auxwr', my_project.bank, 'float32') +
+    #    emmeMatrix_to_numpyMatrix('twtwr', my_project.bank, 'float32') +
+    #    emmeMatrix_to_numpyMatrix('ivtwr', my_project.bank, 'float32')
+    #    )
+    
+    #ferry_time = (
+    #    emmeMatrix_to_numpyMatrix('auxwf', my_project.bank, 'float32') +
+    #    emmeMatrix_to_numpyMatrix('twtwf', my_project.bank, 'float32') +
+    #    emmeMatrix_to_numpyMatrix('ivtwf', my_project.bank, 'float32')
+    #    )
+
+    #p_ferry_time = (
+    #    emmeMatrix_to_numpyMatrix('auxwp', my_project.bank, 'float32') +
+    #    emmeMatrix_to_numpyMatrix('twtwp', my_project.bank, 'float32') +
+    #    emmeMatrix_to_numpyMatrix('ivtwp', my_project.bank, 'float32')
+    #    )
+
+    #commuter_rail_time = (
+    #    emmeMatrix_to_numpyMatrix('auxwc', my_project.bank, 'float32') +
+    #    emmeMatrix_to_numpyMatrix('twtwc', my_project.bank, 'float32') +
+    #    emmeMatrix_to_numpyMatrix('ivtwc', my_project.bank, 'float32')
+    #    )
+
+    #arr = np.array((bus_time, rail_time, ferry_time, p_ferry_time, commuter_rail_time))
+    #skim_index = arr == arr.min(axis=0)
+
+    ## we dont break walks skims out for access, egress and transfer.
+    ## used in accessbility and combined so hopefully not a big
+    ## deal if we leave the transfer 0 for now.
+    #transit_walk = get_trn_sub_component_skim(skim_index, my_project, "auxw")
+    #results_dict["WLK_TRN_WLK_WAUX__" + tod] = transit_walk * 0
+    #results_dict["WLK_TRN_WLK_WACC__" + tod] = transit_walk / 2
+    #results_dict["WLK_TRN_WLK_WEGR__" + tod] = transit_walk / 2
+    ## Initial Wait Time
+    #results_dict["WLK_TRN_WLK_IWAIT__" + tod] = get_trn_sub_component_skim(
+    #    skim_index, my_project, "iwtw"
+    #)
+    ## Transfer Wait Time
+    #results_dict["WLK_TRN_WLK_XWAIT__" + tod] = get_trn_sub_component_skim(
+    #    skim_index, my_project, "xfrw"
+    #)
+    ## Total Wait Time
+    #results_dict["WLK_TRN_WLK_WAIT__" + tod] = get_trn_sub_component_skim(
+    #    skim_index, my_project, "twtw"
+    #)
+    ## In vehicle time for Walk access/egress
+    #results_dict["WLK_TRN_WLK_IVT__" + tod] = get_trn_sub_component_skim(
+    #    skim_index, my_project, "ivtw"
+    #)
 
     for mtc_mode, psrc_mode in submode_dict.items():
         print(mtc_mode)
         # if mtc_mode == 'LOC':
         # Walk Access Time
-        results_dict["WLK_" + mtc_mode + "_WLK_WAUX__" + tod] = myh5["Skims"][
-            "auxw" + psrc_mode
-        ][:matrix_size, :matrix_size]
-        
-        results_dict["DRV_" + mtc_mode + "_WLK_WAUX__" + tod] = myh5["Skims"][
-            "auxw" + psrc_mode
-        ][:matrix_size, :matrix_size]
+        results_dict["WLK_" + mtc_mode + "_WLK_WAUX__" + tod] = emmeMatrix_to_numpyMatrix('auxw' + psrc_mode, my_project.bank, 'float32')
 
         # Initial Wait Time
-        results_dict["WLK_" + mtc_mode + "_WLK_IWAIT__" + tod] = myh5["Skims"][
-            "iwtw" + psrc_mode
-        ][:matrix_size, :matrix_size]
-        
-        
+        results_dict["WLK_" + mtc_mode + "_WLK_IWAIT__" + tod] = emmeMatrix_to_numpyMatrix('iwtw' + psrc_mode, my_project.bank, 'float32')
 
         # Total Wait Time
-        results_dict["WLK_" + mtc_mode + "_WLK_WAIT__" + tod] = myh5["Skims"][
-            "twtw" + psrc_mode
-        ][:matrix_size, :matrix_size]
-        
+        results_dict["WLK_" + mtc_mode + "_WLK_WAIT__" + tod] = emmeMatrix_to_numpyMatrix('twtw' + psrc_mode, my_project.bank, 'float32')
 
         # In vehicle time for Walk access/egress
-        results_dict["WLK_" + mtc_mode + "_WLK_TOTIVT__" + tod] = myh5["Skims"][
-            "ivtw" + psrc_mode
-        ][:matrix_size, :matrix_size]
-        
-        results_dict["DRV_" + mtc_mode + "_WLK_TOTIVT__" + tod] = myh5["Skims"][
-            "ivtw" + psrc_mode
-        ][:matrix_size, :matrix_size]
-
-        # Not using TRN- will set all to 0 later in code
-        # if mtc_mode == 'TRN':
-        #    # find least
-        #    results_dict['WLK_'+mtc_mode+'_WLK_IVT__'+tod] = myh5['Skims']['ivtw'+ psrc_mode + psrc_mode][:matrix_size,:matrix_size]
-        #    results_dict['WLK_'+mtc_mode+'_WLK_WACC__'+tod] = myh5['Skims']['ivtw'+ psrc_mode + psrc_mode][:matrix_size,:matrix_size]
-        #    results_dict['WLK_'+mtc_mode+'_WLK_WEGR__'+tod] = myh5['Skims']['ivtw'+ psrc_mode + psrc_mode][:matrix_size,:matrix_size]
+        results_dict["WLK_" + mtc_mode + "_WLK_TOTIVT__" + tod] = emmeMatrix_to_numpyMatrix('ivtw' + psrc_mode, my_project.bank, 'float32')
 
         if not mtc_mode == "LOC":
-            results_dict["WLK_" + mtc_mode + "_WLK_KEYIVT__" + tod] = myh5["Skims"][
-                "ivtw" + psrc_mode + psrc_mode
-            ][:matrix_size, :matrix_size]
-            results_dict["DRV_" + mtc_mode + "_WLK_KEYIVT__" + tod] = myh5["Skims"][
-                "ivtw" + psrc_mode + psrc_mode
-            ][:matrix_size, :matrix_size]
-            
+            results_dict["WLK_" + mtc_mode + "_WLK_KEYIVT__" + tod] = emmeMatrix_to_numpyMatrix('ivtw' + psrc_mode + psrc_mode, my_project.bank, 'float32')
+
             if mtc_mode == "LRF":
-                results_dict["WLK_" + mtc_mode + "_WLK_FERRYIVT__" + tod] = myh5[
-                    "Skims"
-                ]["ivtw" + psrc_mode + psrc_mode][:matrix_size, :matrix_size]
-                results_dict["DRV_LRF_WLK_FERRYIVT__" + tod] = myh5["Skims"][
-                    "ivtw" + psrc_mode + psrc_mode
-                ][:matrix_size, :matrix_size]
+                results_dict["WLK_" + mtc_mode + "_WLK_FERRYIVT__" + tod] = emmeMatrix_to_numpyMatrix('ivtw' + psrc_mode + psrc_mode, my_project.bank, 'float32') 
+
                 
 
             # Transfer Time
-        results_dict["WLK_" + mtc_mode + "_WLK_XWAIT__" + tod] = myh5["Skims"][
-            "xfrw" + psrc_mode
-        ][:matrix_size, :matrix_size]
-        
-        results_dict["DRV_" + mtc_mode + "_WLK_XWAIT__" + tod] = myh5["Skims"][
-            "xfrw" + psrc_mode
-        ][:matrix_size, :matrix_size]
+        results_dict["WLK_" + mtc_mode + "_WLK_XWAIT__" + tod] = emmeMatrix_to_numpyMatrix('xfrw' + psrc_mode, my_project.bank, 'float32') 
 
         # Boardings
-        results_dict["WLK_" + mtc_mode + "_WLK_BOARDS__" + tod] = myh5["Skims"][
-            "ndbw" + psrc_mode
-        ][:matrix_size, :matrix_size]
+        results_dict["WLK_" + mtc_mode + "_WLK_BOARDS__" + tod] = emmeMatrix_to_numpyMatrix('ndbw' + psrc_mode, my_project.bank, 'float32')
         
-        results_dict["DRV_" + mtc_mode + "_WLK_BOARDS__" + tod] = myh5["Skims"][
-            "ndbw" + psrc_mode
-        ][:matrix_size, :matrix_size]
+    
 
         
 ####################
 # Drive to Transit #
 ####################
-
-myh5 = h5py.File(p_r_skims_path)
+pnr_skims_path = r'C:\Workspace\sc_park_and_ride\soundcast\pnr_skims.h5'
+myh5 = h5py.File(pnr_skims_path)
 for skim_name in myh5['Skims'].keys():
+    print (skim_name)
     results_dict[skim_name] = myh5["Skims"][skim_name][:matrix_size, :matrix_size]
-
-
-# See if any are mising
-missing = [
-    matrix_name
-    for matrix_name in results_dict.keys()
-    if matrix_name not in mtc_skim_list
-]
-extra_psrc_skims = [matrix_name for matrix_name in missing if "AM" in matrix_name]
-with open(r"C:\Workspace\extra_psrc.yaml", "w") as outfile:
-    json.dump(extra_psrc_skims, outfile)
-
-missing = [
-    matrix_name
-    for matrix_name in mtc_skim_list
-    if matrix_name not in results_dict.keys()
-]
-extra_mtc_skims = [matrix_name for matrix_name in missing if "AM" in matrix_name]
-with open(r"C:\Workspace\extra_mtc.yaml", "w") as outfile:
-    json.dump(extra_mtc_skims, outfile)
 
 
 f = omx.open_file(r"C:\Workspace\new2.omx", "w")
 
 for skim_matrix in results_dict.keys():
     print(skim_matrix)
+    #statsDict= {attr:getattr(skim_matrix,attr)() for attr in ['min', 'max','mean','std']}
     f[skim_matrix] = results_dict[skim_matrix]
 f.close()
+myh5.close()
