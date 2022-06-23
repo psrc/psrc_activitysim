@@ -22,7 +22,7 @@ strict_filter = True
 
 # Survey input files, in Daysim format
 survey_input_dir = r'R:\e2projects_two\SoundCast\Inputs\dev\base_year\2018\survey'
-output_dir = r'C:\brice\estimation'
+output_dir = r'C:\Stefan\data_full\survey_data'
 
 # Example survey data for formatting template
 example_survey_dir = r'https://raw.githubusercontent.com/ActivitySim/activitysim/master/activitysim/examples/example_estimation/data_sf/survey_data/'
@@ -348,7 +348,7 @@ def process_trip(df, template):
     mode_map = {
         1: 'WALK',
         2: 'BIKE',
-        3: 'DRIVEALONEPAY',
+        3: 'DRIVEALONEFREE',
         4: 'SHARED2FREE',
         5: 'SHARED3FREE',
         10: 'TNC_SINGLE'
@@ -471,7 +471,7 @@ def process_tour(df, df_person, parcel_block, template, zone_type, raw_survey=Tr
     mode_map = {
         1: 'WALK',
         2: 'BIKE',
-        3: 'DRIVEALONEPAY',
+        3: 'DRIVEALONEFREE',
         4: 'SHARED2FREE',
         5: 'SHARED3FREE',
         10: 'TNC_SINGLE'
