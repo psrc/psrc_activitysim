@@ -65,7 +65,7 @@ def process_hh(df, parcel_block, zone_type):
     df.rename(columns={'hhincome': 'income',
                          'hhwkrs': 'num_workers',
                       'hhvehs': 'auto_ownership'}, inplace=True)
-    df['household_id'] = df['hhno'].copy()
+   
 
     # Set household type to 1 for now
     df['HHT'] = 1
@@ -100,7 +100,7 @@ def process_hh(df, parcel_block, zone_type):
     params = urllib.parse.quote_plus(conn_string)
     engine = sqlalchemy.create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
     df_orig_survey = pd.read_sql(sql='SELECT household_id, hh_race_category FROM HHSurvey.households_2017_2019', con=engine)
-    df = df.merge(df_orig_survey, on='household_id', how='left')
+    df = df.merge(df_orig_survey, left_on='hhno', right_on='household_id', how='left')
     df['hh_race'] = df['hh_race_category'].map(race_dict)
         
     return df
@@ -575,13 +575,13 @@ def process_tour(df, df_person, parcel_block, template, zone_type, raw_survey=Tr
 
     return df, tour_hh_list
 
-def process_joint_tour(df, template):
+def process_joint_tour(template):
 
     # Joint Tour
     # Find the joint tours
     # each of these tours occur more than once (assuming more than 1 person is on this same tour)
     joint_tour = 1
-    for index, row in _df.iterrows():
+    for index, row in tour.iterrows():
         filter = (tour.day==row.day)&(tour.pdpurp==row.pdpurp)&(tour.topcl==row.topcl)&\
                       (tour.tdpcl==row.tdpcl)&(tour.origin==row.origin)&(tour.destination==row.destination)&\
                       (tour.tmodetp==row.tmodetp)&(tour.tpathtp==row.tpathtp)&(tour.start==row.start)&\
@@ -590,13 +590,23 @@ def process_joint_tour(df, template):
         # NOTE: this may need to be given a heirarchy of primary tour maker?
         participants = len(tour[filter])
         tour.loc[filter,'joint_tour'] = joint_tour
-        tour.loc[filter,'participant_num'] = xrange(1,participants+1)
+        tour.loc[filter,'participant_num'] = range(1,participants+1)
         joint_tour += 1
 
+    tour['participant_num'] = tour['participant_num'].astype('int')
+
     # Use the joint_tour field to identify joint tour participants
-    df = tour[-tour['joint_tour'].isnull()]
-    # FIXME: not sure how participant ID varies from person ID, so just duplicate that for now
-    df['participant_id'] = df['person_id']
+    # Output should be a list of people on each tour; use the tour ID of participant_num == 1
+    joint_tour_list = tour[tour['joint_tour'].duplicated()]['joint_tour'].values
+    df = tour[tour['joint_tour'].isin(joint_tour_list)]
+
+    # Assume Tour ID of first participant
+    for joint_tour in joint_tour_list:
+        df.loc[df['joint_tour'] == joint_tour,'tour_id'] = df[df['joint_tour'] == joint_tour].iloc[0]['tour_id']
+
+    # Define participant ID as tour ID + participant num
+    df['participant_id'] = df['tour_id'] + df['participant_num'].astype('int').astype('str')
+
     df = df[['person_id','tour_id','household_id','participant_num','participant_id']]
 
     return df
@@ -609,6 +619,9 @@ template_dict = {}
 for table in ['household','person','tour','trip']:
     results_dict[table] = pd.read_csv(os.path.join(survey_input_dir,'_'+table+'.tsv'), delim_whitespace=True)
     template_dict[table] = pd.read_csv(os.path.join(example_survey_dir, 'survey_'+table+'s.csv'))
+
+# We do not have a joint_tour file in daysim format, but there is a template
+template_dict['joint_tour_participants'] = pd.read_csv(os.path.join(example_survey_dir, 'survey_joint_tour_participants.csv'))
 
 # Do some clean up
 # Fix this in daysim outputs
@@ -627,6 +640,13 @@ for zone_type in zone_type_list:
     ####################
     # Household
     ####################
+    # Create a shorter household ID
+    # Keep a lookup for future reference
+    df = results_dict['household'].copy()
+    df['household_id'] = range(1,len(df)+1)
+    df[['household_id','hhno']].to_csv(os.path.join(output_dir, zone_type, 'hhid_lookup.csv'), index=False)
+
+
     hh = process_hh(results_dict['household'], parcel_block, zone_type)
     print(hh.columns)
     hh_cols = list(template_dict['household'].columns.values)
@@ -665,8 +685,8 @@ for zone_type in zone_type_list:
     ####################
     # Joint Tour
     ####################
-    #joint_tour = process_joint_tour(results_dict['joint_tour'], template_dict['joint_tour'])
-    #joint_tour[template_dict['joint_tour'].columns].to_csv(os.path.join(output_dir,'survey_joint_tour_participants.csv'), index=False)
+    joint_tour = process_joint_tour(template_dict['joint_tour_participants'])
+    joint_tour[template_dict['joint_tour_participants'].columns].to_csv(os.path.join(output_dir,'survey_joint_tour_participants.csv'), index=False)
 
     # Trim any records we removed with the strict filter
     if strict_filter:
@@ -682,6 +702,6 @@ for zone_type in zone_type_list:
         tour = tour[~tour['household_id'].isin(hh_list)]
         tour[template_dict['tour'].columns].to_csv(os.path.join(output_dir, zone_type, 'survey_tours.csv'), index=False)
 
-        #joint_tour = joint_tour[joint_tour['household_id'].isin(hh_list)]
-        #joint_tour[template_dict['joint_tour'].columns].to_csv(os.path.join(output_dir, zone_type, 'survey_joint_tour_participants.csv'), index=False)
+        joint_tour = joint_tour[joint_tour['household_id'].isin(hh_list)]
+        joint_tour[template_dict['joint_tour_participants'].columns].to_csv(os.path.join(output_dir, zone_type, 'survey_joint_tour_participants.csv'), index=False)
 
