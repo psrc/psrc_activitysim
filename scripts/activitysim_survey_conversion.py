@@ -586,6 +586,7 @@ def process_joint_tour(template):
                       (tour.tdpcl==row.tdpcl)&(tour.origin==row.origin)&(tour.destination==row.destination)&\
                       (tour.tmodetp==row.tmodetp)&(tour.tpathtp==row.tpathtp)&(tour.start==row.start)&\
                       (tour.end==row.end)
+                        # exclude all school, work, and escort tours per activiysim tour definitions
         # Get total number of participatns (total number of matching tours) and assign a participant number
         # NOTE: this may need to be given a heirarchy of primary tour maker?
         participants = len(tour[filter])
@@ -600,12 +601,22 @@ def process_joint_tour(template):
     joint_tour_list = tour[tour['joint_tour'].duplicated()]['joint_tour'].values
     df = tour[tour['joint_tour'].isin(joint_tour_list)]
 
+    # Drop any tour that are for work, school, or escort
+    df = df[~df['pdpurp'].isin([1,2,3])]
+    joint_tour_list = df[df['joint_tour'].duplicated()]['joint_tour'].values
+
     # Assume Tour ID of first participant
     for joint_tour in joint_tour_list:
         df.loc[df['joint_tour'] == joint_tour,'tour_id'] = df[df['joint_tour'] == joint_tour].iloc[0]['tour_id']
 
     # Define participant ID as tour ID + participant num
     df['participant_id'] = df['tour_id'] + df['participant_num'].astype('int').astype('str')
+
+    # We cannot have more than 2 joing tours per household. If so, make sure we remove those households
+    # FIXME: should we remove the households or edit the tours so they are not joint, or otherwise edit them?
+    _df = df.groupby('household_id').count()[['hhno']]
+    final_hh_list = _df[_df['hhno'] <= 2].index
+    df = df[df['household_id'].isin(final_hh_list)]
 
     df = df[['person_id','tour_id','household_id','participant_num','participant_id']]
 
@@ -688,6 +699,9 @@ for zone_type in zone_type_list:
     joint_tour = process_joint_tour(template_dict['joint_tour_participants'])
     joint_tour[template_dict['joint_tour_participants'].columns].to_csv(os.path.join(output_dir,'survey_joint_tour_participants.csv'), index=False)
 
+    # After identifying joint tours, we need to update the tour files
+    tour.loc[tour['tour_id'].isin(joint_tour['tour_id']),'tour_category'] = 'joint'
+
     # Trim any records we removed with the strict filter
     if strict_filter:
         person = person[~person['household_id'].isin(hh_list)]
@@ -702,6 +716,6 @@ for zone_type in zone_type_list:
         tour = tour[~tour['household_id'].isin(hh_list)]
         tour[template_dict['tour'].columns].to_csv(os.path.join(output_dir, zone_type, 'survey_tours.csv'), index=False)
 
-        joint_tour = joint_tour[joint_tour['household_id'].isin(hh_list)]
+        joint_tour = joint_tour[~joint_tour['household_id'].isin(hh_list)]
         joint_tour[template_dict['joint_tour_participants'].columns].to_csv(os.path.join(output_dir, zone_type, 'survey_joint_tour_participants.csv'), index=False)
 
