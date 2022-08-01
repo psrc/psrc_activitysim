@@ -369,6 +369,7 @@ def patch_tour_ids(persons, tours, joint_tour_participants):
 
     # patch person_id with value of temp_point_person_id and use it to set_tour_index
     joint_tours = tours[tours.tour_category == 'joint']
+    
     joint_tours['cache_point_person_id'] = joint_tours['person_id']
     joint_tours['person_id'] = reindex(temp_point_persons.person_id, joint_tours.household_id)
 
@@ -381,6 +382,11 @@ def patch_tour_ids(persons, tours, joint_tour_participants):
     asim_tour_id = pd.Series(joint_tours.index, index=joint_tours[SURVEY_TOUR_ID])
     patched_joint_tour_participants[ASIM_TOUR_ID] = \
         reindex(asim_tour_id, patched_joint_tour_participants[SURVEY_TOUR_ID])
+    # need to create a participant_id column which is tour_id & '0' & PNUM
+    patched_joint_tour_participants['participant_id'] = reindex(persons.PNUM, patched_joint_tour_participants.person_id) 
+    patched_joint_tour_participants['participant_id'] = patched_joint_tour_participants[ASIM_TOUR_ID].astype(str) + '0' + patched_joint_tour_participants['participant_id'].astype(str) 
+    patched_joint_tour_participants['participant_id'] = patched_joint_tour_participants['participant_id'].astype(np.int64)
+
 
     #####################
     # non_mandatory tours
