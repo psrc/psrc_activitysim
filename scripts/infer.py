@@ -369,6 +369,7 @@ def patch_tour_ids(persons, tours, joint_tour_participants):
 
     # patch person_id with value of temp_point_person_id and use it to set_tour_index
     joint_tours = tours[tours.tour_category == 'joint']
+    
     joint_tours['cache_point_person_id'] = joint_tours['person_id']
     joint_tours['person_id'] = reindex(temp_point_persons.person_id, joint_tours.household_id)
 
@@ -381,6 +382,11 @@ def patch_tour_ids(persons, tours, joint_tour_participants):
     asim_tour_id = pd.Series(joint_tours.index, index=joint_tours[SURVEY_TOUR_ID])
     patched_joint_tour_participants[ASIM_TOUR_ID] = \
         reindex(asim_tour_id, patched_joint_tour_participants[SURVEY_TOUR_ID])
+    # need to create a participant_id column which is tour_id & '0' & PNUM
+    patched_joint_tour_participants['participant_id'] = reindex(persons.PNUM, patched_joint_tour_participants.person_id) 
+    patched_joint_tour_participants['participant_id'] = patched_joint_tour_participants[ASIM_TOUR_ID].astype(str) + '0' + patched_joint_tour_participants['participant_id'].astype(str) 
+    patched_joint_tour_participants['participant_id'] = patched_joint_tour_participants['participant_id'].astype(np.int64)
+
 
     #####################
     # non_mandatory tours
@@ -603,15 +609,33 @@ def infer(configs_dir, input_dir, output_dir):
     tours['atwork_subtour_frequency'] = infer_atwork_subtour_frequency(configs_dir, tours)
     assert skip_controls or check_controls('tours', 'atwork_subtour_frequency')
 
+    # Make sure tour IDs are updated for trip files
+    tours_merge = tours[['tour_id','survey_tour_id']].copy()
+    tours_merge['survey_tour_id'] = unmangle_ids(tours_merge['survey_tour_id'])
+    trips.rename(columns={'tour_id': 'survey_tour_id'}, inplace=True)
+    trips = trips.merge(tours_merge, on='survey_tour_id', how='left')
+    
+    # Rewrite the trip ID since it's based on the tour ID we just updated
+    MAX_TRIPS_PER_LEG = 4  # max number of trips per leg (inbound or outbound) of tour
+
+    # canonical_trip_num: 1st trip out = 1, 2nd trip out = 2, 1st in = 5, etc.
+    canonical_trip_num = (~trips.outbound * MAX_TRIPS_PER_LEG) + trips.trip_num
+    trips['trip_id'] = trips['tour_id'] * (2 * MAX_TRIPS_PER_LEG) + canonical_trip_num
+    # Some of these IDs are duplicated and it's not clear why - seems to be an issue with the canonical_trip_num definition
+    #for now, just remove all of these households for trips and tours
+    trips[trips['trip_id'].duplicated()]
+    duplicated_hh = trips[trips['trip_id'].duplicated()]['household_id'].unique()
+    [tour_hh_list.append(i) for i in duplicated_hh]
+    trips = trips[~trips['household_id'].isin(duplicated_hh)]
+    trips.set_index('trip_id', inplace=True, drop=False, verify_integrity=True)
+
     # write output files
     households.to_csv(os.path.join(output_dir, outputs['households']), index=True)
     persons.to_csv(os.path.join(output_dir, outputs['persons']), index=True)
     tours.to_csv(os.path.join(output_dir, outputs['tours']), index=False)
     joint_tour_participants.to_csv(os.path.join(output_dir, outputs['joint_tour_participants']), index=False)
-    trips.to_csv(os.path.join(output_dir, outputs['trips']), index=False)
+    trips = trips.to_csv(os.path.join(output_dir, outputs['trips']), index=False)
     # Copy trip file
-
-
 
 # python infer.py data
 args = sys.argv[1:]
