@@ -1,6 +1,7 @@
 #inherit_settings: True
 
 # activitysim run -c configs -d data -o output
+#activitysim run -c C:\Workspace\psrc_activitysim\configs_mp -s settings_mp.yaml -c C:\Workspace\psrc_activitysim\configs_dev -d C:/Stefan/data_full -o C:\Stefan\output_test
 
 
 # number of households to simulate
@@ -13,6 +14,8 @@
 #chunk_training_mode: production
 # set false to disable variability check in simple_simulate and interaction_simulate
 check_for_variability: False
+
+sharrow: require
 
 # - shadow pricing global switches
 
@@ -109,11 +112,13 @@ input_table_list:
 
 models:
   - initialize_landuse
-  - compute_accessibility
   - initialize_households
+  - compute_accessibility
+#  - work_from_home
   - school_location
   - workplace_location
   - auto_ownership_simulate
+# - telecommute_frequency
   - free_parking
   - cdap_simulate
   - mandatory_tour_frequency
