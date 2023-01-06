@@ -1,0 +1,16 @@
+project_path: 'C:/workspace/sc_2018_asim_inputs/soundcast'
+skim_file_path: 'C:/workspace/activitysim_inputs/skims.omx'
+supplemental_skim_file_path: 'C:/workspace/activitysim_inputs/skims.omx'
+assigmment_spec_file_path: 'R:/e2projects_two/activitysim/assignment_skims_inputs'
+
+time_period_lookup: 
+      "AM": "7to8" 
+      "MD": "10to14" 
+      "PM": "17to18" 
+      "EV": "18to20" 
+      "EA": "5to6"
+
+
+build_skims: True
+build_supplemental_skims: True
+

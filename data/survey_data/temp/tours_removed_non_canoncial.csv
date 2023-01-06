@@ -1,0 +1,14 @@
+,tlvorig,origin,topcl,toadtyp,tarorig,household_id,person_id,day,tour_type,destination,tdpcl,tdadtyp,tripsh1,tripsh2,tlvdest,tardest,tour_id,subtrs,parent_tour_id,tour_mode,tdtaz,tour_category,start,end,mandatory_status,tour_type_num,tour_type_id,loc_tour_id
+329,812,30339,1123595.0,Home,1024,17112554,1711255401,3,work,18493.0,1272571.0,Work,2,1,1016,842,329,1,0,SHARED2FREE,,mandatory,13.0,13.0,mandatory,3,work3,work3
+330,844,18493,1272571.0,Work,1016,17112554,1711255401,3,work,6484.0,1048855.0,other,3,2,896,932,330,0,329,,,mandatory,14.0,14.0,mandatory,4,work4,work4
+807,1119,28772,1222005.0,Home,1148,17130289,1713028901,3,work,20023.0,682395.0,other,1,1,1132,1132,807,0,0,DRIVEALONEFREE,,mandatory,18.0,18.0,mandatory,3,work3,work3
+1451,505,28832,1160439.0,Home,1297,191001141,19100114101,3,change_mode,9526.0,1136342.0,other,5,2,725,1297,1451,0,0,WALK_LOC,,non_mandatory,8.0,8.0,non_mandatory,1,change_mode1,change_mode1
+1701,818,49790,543770.0,Work,873,191006865,19100686501,3,work,,484547.0,other,1,1,862,830,1701,0,1700,SHARED3FREE,45100.0,mandatory,13.0,13.0,mandatory,3,work3,work3
+2111,1119,27201,807263.0,Home,1161,191016902,19101690201,3,shopping,22955.0,149429.0,other,1,1,1158,1122,2111,0,0,WALK,,non_mandatory,18.0,18.0,non_mandatory,4,shopping4,shopping4
+2370,891,42781,217682.0,Home,938,191022171,19102217106,3,school,48802.0,354812.0,other,1,1,914,907,2370,0,0,SHARED3FREE,,mandatory,14.0,14.0,mandatory,3,school3,school3
+2679,1252,43895,190827.0,Home,1280,191029890,19102989002,3,social,42085.0,550670.0,other,1,1,1260,1256,2679,0,0,WALK,,non_mandatory,20.0,20.0,non_mandatory,4,social4,social4
+3117,920,18366,29488.0,Home,1139,191044008,19104400801,3,change_mode,3838.0,694300.0,other,1,3,920,1139,3117,0,0,WALK_LR,,non_mandatory,15.0,15.0,non_mandatory,1,change_mode1,change_mode1
+3158,835,16608,78230.0,other,1191,191045499,19104549901,3,work,4264.0,804457.0,other,2,1,845,875,3158,0,3156,DRIVEALONEFREE,,mandatory,13.0,13.0,mandatory,3,work3,work3
+3417,505,2913,1029817.0,Home,1176,192000614,19200061401,3,change_mode,15319.0,1056827.0,other,2,2,762,1176,3417,0,0,SHARED3FREE,,non_mandatory,8.0,8.0,non_mandatory,1,change_mode1,change_mode1
+3534,446,15635,919711.0,Home,1068,192008751,19200875102,3,change_mode,20812.0,1198259.0,other,3,2,774,1068,3534,0,0,WALK_COM,,non_mandatory,7.0,7.0,non_mandatory,1,change_mode1,change_mode1
+3630,1078,2409,690310.0,Home,1168,192017308,19201730801,3,work,30716.0,1258612.0,other,1,1,1163,1084,3630,0,0,WALK,,mandatory,17.0,17.0,mandatory,3,work3,work3
