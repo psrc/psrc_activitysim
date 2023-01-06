@@ -1,0 +1,25 @@
+﻿index,table,filter,result_col,result_value,description
+1,trip,:,person_id,trip['person_id'],
+2,trip,:,trexpfac,trip[trip_weight],
+3,trip,:,mode,trip['mode_1'].map(mode_dict),
+4,trip,(trip['travelers_total'] == 1) & (trip['mode'] == 'Auto'),mode,"""DRIVEALONEFREE""",
+5,trip,(trip['travelers_total'] == 2) & (trip['mode'] == 'Auto'),mode,"""SHARED2FREE""",
+6,trip,(trip['travelers_total'] > 2) & (trip['mode'] == 'Auto'),mode,"""SHARED3FREE""",
+7,trip,"(trip['mode'] == 'Transit') & (trip['mode_1'] ==""Ferry or water taxi"")",mode,"""WALK_FRY""",
+8,trip,"(trip['mode'] == 'Transit') & (trip['mode_1'] ==""Commuter rail (Sounder, Amtrak)"")",mode,"""WALK_COM""",
+9,trip,"(trip['mode'] == 'Transit') & (trip['mode_1'].isin([""Urban Rail (e.g., Link light rail, monorail)"",""Other rail (e.g., streetcar)""]))",mode,"""WALK_LR""",
+10,trip,"(trip['mode'] == 'Transit') & (trip['mode_1'].isin([""Bus (public transit)"",""Other bus (rMove only)""]))",mode,"""WALK_LOC""",
+11,trip,:,purpose,trip['dest_purpose_cat'].map(purpose_map),
+14,trip,:,depart_time_mam,trip['depart_time_hhmm'].fillna(-1).apply(lambda x: convert_hhmm_to_mam(x)),
+15,trip,:,arrival_time_mam,trip['arrival_time_hhmm'].fillna(-1).apply(lambda x: convert_hhmm_to_mam(x)),
+16,trip,:,depart,np.floor(trip['depart_time_mam']/60),
+17,trip,:,arrive,np.floor(trip['arrival_time_mam']/60),
+18,trip,:,oadtyp,"""other""",Origin land use type as other by default
+19,trip,:,dadtyp,"""other""",Destination land use type as other by default
+20,trip,trip['origin_purpose_cat'] == 'Home',oadtyp,"""Home""",
+21,trip,trip['dest_purpose_cat'] == 'Home',dadtyp,"""Home""",
+22,trip,(trip['origin_purpose_cat'] == adtyp_school) & (trip['origin'] == trip[school_taz]),oadtyp,adtyp_school,
+23,trip,(trip['dest_purpose_cat'] == adtyp_school) & (trip['destination'] == trip[school_taz]),dadtyp,adtyp_school,
+24,trip,(trip['origin_purpose_cat'] == adtyp_work) & (trip['origin'] == trip[work_taz]),oadtyp,adtyp_work,
+25,trip,(trip['dest_purpose_cat'] == adtyp_work) & (trip['destination'] == trip[work_taz]),dadtyp,adtyp_work,
+26,trip,:,pathtype,trip['mode'].map(path_type_dict).fillna(1).astype('int'),Path type variables used in daysim

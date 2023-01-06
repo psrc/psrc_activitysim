@@ -1,0 +1,16 @@
+﻿index,table ,filter,result_col,result_value,description
+1,person,"person['employment'] == 'Employed full time (35+ hours/week, paid)'",ptype,1,Full time worker
+2,person,"person['employment'].isin(['Employed part time (fewer than 35 hours/week, paid)', 'Self-employed'])",ptype,2,Part time worker (includes part time worker and self-employed people
+3,person,"(person['worker'] == 'No jobs') & (person['age']<65) & (person['student'] == 3)",ptype,4,Non working adult age <65
+4,person,"(person['worker'] == 'No jobs') & (person['age']>=65)",ptype,5, Non-working adult age 65+
+5,person,"(person['age'] >= 16) & (person['schooltype'].isin(['K-12 public school','K-12 private school']))",ptype,6,driving age student
+6,person,"(person['age'] < 16) & (person['schooltype'].isin(['K-12 public school','K-12 private school','Preschool']))",ptype,7,non-driving age student
+7,person,"(person['schooltype'].isin(['College, graduate, or professional school','Vocational/technical school'])) & (person['student'] != 3)",ptype,3,college student
+8,person,person['age'] < 5,ptype,8,child too young for school
+9,person,person['ptype'].isnull(),ptype,-1,Replace null values with -1 flag
+10,person,:,ptype,person['ptype'].astype('int'),
+11,person,(person['ptype'] == 4) & (person['pemploy'] == 2),ptype,2,
+12,person,(person['ptype'] == 5) & (person['pemploy'] == 2),ptype,2,
+13,person,(person['ptype'] == 6) & (person['pstudent'] == 3) & (person['pemploy'] == 2),ptype,2,
+14,person,"(person['pemploy'] == 1) & (person['pstudent'].isin([1,2]))",ptype,2,
+15,person,(person['pstudent'] == 3) & (person['pemploy'] == 2),ptype,2,

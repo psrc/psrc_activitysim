@@ -1,0 +1,43 @@
+﻿index,table ,filter,result_col,result_value,description
+1,person,person['work_lat'] > 0,workplace_zone_id,0
+2,person,:,age,person['age'].map(age_map),
+3,person,:,sex,person['gender'].map(gender_map),
+4,person,:,student,person['student'].map(student_map).fillna(0),
+5,person,"(person['school_loc_lat'] > 0) & (person['student'].isin([1,2]))",school_zone_id,9999999999999
+9,person,"person['employment'] == 'Employed full time (35+ hours/week, paid)'",ptype,1,Full time worker
+10,person,"person['employment'].isin(['Employed part time (fewer than 35 hours/week, paid)', 'Self-employed'])",ptype,2,Part time worker (includes part time worker and self-employed people
+11,person,"(person['worker'] == 'No jobs') & (person['age']<65) & (person['student'] == 3)",ptype,4,Non working adult age <65
+12,person,"(person['worker'] == 'No jobs') & (person['age']>=65)",ptype,5, Non-working adult age 65+
+13,person,"(person['age'] >= 16) & (person['schooltype'].isin(['K-12 public school','K-12 private school']))",ptype,6,driving age student
+14,person,"(person['age'] < 16) & (person['schooltype'].isin(['K-12 public school','K-12 private school','Preschool']))",ptype,7,non-driving age student
+15,person,"(person['schooltype'].isin(['College, graduate, or professional school','Vocational/technical school'])) & (person['student'] != 3)",ptype,3,college student
+15,person,"(person['age'] > 18) & (person['student'] != 3)",ptype,3,if missing schooltype but coded as a full/part-time student and over 18 set ptype as college student
+16,person,person['age'] < 5,ptype,8,child too young for school
+17,person,person['ptype'].isnull(),ptype,-1,Replace null values with -1 flag
+18,person,:,ptype,person['ptype'].astype('int'),
+19,person,:,pemploy,3,Set default value to Not in Labor Force
+20,person,"person['employment'] == 'Employed full time (35+ hours/week, paid)'",pemploy,1,
+21,person,"person['employment'].isin(['Employed part time (fewer than 35 hours/week, paid)', 'Self-employed'])",pemploy,2,
+22,person,person['age'] < 16,pemploy,3,
+23,person,:,pstudent,3,Set default student value to non-student
+24,person,"person['ptype'].isin([7,6])",pstudent,1,pre-k through k12
+25,person,person['ptype']==3,pstudent,2,university/professional student
+26,person,(person['school_zone_id'] > 0) & (person['pstudent'] != 3) & (person['age'] < 18),pstudent,1,
+27,person,(person['school_zone_id'] > 0) & (person['pstudent'] != 3) & (person['age'] >= 18),pstudent,2,
+30,person,(person['ptype'] == -1) & (person['student'] ==2) & (person['age']>18),ptype,3, university student 
+32,person,(person['ptype'] == -1) & (person['pemploy'] == 3) & (person['age']<65),ptype,4,non-working adult under 65
+29,person,(person['ptype'] == -1) & (person['pemploy'] ==3) & (person['age']>=65),ptype,5,Non-worker over 65
+31,person,(person['ptype'] == -1) & (person['student'] < 3) & (person['age']<=18),ptype,6,high school student
+33,person,:,free_parking_at_work,0,set default parking at work to 0
+34,person,"person['workpass'].isin(['Yes, employer pays/reimburses for all or part of daily parking costs','Yes, employer pays/reimburses for all or part of parking pass'])",free_parking_at_work,1,update paid parking
+35,person,:,race,person['race_category'].map(race_dict),# Code race variables as values
+36,person,(person['workplace_zone_id'] > 0) & (person['pemploy'] >= 3) & (person['age'] >= 16),pemploy,2,
+37,person,(person['ptype'] == 3) & (person['pemploy'] == 1),pemploy,2,
+38,person,(person['ptype'] == 4) & (person['pemploy'] == 2),ptype,2,
+39,person,(person['ptype'] == 5) & (person['pemploy'] == 2),ptype,2,
+40,person,(person['ptype'] == 6) & (person['pstudent'] == 3) & (person['pemploy'] == 2),ptype,2,
+41,person,(person['age'] < 16) & (person['pstudent'] == 3),pemploy,3,
+42,person,"(person['pemploy'] == 1) & (person['pstudent'].isin([1,2]))",pstudent,2,
+43,person,"(person['pemploy'] == 1) & (person['pstudent'].isin([1,2]))",pemploy,2,
+44,person,"(person['pemploy'] == 1) & (person['pstudent'].isin([1,2]))",ptype,2,
+45,person,(person['pstudent'] == 3) & (person['pemploy'] == 2),ptype,2,
