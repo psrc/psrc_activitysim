@@ -12,5 +12,6 @@ time_period_lookup:
 
 
 build_skims: True
-build_supplemental_skims: True
+build_supplemental_skims: False
+run_park_and_ride: False
 

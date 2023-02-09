@@ -6,10 +6,9 @@ def add_run_args(parser, multiprocess=True):
     """
     Run command args
     """
-    parser.add_argument('-c', '--configs_dir',
-                        type=str,
-                        metavar='PATH',
-                        help='path to configs dir')
+    parser.add_argument(
+        "-c", "--configs_dir", type=str, metavar="PATH", help="path to configs dir"
+    )
 
 
 # if __name__ == '__main__':

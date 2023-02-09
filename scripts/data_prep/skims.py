@@ -16,19 +16,30 @@ from pathlib import Path
 import yaml
 
 
-#file = Path().joinpath(configuration.args.configs_dir, "config.yaml")
-#config = yaml.safe_load(open(file))
+# file = Path().joinpath(configuration.args.configs_dir, "config.yaml")
+# config = yaml.safe_load(open(file))
+
 
 def get_trn_sub_component_skim(condition, my_project, sub_component_name):
-    bus = emmeMatrix_to_numpyMatrix(sub_component_name + 'a', my_project.bank, 'float32')
+    bus = emmeMatrix_to_numpyMatrix(
+        sub_component_name + "a", my_project.bank, "float32"
+    )
 
-    rail = emmeMatrix_to_numpyMatrix(sub_component_name + 'r', my_project.bank, 'float32')
+    rail = emmeMatrix_to_numpyMatrix(
+        sub_component_name + "r", my_project.bank, "float32"
+    )
 
-    ferry = emmeMatrix_to_numpyMatrix(sub_component_name + 'f', my_project.bank, 'float32')
+    ferry = emmeMatrix_to_numpyMatrix(
+        sub_component_name + "f", my_project.bank, "float32"
+    )
 
-    p_ferry = emmeMatrix_to_numpyMatrix(sub_component_name + 'f', my_project.bank, 'float32')
+    p_ferry = emmeMatrix_to_numpyMatrix(
+        sub_component_name + "f", my_project.bank, "float32"
+    )
 
-    commuter_rail = emmeMatrix_to_numpyMatrix(sub_component_name + 'c', my_project.bank, 'float32')
+    commuter_rail = emmeMatrix_to_numpyMatrix(
+        sub_component_name + "c", my_project.bank, "float32"
+    )
 
     condition[1] = np.where(condition[0] == True, False, condition[1])
     condition[2] = np.where((condition[0] + condition[1]), False, condition[2])
@@ -49,41 +60,62 @@ def get_trn_sub_component_skim(condition, my_project, sub_component_name):
     skim = skim.reshape([matrix_size, matrix_size])
     return skim
 
-def emmeMatrix_to_numpyMatrix(matrix_name, emmebank, np_data_type, multiplier=1, max_value = None):
+
+def emmeMatrix_to_numpyMatrix(
+    matrix_name, emmebank, np_data_type, multiplier=1, max_value=None
+):
     matrix_id = emmebank.matrix(matrix_name).id
     emme_matrix = emmebank.matrix(matrix_id)
     matrix_data = emme_matrix.get_data()
-    np_matrix = np.matrix(matrix_data.raw_data) 
+    np_matrix = np.matrix(matrix_data.raw_data)
     np_matrix = np_matrix * multiplier
-    
-    if np_data_type == 'uint16':
+
+    if np_data_type == "uint16":
         max_value = np.iinfo(np_data_type).max
         np_matrix = np.where(np_matrix > max_value, max_value, np_matrix)
-    
-    if np_data_type != 'float32':
-        np_matrix = np.where(np_matrix > np.iinfo(np_data_type).max, np.iinfo(np_data_type).max, np_matrix)
+
+    if np_data_type != "float32":
+        np_matrix = np.where(
+            np_matrix > np.iinfo(np_data_type).max,
+            np.iinfo(np_data_type).max,
+            np_matrix,
+        )
 
     return np_matrix
+
+
 def bike_and_walk_skims(emme_project, tod, results_dict):
     emme_project.change_active_database(tod)
     # Assuming 10 mph bike speed
-    results_dict["DISTBIKE"] = (emmeMatrix_to_numpyMatrix('walkt', emme_project.bank, 'float32') * (10.0 / 60.0))
-  
+    results_dict["DISTBIKE"] = emmeMatrix_to_numpyMatrix(
+        "walkt", emme_project.bank, "float32"
+    ) * (10.0 / 60.0)
+
     # Assuming 3 mph bike speed
-    results_dict["DISTWALK"] = (emmeMatrix_to_numpyMatrix('walkt', emme_project.bank, 'float32') * (3.0 / 60.0))  
+    results_dict["DISTWALK"] = emmeMatrix_to_numpyMatrix(
+        "walkt", emme_project.bank, "float32"
+    ) * (3.0 / 60.0)
     return results_dict
+
 
 def transit_fare_skims(emme_project, tod, results_dict, time_period_lookup):
     emme_project.change_active_database(tod)
     for time_period in time_period_lookup.keys():
         # Using AM fares for all time periods for now
         # FIXME Set up park and ride procedure to skim for fares
-        results_dict["WLK_TRN_DRV_FAR__" + time_period] = emmeMatrix_to_numpyMatrix('mfafarbx', emme_project.bank, 'float32')
-        results_dict["DRV_TRN_WLK_FAR__" + time_period] = emmeMatrix_to_numpyMatrix('mfafarbx', emme_project.bank, 'float32')
+        results_dict["WLK_TRN_DRV_FAR__" + time_period] = emmeMatrix_to_numpyMatrix(
+            "mfafarbx", emme_project.bank, "float32"
+        )
+        results_dict["DRV_TRN_WLK_FAR__" + time_period] = emmeMatrix_to_numpyMatrix(
+            "mfafarbx", emme_project.bank, "float32"
+        )
         for mtc_mode in ["COM", "FRY", "HVY", "LOC", "LR"]:
             # Fare
-            results_dict["WLK_" + mtc_mode + "_WLK_FAR__" + time_period] = emmeMatrix_to_numpyMatrix('mfafarbx', emme_project.bank, 'float32')
+            results_dict[
+                "WLK_" + mtc_mode + "_WLK_FAR__" + time_period
+            ] = emmeMatrix_to_numpyMatrix("mfafarbx", emme_project.bank, "float32")
     return results_dict
+
 
 def distance_skims(emme_project, tod, results_dict, time_period_lookup):
     # Vehicle matrices
@@ -91,25 +123,66 @@ def distance_skims(emme_project, tod, results_dict, time_period_lookup):
     # Distance is only skimmed for once (7to8); apply to all TOD periods
     emme_project.change_active_database(tod)
     # FIXME figure out how 'DIST' is defined in mtc version
-    results_dict["DIST"] = emmeMatrix_to_numpyMatrix('sov_inc2d', emme_project.bank, 'float32')  
+    results_dict["DIST"] = emmeMatrix_to_numpyMatrix(
+        "sov_inc2d", emme_project.bank, "float32"
+    )
 
-    for time_period in time_period_lookup.keys():  # EA=early AM
-        results_dict["SOV_DIST__" + time_period] = emmeMatrix_to_numpyMatrix('sov_inc2d', emme_project.bank, 'float32')
-    
-        results_dict["HOV2_DIST__" + time_period] = emmeMatrix_to_numpyMatrix('hov2_inc2d', emme_project.bank, 'float32')
+    for time_period, hour in time_period_lookup.items():  # EA=early AM
+        emme_project.change_active_database(hour)
 
-        results_dict["HOV3_DIST__" + time_period] = emmeMatrix_to_numpyMatrix('hov3_inc2d', emme_project.bank, 'float32')
+        results_dict["SOV_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
+            "sov_inc2d", emme_project.bank, "float32"
+        )
 
-        results_dict["SOVTOLL_DIST__" + time_period] = emmeMatrix_to_numpyMatrix('sov_inc2d', emme_project.bank, 'float32')
+        results_dict["HOV2_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
+            "hov2_inc2d", emme_project.bank, "float32"
+        )
 
-        results_dict["HOV2TOLL_DIST__" + time_period] = emmeMatrix_to_numpyMatrix('hov2_inc2d', emme_project.bank, 'float32')
+        results_dict["HOV3_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
+            "hov3_inc2d", emme_project.bank, "float32"
+        )
 
-        results_dict["HOV3TOLL_DIST__" + time_period] = emmeMatrix_to_numpyMatrix('hov3_inc2d', emme_project.bank, 'float32')
-    
+        results_dict["SOV_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
+            "sov_inc2d", emme_project.bank, "float32"
+        )
+
+        results_dict["HOV2_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
+            "hov2_inc2d", emme_project.bank, "float32"
+        )
+
+        results_dict["HOV3_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
+            "hov3_inc2d", emme_project.bank, "float32"
+        )
+
+        results_dict["SOVTOLL_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
+            "sov_inc2d", emme_project.bank, "float32"
+        )
+
+        results_dict["HOV2TOLL_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
+            "hov2_inc2d", emme_project.bank, "float32"
+        )
+
+        results_dict["HOV3TOLL_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
+            "hov3_inc2d", emme_project.bank, "float32"
+        )
+
+        results_dict["SOVTOLL_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
+            "sov_inc2d", emme_project.bank, "float32"
+        )
+
+        results_dict["HOV2TOLL_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
+            "hov2_inc2d", emme_project.bank, "float32"
+        )
+
+        results_dict["HOV3TOLL_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
+            "hov3_inc2d", emme_project.bank, "float32"
+        )
+
     return results_dict
 
+
 def bridge_skims(results_dict, time_period_lookup):
-    matrix_size = len(results_dict['DISTBIKE'])
+    matrix_size = len(results_dict["DISTBIKE"])
     zero_array = np.zeros((matrix_size, matrix_size))
     # BTOLL is bridge toll
     # Set this to 0 and only use the value toll (?)
@@ -122,106 +195,175 @@ def bridge_skims(results_dict, time_period_lookup):
         results_dict["HOV3TOLL_BTOLL__" + tod] = zero_array
     return results_dict
 
+
 def cost_skims(emme_project, results_dict, time_period_lookup):
-    #ime_dict = {"AM": "7to8", "MD": "10to14", "PM": "17to18", "EV": "18to20", "EA": "5to6"}
+    # ime_dict = {"AM": "7to8", "MD": "10to14", "PM": "17to18", "EV": "18to20", "EA": "5to6"}
     for tod, hour in time_period_lookup.items():
         print(tod)
         print(hour)
         emme_project.change_active_database(hour)
 
         # Auto Time
-        results_dict["SOV_TIME__" + tod] = emmeMatrix_to_numpyMatrix('sov_inc2t', emme_project.bank, 'float32')
+        results_dict["SOV_TIME__" + tod] = emmeMatrix_to_numpyMatrix(
+            "sov_inc2t", emme_project.bank, "float32"
+        )
 
-        results_dict["HOV2_TIME__" + tod] = emmeMatrix_to_numpyMatrix('hov2_inc2t', emme_project.bank, 'float32')
+        results_dict["HOV2_TIME__" + tod] = emmeMatrix_to_numpyMatrix(
+            "hov2_inc2t", emme_project.bank, "float32"
+        )
 
-        results_dict["HOV3_TIME__" + tod] = emmeMatrix_to_numpyMatrix('hov3_inc2t', emme_project.bank, 'float32')
+        results_dict["HOV3_TIME__" + tod] = emmeMatrix_to_numpyMatrix(
+            "hov3_inc2t", emme_project.bank, "float32"
+        )
 
-        results_dict["SOVTOLL_TIME__" + tod] = emmeMatrix_to_numpyMatrix('sov_inc2t', emme_project.bank, 'float32')
+        results_dict["SOVTOLL_TIME__" + tod] = emmeMatrix_to_numpyMatrix(
+            "sov_inc2t", emme_project.bank, "float32"
+        )
 
-        results_dict["HOV2TOLL_TIME__" + tod] = emmeMatrix_to_numpyMatrix('hov2_inc2t', emme_project.bank, 'float32')
+        results_dict["HOV2TOLL_TIME__" + tod] = emmeMatrix_to_numpyMatrix(
+            "hov2_inc2t", emme_project.bank, "float32"
+        )
 
-        results_dict["HOV3TOLL_TIME__" + tod] = emmeMatrix_to_numpyMatrix('hov3_inc2t', emme_project.bank, 'float32')
+        results_dict["HOV3TOLL_TIME__" + tod] = emmeMatrix_to_numpyMatrix(
+            "hov3_inc2t", emme_project.bank, "float32"
+        )
 
-        results_dict["SOVTOLL_VTOLL__" + tod] = emmeMatrix_to_numpyMatrix('sov_inc2c', emme_project.bank, 'float32')
+        results_dict["SOVTOLL_VTOLL__" + tod] = emmeMatrix_to_numpyMatrix(
+            "sov_inc2c", emme_project.bank, "float32"
+        )
 
-        results_dict["HOV2TOLL_VTOLL__" + tod] = emmeMatrix_to_numpyMatrix('hov2_inc2c', emme_project.bank, 'float32')
-    
-        results_dict["HOV3TOLL_VTOLL__" + tod] = emmeMatrix_to_numpyMatrix('hov3_inc2c', emme_project.bank, 'float32')
+        results_dict["HOV2TOLL_VTOLL__" + tod] = emmeMatrix_to_numpyMatrix(
+            "hov2_inc2c", emme_project.bank, "float32"
+        )
+
+        results_dict["HOV3TOLL_VTOLL__" + tod] = emmeMatrix_to_numpyMatrix(
+            "hov3_inc2c", emme_project.bank, "float32"
+        )
     return results_dict
+
+def park_and_ride_skims(emme_project, results_dict, time_period_lookup):
+    for tod, hour in time_period_lookup.items():
+        print(tod)
+        print(hour)
+        emme_project.change_active_database(hour)
+        for dir in ['DRV_TRN_WLK_', 'WLK_TRN_DRV_']:
+            for component in ['WAUX', 'DDIST', 'DTIM', 'TOTIVT', 'WAIT', 'IWAIT', "BOARDS"]:
+                matrix_name = dir + component 
+                skim_name = matrix_name + '__' + tod
+                skim = emmeMatrix_to_numpyMatrix(matrix_name, emme_project.bank, "float32")
+                listOfCoordinates= list(zip(skim[0], skim[1]))
+                max_value = np.nanmax(skim[skim != np.inf])
+                skim = np.nan_to_num(skim, copy=True, posinf=max_value)
+                assert np.isnan(np.min(skim)) == False
+                assert True not in np.isinf(skim)
+                results_dict[skim_name] = skim
+            results_dict[dir + "XWAIT__" + tod] =  results_dict[dir + "WAIT__" + tod] - results_dict[dir + "IWAIT__" + tod]
+    return results_dict
+
+
 
 def transit_skims(emme_project, results_dict, time_period_lookup):
     submode_dict = {"COM": "c", "LR": "r", "LOC": "a", "FRY": "f"}
-    #time_dict = {"AM": "7to8", "MD": "10to14", "PM": "17to18", "EV": "18to20", "EA": "5to6"}
+    # time_dict = {"AM": "7to8", "MD": "10to14", "PM": "17to18", "EV": "18to20", "EA": "5to6"}
     for tod, hour in time_period_lookup.items():
+        emme_project.change_active_database(hour)
 
         for mtc_mode, psrc_mode in submode_dict.items():
             print(mtc_mode)
             # if mtc_mode == 'LOC':
             # Walk Access Time
-            results_dict["WLK_" + mtc_mode + "_WLK_WAUX__" + tod] = emmeMatrix_to_numpyMatrix('auxw' + psrc_mode, emme_project.bank, 'float32')
+            results_dict[
+                "WLK_" + mtc_mode + "_WLK_WAUX__" + tod
+            ] = emmeMatrix_to_numpyMatrix(
+                "auxw" + psrc_mode, emme_project.bank, "float32"
+            )
 
             # Initial Wait Time
-            results_dict["WLK_" + mtc_mode + "_WLK_IWAIT__" + tod] = emmeMatrix_to_numpyMatrix('iwtw' + psrc_mode, emme_project.bank, 'float32')
+            results_dict[
+                "WLK_" + mtc_mode + "_WLK_IWAIT__" + tod
+            ] = emmeMatrix_to_numpyMatrix(
+                "iwtw" + psrc_mode, emme_project.bank, "float32"
+            )
 
             # Total Wait Time
-            results_dict["WLK_" + mtc_mode + "_WLK_WAIT__" + tod] = emmeMatrix_to_numpyMatrix('twtw' + psrc_mode, emme_project.bank, 'float32')
+            results_dict[
+                "WLK_" + mtc_mode + "_WLK_WAIT__" + tod
+            ] = emmeMatrix_to_numpyMatrix(
+                "twtw" + psrc_mode, emme_project.bank, "float32"
+            )
 
             # In vehicle time for Walk access/egress
-            results_dict["WLK_" + mtc_mode + "_WLK_TOTIVT__" + tod] = emmeMatrix_to_numpyMatrix('ivtw' + psrc_mode, emme_project.bank, 'float32')
+            results_dict[
+                "WLK_" + mtc_mode + "_WLK_TOTIVT__" + tod
+            ] = emmeMatrix_to_numpyMatrix(
+                "ivtw" + psrc_mode, emme_project.bank, "float32"
+            )
 
             if not mtc_mode == "LOC":
-                results_dict["WLK_" + mtc_mode + "_WLK_KEYIVT__" + tod] = emmeMatrix_to_numpyMatrix('ivtw' + psrc_mode + psrc_mode, emme_project.bank, 'float32')
+                results_dict[
+                    "WLK_" + mtc_mode + "_WLK_KEYIVT__" + tod
+                ] = emmeMatrix_to_numpyMatrix(
+                    "ivtw" + psrc_mode + psrc_mode, emme_project.bank, "float32"
+                )
 
                 if mtc_mode == "LRF":
-                    results_dict["WLK_" + mtc_mode + "_WLK_FERRYIVT__" + tod] = emmeMatrix_to_numpyMatrix('ivtw' + psrc_mode + psrc_mode, emme_project.bank.bank, 'float32') 
-
-                
+                    results_dict[
+                        "WLK_" + mtc_mode + "_WLK_FERRYIVT__" + tod
+                    ] = emmeMatrix_to_numpyMatrix(
+                        "ivtw" + psrc_mode + psrc_mode,
+                        emme_project.bank.bank,
+                        "float32",
+                    )
 
                 # Transfer Time
-            results_dict["WLK_" + mtc_mode + "_WLK_XWAIT__" + tod] = emmeMatrix_to_numpyMatrix('xfrw' + psrc_mode, emme_project.bank, 'float32') 
+            results_dict[
+                "WLK_" + mtc_mode + "_WLK_XWAIT__" + tod
+            ] = emmeMatrix_to_numpyMatrix(
+                "xfrw" + psrc_mode, emme_project.bank, "float32"
+            )
 
             # Boardings
-            results_dict["WLK_" + mtc_mode + "_WLK_BOARDS__" + tod] = emmeMatrix_to_numpyMatrix('ndbw' + psrc_mode, emme_project.bank, 'float32')
+            results_dict[
+                "WLK_" + mtc_mode + "_WLK_BOARDS__" + tod
+            ] = emmeMatrix_to_numpyMatrix(
+                "ndbw" + psrc_mode, emme_project.bank, "float32"
+            )
+
+    return results_dict
+
+def all_transit_skims(emme_project, results_dict, time_period_lookup):
+    for tod, hour in time_period_lookup.items():
+        emme_project.change_active_database(hour)
+        results_dict["WLK_TRN_WLK_WAUX__" + tod] = emmeMatrix_to_numpyMatrix("WLK_TRN_WLK_WAUX", emme_project.bank, "float32")
+        results_dict["WLK_TRN_WLK_TWAIT__" + tod] = emmeMatrix_to_numpyMatrix("WLK_TRN_WLK_TWAIT", emme_project.bank, "float32")
+        results_dict["WLK_TRN_WLK_IWAIT__" + tod] = emmeMatrix_to_numpyMatrix("WLK_TRN_WLK_IWAIT", emme_project.bank, "float32")
+        results_dict["WLK_TRN_WLK_IVT__" + tod] = emmeMatrix_to_numpyMatrix("WLK_TRN_WLK_IVT", emme_project.bank, "float32")
+        results_dict["WLK_TRN_WLK_XWAIT__" + tod] =  results_dict["WLK_TRN_WLK_TWAIT__" + tod] - results_dict["WLK_TRN_WLK_IWAIT__" + tod]
     return results_dict
 
 
 def create_skims(my_project, skim_file_path, time_period_lookup):
     results_dict = {}
-    #my_project = EmmeProject(project_path)
-    results_dict = bike_and_walk_skims(my_project, '5to6', results_dict)
-    results_dict = transit_fare_skims(my_project, '6to7', results_dict, time_period_lookup)
-    results_dict = distance_skims(my_project, '7to8', results_dict, time_period_lookup)
+    # my_project = EmmeProject(project_path)
+    results_dict = bike_and_walk_skims(my_project, "5to6", results_dict)
+    results_dict = transit_fare_skims(
+        my_project, "6to7", results_dict, time_period_lookup
+    )
+    results_dict = distance_skims(my_project, "7to8", results_dict, time_period_lookup)
     results_dict = bridge_skims(results_dict, time_period_lookup)
     results_dict = cost_skims(my_project, results_dict, time_period_lookup)
     results_dict = transit_skims(my_project, results_dict, time_period_lookup)
-    f = omx.open_file(skim_file_path, "r+")
+    results_dict = park_and_ride_skims(my_project, results_dict, time_period_lookup)
+    results_dict = all_transit_skims(my_project, results_dict, time_period_lookup)
+    f = omx.open_file(skim_file_path, "w")
     for skim_matrix in results_dict.keys():
         print(skim_matrix)
-        #statsDict= {attr:getattr(skim_matrix,attr)() for attr in ['min', 'max','mean','std']}
+        # statsDict= {attr:getattr(skim_matrix,attr)() for attr in ['min', 'max','mean','std']}
         f[skim_matrix] = results_dict[skim_matrix]
-    
+
     f.close()
-    
 
 
-
-
-    
-
-
-
-
-    
-
-
-
-
-
-    
-        
-    
-
-        
 ####################
 # Drive to Transit #
 ####################
