@@ -183,12 +183,7 @@ util_Walk_to_Transit_tour_mode_ASC_shared_ride_2,Walk to Transit tour mode ASC -
 util_Walk_to_Transit_tour_mode_ASC_shared_ride_3_plus,Walk to Transit tour mode ASC -- shared ride 3+,@(df.is_indiv & df.tour_mode_is_walk_transit),,,walk_transit_ASC_sr3p,,,,,,,,,,
 util_Walk_to_Transit_tour_mode_ASC_walk,Walk to Transit tour mode ASC -- walk,@(df.is_indiv & df.tour_mode_is_walk_transit),,,,walk_transit_ASC_walk,,,,,,,,,
 util_Walk_to_Transit_tour_mode_ASC_ride_hail,Walk to Transit tour mode ASC -- ride hail,@(df.is_indiv & df.tour_mode_is_walk_transit),,,,,,,,,,,walk_transit_ASC_rh,walk_transit_ASC_rh,walk_transit_ASC_rh
-util_Drive_to_Transit_tour_mode_ASC_light_rail_skims_differ,Drive to Transit tour mode ASC -- light rail (higher b/c loc d-trn skims differ),@(df.is_indiv & df.tour_mode_is_drive_transit & ~df.drive_ferry_available),,,,,,,,,,,,,
-util_Drive_to_Transit_tour_mode_ASC_ferry,Drive to Transit tour mode ASC -- ferry,@(df.is_indiv & df.tour_mode_is_drive_transit & df.drive_ferry_available),,,,,,,,,,,,,
-util_Drive_to_Transit_tour_mode_ASC_express_bus,Drive to Transit tour mode ASC -- express bus,@(df.is_indiv & df.tour_mode_is_drive_transit),,,,,,,,,,,,,
-util_Drive_to_Transit_tour_mode_ASC_heavy_rail,Drive to Transit tour mode ASC -- heavy rail,@(df.is_indiv & df.tour_mode_is_drive_transit),,,,,,,,,,,,,
-util_Drive_to_Transit_tour_mode_ASC_commuter_rail,Drive to Transit tour mode ASC -- commuter rail,@(df.is_indiv & df.tour_mode_is_drive_transit),,,,,,,,,,,,,
-util_Drive_to_Transit_tour_mode_ASC_ride_hail,Drive to Transit tour mode ASC -- ride hail,@(df.is_indiv & df.tour_mode_is_drive_transit),,,,,,,,,,,drive_transit_ASC_rh,drive_transit_ASC_rh,drive_transit_ASC_rh
+util_Drive_to_Transit_tour_mode_ASC,Drive to Transit tour mode ASC ,@(df.is_indiv & df.tour_mode_is_drive_transit),,,,,,,,,,drive_transit_ASC,,,
 util_Ride_Hail_tour_mode_ASC_shared_ride_2,Ride Hail tour mode ASC -- shared ride 2,@(df.is_indiv & df.tour_mode_is_ride_hail),,ride_hail_ASC_sr2,,,,,,,,,,,
 util_Ride_Hail_tour_mode_ASC_shared_ride_3_plus,Ride Hail tour mode ASC -- shared ride 3+,@(df.is_indiv & df.tour_mode_is_ride_hail),,,ride_hail_ASC_sr3p,,,,,,,,,,
 util_Ride_Hail_tour_mode_ASC_walk,Ride Hail tour mode ASC -- walk,@(df.is_indiv & df.tour_mode_is_ride_hail),,,,ride_hail_ASC_walk,,,,,,,,,
@@ -213,11 +208,7 @@ util_joint_Walk_to_Transit_tour_mode_ASC_shared_ride_2,joint - Walk to Transit t
 util_joint_Walk_to_Transit_tour_mode_ASC_shared_ride_3_plus,joint - Walk to Transit tour mode ASC -- shared ride 3+,@(df.is_joint & df.tour_mode_is_walk_transit),,,joint_walk_transit_ASC_sr3p,,,,,,,,,,
 util_joint_Walk_to_Transit_tour_mode_ASC_walk,joint - Walk to Transit tour mode ASC -- walk,@(df.is_joint & df.tour_mode_is_walk_transit),,,,joint_walk_transit_ASC_walk,,,,,,,,,
 util_joint_Walk_to_Transit_tour_mode_ASC_ride_hail,joint - Walk to Transit tour mode ASC -- ride hail,@(df.is_joint & df.tour_mode_is_walk_transit),,,,,,,,,,,joint_walk_transit_ASC_rh,joint_walk_transit_ASC_rh,joint_walk_transit_ASC_rh
-util_joint_Drive_to_Transit_tour_mode_ASC_light_rail_skims_differ,joint - Drive to Transit tour mode ASC -- light rail (higher b/c loc d-trn skims differ),@(df.is_joint & df.tour_mode_is_drive_transit & ~df.drive_ferry_available),,,,,,,,,,,,,
-util_joint_Drive_to_Transit_tour_mode_ASC_ferry,joint - Drive to Transit tour mode ASC -- ferry,@(df.is_joint & df.tour_mode_is_drive_transit & df.drive_ferry_available),,,,,,,,,,,,,
-util_joint_Drive_to_Transit_tour_mode_ASC_express_bus,joint - Drive to Transit tour mode ASC -- express bus,@(df.is_joint & df.tour_mode_is_drive_transit),,,,,,,,,,,,,
-util_joint_Drive_to_Transit_tour_mode_ASC_heavy_rail,joint - Drive to Transit tour mode ASC -- heavy rail,@(df.is_joint & df.tour_mode_is_drive_transit),,,,,,,,,,,,,
-util_joint_Drive_to_Transit_tour_mode_ASC_commuter_rail,joint - Drive to Transit tour mode ASC -- commuter rail,@(df.is_joint & df.tour_mode_is_drive_transit),,,,,,,,,,,,,
+util_joint_Drive_to_Transit_tour_mode_ASC,joint - Drive to Transit tour mode ASC ,@(df.is_joint & df.tour_mode_is_drive_transit),,,,,,,,,,joint_drive_transit_ASC,,,
 util_joint_Drive_to_Transit_tour_mode_ASC_ride_hail,joint - Drive to Transit tour mode ASC -- ride hail,@(df.is_joint & df.tour_mode_is_drive_transit),,,,,,,,,,,joint_drive_transit_ASC_rh,joint_drive_transit_ASC_rh,joint_drive_transit_ASC_rh
 util_joint_Ride_Hail_tour_mode_ASC_shared_ride_2,joint - Ride Hail tour mode ASC -- shared ride 2,@(df.is_joint & df.tour_mode_is_ride_hail),,joint_ride_hail_ASC_sr2,,,,,,,,,,,
 util_joint_Ride_Hail_tour_mode_ASC_shared_ride_3_plus,joint - Ride Hail tour mode ASC -- shared ride 3+,@(df.is_joint & df.tour_mode_is_ride_hail),,,joint_ride_hail_ASC_sr3p,,,,,,,,,,
