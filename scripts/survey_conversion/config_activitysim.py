@@ -193,6 +193,31 @@ purpose_map = {
     'Missing: Non-response': -1
     }
 
+full_purpose_map = {
+    'Conducted personal business (e.g., bank, post office)': 'othmaint',
+       'Went grocery shopping': 'shopping', 
+       'Went home': 'Home',
+       'Went to religious/community/volunteer activity': 'social',
+       'Went to work-related place (e.g., meeting, second job, delivery)' : 'work',
+       'Went to other shopping (e.g., mall, pet store)': 'shopping',
+       'Went to school/daycare (e.g., daycare, K-12, college)': 'school',
+       "Dropped off/picked up someone (e.g., son at a friend's house, spouse at bus stop)": 'escort',
+       'Went to primary workplace': 'work',
+       'Went to medical appointment (e.g., doctor, dentist)': 'othmaint',
+       'Went to restaurant to eat/get take-out': 'eatout',
+       'Attended recreational event (e.g., movies, sporting event)': 'othdiscr',
+       'Attended social event (e.g., visit with friends, family, co-workers)': 'social',
+       'Went to exercise (e.g., gym, walk, jog, bike ride)': 'othdiscr',
+       'Went to other work-related activity': 'work', 
+       'Other purpose': 'othdiscr',
+       'Other appointment/errands (rMove only)': 'othmaint',
+       'Other social/leisure (rMove only)': 'social',
+       'Transferred to another mode of transportation (e.g., change from ferry to bus)': 'change_mode',
+       'Missing: Non-response': -1,
+       "Went to a family activity (e.g., child's softball game)": 'othdiscr',
+       'Vacation/Traveling (rMove only)': 'othdiscr'
+       }
+
 dorp_map = {
     1: 1,
     2: 2,
