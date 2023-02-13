@@ -356,7 +356,7 @@ if geocode_persons:
     # is dependent on other calculations, so this is done as part of reformatting
 
     # Calculate fields using an expression file
-    expr_df = pd.read_csv(r'\\modelstation2\c$\Workspace\activitysim\activitysim\examples\example_psrc\scripts\person_expr_activitysim.csv')
+    expr_df = pd.read_csv(r'scripts\survey_conversion\person_expr_activitysim.csv')
 
     for index, row in expr_df.iterrows():
         expr = 'person.loc[' + row['filter'] + ', "' + row['result_col'] + '"] = ' + str(row['result_value'])
@@ -489,7 +489,7 @@ if geocode_persons:
     person.loc[person['pemploy'].isin([1,2]) & (person['workplace_zone_id'].isnull()), 'pemploy'] = 3
 
     # Recalculate person type again with expression file
-    expr_df = pd.read_csv(r'\\modelstation2\c$\Workspace\activitysim\activitysim\examples\example_psrc\scripts\person_expr_activitysim_2.csv')
+    expr_df = pd.read_csv(r'scripts\survey_conversion\person_expr_activitysim_2.csv')
 
     for index, row in expr_df.iterrows():
         expr = 'person.loc[' + row['filter'] + ', "' + row['result_col'] + '"] = ' + str(row['result_value'])
@@ -512,7 +512,7 @@ if convert_survey:
     # Convert Household Variables
     ###################################
 
-    expr_df = pd.read_csv(r'\\modelstation2\c$\Workspace\activitysim\activitysim\examples\example_psrc\scripts\hh_expr_activitysim.csv')
+    expr_df = pd.read_csv(r'scripts\survey_conversion\hh_expr_activitysim.csv')
 
     # Merge parcel files to households to get data on single/multi-family homes
     #raw_parcels_df = pd.read_csv(parcel_file, delim_whitespace=True, usecols=['parcelid', 'sfunits', 'mfunits']) 
@@ -544,7 +544,7 @@ if convert_survey:
     # Trip
     #########################################
 
-    expr_df = pd.read_csv(r'\\modelstation2\c$\Workspace\activitysim\activitysim\examples\example_psrc\scripts\trip_expr_activitysim.csv')
+    expr_df = pd.read_csv(r'scripts\survey_conversion\trip_expr_activitysim.csv')
 
     # Merge some required values from the person file
     trip = trip.merge(person[[person_id_col,school_taz,work_taz]], how='left', on=person_id_col)
@@ -556,6 +556,21 @@ if convert_survey:
 
     # This trip file serves as input for the tour file and will be updated with tour information
     # After both the tour file is created and the trip file is updated they will be written to file
+
+    # Filter out any change_mode trips
+    filter = trip['purpose'] == 'change_mode'
+    logger.info(f"Dropped {len(trip[filter])} trips with purpose 'Change mode'")
+    trip = trip[~filter]
+    # FIXME: perform trip linking here to combine the adjacent trips instead of deleting...
+
+    filter = trip['purpose'].isnull()
+    logger.info(f"Dropped {len(trip[filter])} trips with purpose 'Change mode'")
+    trip = trip[~filter]
+
+    # Remove any intrazonal trips (in the same MAZ)
+    filter = (trip['origin'] == trip['destination'])
+    logger.info(f"Dropped {len(trip[filter])} trips with same origin and destination MAZ")
+    trip = trip[~filter]
 
     ######################################
     # Tour
@@ -685,7 +700,7 @@ if convert_survey:
 
                     # ----- Generate Tour Record -----
                     # Apply standard rules for 2-leg tours
-                    tour_dict[tour_id][tdpurp] = _df.iloc[0][dpurp]
+                    tour_dict[tour_id][tdpurp] = _df.iloc[0]['purpose']
                     tour_dict[tour_id]['tripsh1'] = 1
                     tour_dict[tour_id]['tripsh2'] = 1
                     tour_dict[tour_id][tdadtyp] =  _df.iloc[0][dadtyp]
@@ -770,7 +785,7 @@ if convert_survey:
 
                                     if len(subtour_df) == 2:
 
-                                        tour_dict[tour_id][tdpurp] = subtour_df.iloc[0][dpurp]
+                                        tour_dict[tour_id][tdpurp] = subtour_df.iloc[0]['purpose']
                                         tour_dict[tour_id]['tripsh1'] = 1
                                         tour_dict[tour_id]['tripsh2'] = 1
                                         tour_dict[tour_id][tdadtyp] =  subtour_df.iloc[0][dadtyp]
@@ -792,7 +807,7 @@ if convert_survey:
                                         subtour_df['duration'] = subtour_df.shift(-1).iloc[:-1][deptm]-subtour_df.iloc[:-1][arrtm]
                                         # Assume location with longest time spent at location (duration) is main subtour purpose
                                         primary_subtour_purp_index = subtour_df[subtour_df[dpurp]!='Change mode']['duration'].idxmax()
-                                        tour_dict[tour_id][tdpurp] = subtour_df.loc[primary_subtour_purp_index][dpurp]
+                                        tour_dict[tour_id][tdpurp] = subtour_df.loc[primary_subtour_purp_index]['purpose']
 
                                         # Get subtour data based on the primary destination trip
                                         # We know the tour destination parcel/TAZ field from that primary trip, as well as destination type
@@ -832,9 +847,10 @@ if convert_survey:
                             tour_dict[tour_id][tour_id_col] = tour_id
 
                             # Identify the primary purpose
-                            primary_purp_index = _df[-_df[dpurp].isin(purpose_map.values())]['duration'].idxmax()
+                            #primary_purp_index = _df[-_df['purpose'].isin(full_purpose_map.values())]['duration'].idxmax()
+                            primary_purp_index = _df['duration'].idxmax()
 
-                            tour_dict[tour_id][tdpurp] = _df.loc[primary_purp_index][dpurp]
+                            tour_dict[tour_id][tdpurp] = _df.loc[primary_purp_index]['purpose']
                             tour_dict[tour_id]['tlvdest'] = _df.loc[primary_purp_index][deptm]
                             tour_dict[tour_id][tdtaz] = _df.loc[primary_purp_index][dtaz]
                             tour_dict[tour_id][tdpcl] = _df.loc[primary_purp_index][dpcl]
@@ -918,9 +934,10 @@ if convert_survey:
 
                         # Identify the primary purpose
                         # FIXME: need to find the primary purpose here
-                        primary_purp_index = _df[-_df[dpurp].isin([0,10])]['duration'].idxmax()
+                        #primary_purp_index = _df[-_df[dpurp].isin([0,10])]['duration'].idxmax()
+                        primary_purp_index = _df['duration'].idxmax()
 
-                        tour_dict[tour_id][tdpurp] = _df.loc[primary_purp_index][dpurp]
+                        tour_dict[tour_id][tdpurp] = _df.loc[primary_purp_index]['purpose']
                         tour_dict[tour_id]['tlvdest'] = _df.loc[primary_purp_index][deptm]
                         tour_dict[tour_id][tdtaz] = _df.loc[primary_purp_index][dtaz]
                         tour_dict[tour_id][tdpcl] = _df.loc[primary_purp_index][dpcl]
@@ -952,10 +969,15 @@ if convert_survey:
     tour.value_counts().to_csv(os.path.join(output_dir, 'temp', 'bad_trip_report.csv'))
 
     # Tour category based on tour type
-    tour['tour_type'] = tour['tour_type'].map(purpose_map).map(str)
+    #tour['tour_type'] = tour['tour_type'].map(purpose_map).map(str)
 
     tour['tour_category'] = 'non_mandatory'
     tour.loc[tour['tour_type'].isin(['work','school']),'tour_category'] = 'mandatory'
+
+    # Drop any tour with -1 as primary purpose
+    _filter = tour['tour_type'] == -1
+    logger.info(f"Dropped {len(tour[_filter])} tours due to -1 primary purpose")
+    tour = tour[~_filter]
 
     tour.to_csv(os.path.join(output_dir, 'survey_tours.csv'), index=False)
 
@@ -963,7 +985,7 @@ if convert_survey:
     # Joint Tour Processing
     ###########################################
 
-    expr_df = pd.read_csv(r'\\modelstation2\c$\Workspace\activitysim\activitysim\examples\example_psrc\scripts\joint_tour_expr_activitysim.csv')
+    expr_df = pd.read_csv(r'scripts\survey_conversion\joint_tour_expr_activitysim.csv')
 
     for index, row in expr_df.iterrows():
         expr = 'tour.loc[' + row['filter'] + ', "' + row['result_col'] + '"] = ' + str(row['result_value'])
@@ -1259,7 +1281,150 @@ if convert_survey:
     trip = trip[trip['origin'] > 0]
     trip = trip[trip['destination'] > 0]
 
-    # Make sure trips, tours, and joint_tour_partiicpants align
+    # Make sure all tours have a tour_type defined; removing currently
+    # FIXME: add to expression files
+    _filter = tour['tour_type'] == '-1'
+    logger.info(f'Dropped {len(tour[_filter])} tours: missing tour type')
+    tour = tour[~_filter]
+
+    # Check that tours have a valid mode
+    # FIXME: should we try to impute a mode?
+    _filter = tour['tour_mode'].isnull()
+    logger.info(f'Dropped {len(tour[_filter])} tours: missing tour mode')
+    tour = tour[~_filter]
+
+    # Make sure a subtour's parent tour still exists. If not, remove
+    tour['drop'] = 0
+    tour.loc[(tour['parent_tour_id'] != 0) & ~(tour['parent_tour_id'].isin(tour.tour_id)),'drop'] = 1
+    logger.info(f'Dropped {len(tour[tour["drop"] == 1])} tours: parent tour was removed/missing')
+    tour = tour[tour['drop'] == 0]
+
+    # Drop any tours and trips if there is only 1 trips; this might have caused by cleaning above
+    trips_per_tour = trip.groupby('tour_id').count()[['person_id']]
+    remove_tour_list = trips_per_tour[trips_per_tour.person_id < 2].index.values
+    trip = trip[~trip['tour_id'].isin(remove_tour_list)]
+
+    # Make sure each tour has an inbound and outbound component
+    outbound_tours = trip[trip['outbound'] == True].tour_id.unique()
+    inbound_tours = trip[trip['outbound'] == False].tour_id.unique()
+    _filter = ((tour.tour_id.isin(outbound_tours))) & ((tour.tour_id.isin(inbound_tours)))
+    logger.info(f'Dropped {len(tour[~_filter])} tours: missing inbound or outbound trip component')
+    tour = tour[_filter]
+
+    # Make sure sequence of departure times is sequential to apply trip_num; remove if not
+    # This comes from trips that extend past midnight;
+    # FIXME: is there a way to accomodate these trips/tours or should they be dropped outright?
+    drop_tours = []
+    for tour_id in tour['tour_id']:
+        df = trip[trip['tour_id'] == tour_id]['depart']
+        if not df.is_monotonic_increasing:
+            drop_tours.append(tour_id)
+    _filter = tour['tour_id'].isin(drop_tours)
+    logger.info(f'Dropped {len(tour[_filter])} tours: travel day passes beyond midnight')
+    tour = tour[~_filter]
+
+    # Make sure tours and trips align; if trips were dropped the tour file should be updated to reflect changes
+    # expect outbound last trip destination to be same as half tour destination
+    trip_dest = trip[trip['outbound'] == True].groupby('tour_id').last()[['destination']].reset_index()
+    tour.drop('destination', inplace=True, axis=1)
+    tour = tour.merge(trip_dest, on='tour_id', how='left')
+
+    # Check that non-subtour tours start at home
+    # FIXME: consider asserting trip origin at home location? Trace the cause of this
+    tour = tour.merge(hh[['household_id','home_zone_id']], on='household_id', how='left')
+    _filter = (tour['parent_tour_id'] == 0) & (tour['origin'] == tour['home_zone_id'])
+    logger.info(f'Dropped {len(tour[~_filter])} tours: missing inbound or outbound trip component')
+    tour = tour[_filter]
+
+    # Explicitly-defined non workers should not be making work trips
+    # Recode ptype to be part-time workers
+    work_tours = tour[tour.tour_type == 'work']
+    person.loc[(person['ptype'].isin([4])) & person['person_id'].isin(work_tours['person_id']), 'ptype'] = 2
+
+    # Activitysim assumes all work and school trips are to a perons's primary work/school locations
+    # In the first steps here we move usual school/work locations to zones with jobs/students so the location choice model can be estimated
+    # If a trip's reported location is within a reasonable distance of the usual location, change the trip destination to the usual location
+
+    # Calculate centroid distances for MAZs
+    maz_shp = gpd.read_file(r'R:\e2projects_two\activitysim\maz\maz_blk10_shp.shp')
+    tour = tour.merge(person[['person_id','workplace_zone_id','school_zone_id']], on='person_id', how='left')
+    df = tour[tour['tour_type'] == 'work'][['destination','tour_id','workplace_zone_id']]
+    
+    df1 = df.merge(maz_shp, left_on='destination', right_on='maz_id', how='left').set_index('tour_id')
+    df2 = df.merge(maz_shp, left_on='workplace_zone_id', right_on='maz_id', how='left').set_index('tour_id')
+    dist_df = gpd.GeoSeries(df1.geometry).distance(gpd.GeoSeries(df2.geometry))
+
+    # For differences of a mile or less, assign trip & tour desination to match usual work location
+    # Otherwise, remove these trips and tours
+    change_destination = dist_df[dist_df <= 5280].index
+    drop_tours = dist_df[dist_df > 5280].index
+    tour.index = tour['tour_id']
+    tour.loc[change_destination,'destination'] = tour['workplace_zone_id']
+    tour = tour.reset_index(drop=True)
+
+    tour = tour[~tour['tour_id'].isin(drop_tours)]
+
+    # Edit trips
+    for tour_id in change_destination:
+        # change last outbound destination
+        df = trip.loc[(trip['tour_id'] == tour_id) & (trip['outbound'] == True)].iloc[-1]
+        trip.loc[trip['trip_id'] == df['trip_id'], 'destination'] = tour.loc[tour['tour_id'] == tour_id,'destination'].values[0]
+        # change first inbound origin
+        df = trip.loc[(trip['tour_id'] == tour_id) & (trip['outbound'] == False)].iloc[0]
+        trip.loc[trip['trip_id'] == df['trip_id'], 'origin'] = tour.loc[tour['tour_id'] == tour_id,'destination'].values[0]
+
+    # Adjust trip & tour destinations for school travel
+    df = tour[tour['tour_type'] == 'school'][['destination','school_zone_id','tour_id']]
+    df1 = df.merge(maz_shp, left_on='destination', right_on='maz_id', how='left').set_index('tour_id')
+    df2 = df.merge(maz_shp, left_on='school_zone_id', right_on='maz_id', how='left').set_index('tour_id')
+    dist_df = gpd.GeoSeries(df1.geometry).distance(gpd.GeoSeries(df2.geometry))
+    change_destination = dist_df[dist_df <= 5280].index
+    drop_tours = dist_df[dist_df > 5280].index
+    tour.index = tour['tour_id']
+    tour.loc[change_destination,'destination'] = tour['school_zone_id']
+    tour = tour.reset_index(drop=True)
+ 
+    tour = tour[~tour['tour_id'].isin(drop_tours)]
+
+    # Edit trips
+    for tour_id in change_destination:
+        # change last outbound destination
+        df = trip.loc[(trip['tour_id'] == tour_id) & (trip['outbound'] == True)].iloc[-1]
+        trip.loc[trip['trip_id'] == df['trip_id'], 'destination'] = tour.loc[tour['tour_id'] == tour_id,'destination'].values[0]
+        # change first inbound origin
+        df = trip.loc[(trip['tour_id'] == tour_id) & (trip['outbound'] == False)].iloc[0]
+        trip.loc[trip['trip_id'] == df['trip_id'], 'origin'] = tour.loc[tour['tour_id'] == tour_id,'destination'].values[0]
+
+    # Make sure trip origins and destinations are sequential
+    # Since we had to remove certain trips this can affect the tour
+    # FIXME: we may want to repair these Os and Ds, but they may not all make sense if missing a trip
+    # Remove all trips and tours that don't have a matching half tour destinations
+    # FIXME: put this and above in the same loop...
+    flag_tours = []
+    for tour_id in tour['tour_id'].unique():
+        df = trip[trip['tour_id'] == tour_id]
+        # expect outbound last trip destination to be same as outbound first trip origin
+        if (df.loc[df['outbound'] == True, 'destination'].iloc[-1]) != (df.loc[df['outbound'] == False, 'origin'].iloc[0]):
+            flag_tours = np.append(flag_tours, tour_id)
+        # expect inbound first trip origin to be same as half tour destination
+        if (df.loc[df['outbound'] == False, 'origin'].iloc[0]) != (tour[tour.tour_id == tour_id]['destination'].values[0]):
+            flag_tours = np.append(flag_tours, tour_id)
+        # expect inbound last trip destination to be same as half tour origin
+        if (df.loc[df['outbound'] == False, 'destination'].iloc[-1]) != (tour[tour.tour_id == tour_id]['origin'].values[0]):
+            flag_tours = np.append(flag_tours, tour_id)
+
+    # Drop all flagged tours
+    logger.info(f'Dropped {len(flag_tours)} tours: first half tour destination does not match last half tour origin')
+    tour = tour[~tour.tour_id.isin(flag_tours)]
+
+    # If a university student makes a school trip, rename purpose from "school" to "univ"
+    trip = trip.merge(person[['person_id','pstudent']], on='person_id', how='left')
+    trip.loc[(trip['pstudent'] == 2) & (trip['purpose'] == 'school'), 'purpose'] = 'univ'
+
+    # Drop trips without a valid purpose
+    trip = trip[trip['purpose'] != '-1']
+
+    # Make sure trips, tours, and joint_tour_participants align
     trip = trip[trip['tour_id'].isin(tour['tour_id'])]
     tour = tour[tour['tour_id'].isin(trip['tour_id'])]
     joint_tour_participants = joint_tour_participants[joint_tour_participants['tour_id'].isin(tour['tour_id'])]
@@ -1268,15 +1433,26 @@ if convert_survey:
     # Set local person order in household to work with joint tour estimation
     # joint_tour_frequency.py assumes PNUM==1 should have a joint tour
     # Re-sort PNUM in person file based on joint_tour_participants file
-    # Get indicator if a person takes a joint tour
-    # FIXME: this still fails joint tour frequency estimation if a household has 2 joint tours
-    # with two different primary participants; fix by settings person that takes multiple joint tours
-    # as primary participant 
-    person['makes_joint_tour'] = 999
-    person.loc[person['person_id'].isin(joint_tour_participants['person_id']), 'makes_joint_tour'] = 1
-    person = person.sort_values(['household_id','makes_joint_tour'])
+    # Sort by most joint tours taken in household
+    person_joint_tours = joint_tour_participants.groupby('person_id').count()['household_id'].reset_index()
+    person_joint_tours.rename(columns={'household_id': 'joint_tour_count'}, inplace=True)
+    person = person.merge(person_joint_tours, how='left', on='person_id').fillna(0)
+    person = person.sort_values(['household_id','joint_tour_count'], ascending=False)
     for household_id in person.household_id.unique():
         person.loc[person['household_id'] == household_id, 'PNUM'] = range(1, 1+len(person[person['household_id'] == household_id]))
+
+    # Update joint_tour_participants with new PNUM
+    joint_tour_participants.drop('participant_num', axis=1, inplace=True)
+    joint_tour_participants = joint_tour_participants.merge(person[['person_id','PNUM']], how='left')
+    
+    # Tour records for joint tours only have info on primary trip makers; update these since we changed primary tour maker (PNUM==1)
+    df = joint_tour_participants[joint_tour_participants['PNUM'] == 1]
+    joint_tour_participants.rename(columns={'PNUM':'participant_num'}, inplace=True)    # reset to original col name
+
+    tour = tour.merge(df[['tour_id','person_id']], how='left', on='tour_id')
+    tour['person_id_y'].fillna(tour['person_id_x'], inplace=True)
+    tour.drop('person_id_x', axis=1, inplace=True)
+    tour.rename(columns={'person_id_y': 'person_id'}, inplace=True)
 
     person = person[person_cols]
     tour = tour[tour_cols]

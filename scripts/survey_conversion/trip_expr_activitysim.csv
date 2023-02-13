@@ -9,7 +9,7 @@
 8,trip,"(trip['mode'] == 'Transit') & (trip['mode_1'] ==""Commuter rail (Sounder, Amtrak)"")",mode,"""WALK_COM""",
 9,trip,"(trip['mode'] == 'Transit') & (trip['mode_1'].isin([""Urban Rail (e.g., Link light rail, monorail)"",""Other rail (e.g., streetcar)""]))",mode,"""WALK_LR""",
 10,trip,"(trip['mode'] == 'Transit') & (trip['mode_1'].isin([""Bus (public transit)"",""Other bus (rMove only)""]))",mode,"""WALK_LOC""",
-11,trip,:,purpose,trip['dest_purpose_cat'].map(purpose_map),
+11,trip,:,purpose,trip['dest_purpose'].map(full_purpose_map),
 14,trip,:,depart_time_mam,trip['depart_time_hhmm'].fillna(-1).apply(lambda x: convert_hhmm_to_mam(x)),
 15,trip,:,arrival_time_mam,trip['arrival_time_hhmm'].fillna(-1).apply(lambda x: convert_hhmm_to_mam(x)),
 16,trip,:,depart,np.floor(trip['depart_time_mam']/60),
