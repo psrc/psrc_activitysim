@@ -42,7 +42,7 @@ read_survey_from_db = False
 convert_survey = True
 
 # List of days to process and include
-day_list = ['Wednesday']  
+day_list = ['Tuesday','Wednesday','Thursday']  
 
 # Define inputs/outputs
 output_dir = r'data\survey_data'
@@ -1211,6 +1211,8 @@ if convert_survey:
     # FIXME: this may be an issue if there are no students/education employment; may need to snap these trips and locations again
     school_tours = tour[tour.tour_type == 'school']
     school_tours = school_tours.groupby('person_id').first()[['destination']]
+    person['school_zone_id'] = person['school_zone_id'].fillna(-1)
+    person['school_zone_id'] = person['school_zone_id'].replace(0, -1)
     person = person.merge(school_tours, how='left', left_on='person_id', right_index=True)
     person.rename(columns={'destination': 'school_dest'}, inplace=True)
     person.loc[(~person['school_dest'].isnull()) & 
