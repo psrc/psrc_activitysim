@@ -20,9 +20,6 @@ import logcontroller
 import datetime
 pd.options.mode.chained_assignment = None  # default='warn'
 from activitysim.abm.models.util import canonical_ids as ci
-from activitysim.abm.models.util import tour_frequency as tf
-from activitysim.core.util import reindex
-from activitysim.core import config
 from config_activitysim import *
 
 ##############################
@@ -50,6 +47,10 @@ geolocated_output = r'data\survey_conversion'
 
 parcel_file = r'data\survey_conversion\parcels_urbansim.txt'
 parcel_maz_file = r'data\survey_conversion\parcel_taz_block_lookup.csv'
+
+# Synthetic household used to impute income if available
+# Set to "None" to skip imputation
+synthetic_hh_dir = r'R:\e2projects_two\activitysim\inputs\data\data_full\households.csv' 
 
 # If not reading raw survey files directly from db, set read_survey_from_db to False and define the following paths:
 survey_trip_file = r'data\survey_conversion\elmer_trip.csv'
@@ -546,6 +547,21 @@ if convert_survey:
         hh[person_type_dict[person_type]].fillna(0, inplace=True)
         hh[person_type_dict[person_type]] = hh[person_type_dict[person_type]].astype('int')
 
+    # Impute household income 
+    # Use synthetic household data if available, aggregate by PUMA and number of workers
+    # Otherwise use survey median
+    # FIXME: consider using smaller geographies and other constraints, or a model
+    if synthetic_hh_dir is not None:
+        syn_hh_df = pd.read_csv(synthetic_hh_dir, usecols=['workers','income','PUMA5'])
+        syn_hh_df = syn_hh_df.groupby(['PUMA5','workers']).median()[['income']].reset_index()
+        syn_hh_df.rename(columns={'income': 'imputed_income'}, inplace=True)
+        hh = hh.merge(syn_hh_df, how='left', left_on=['final_home_puma10','numworkers'],
+                 right_on=['PUMA5','workers'])
+        # Fill -1 values with imputed income
+        hh.loc[hh['income'] == -1, 'income'] = hh['imputed_income']
+    else:
+        hh.loc[hh['income'] == -1, 'income'] = hh[hh.imputed_income >= 0].imputed_income.median()
+
     #########################################
     # Trip
     #########################################
@@ -564,6 +580,7 @@ if convert_survey:
     # After both the tour file is created and the trip file is updated they will be written to file
 
     # Filter out any change_mode trips
+
     filter = trip['purpose'] == 'change_mode'
     logger.info(f"Dropped {len(trip[filter])} trips with purpose 'Change mode'")
     trip = trip[~filter]
@@ -1016,6 +1033,11 @@ if convert_survey:
         print(row['index'])
 
         exec(expr)
+
+    # After we've set begin and end hours, make sure all tour ends are after beginings
+    _filter = tour['end'] >= tour['start']
+    logger.info(f'Dropped {len(tour[~_filter])} tours: tour end < tour start time')
+    tour = tour[_filter]
 
     # Enforce canonical tours - there cannot be more than 2 mandatory work tours
     # Flag mandatory vs non-mandatory to trips by purpose (and include joint non-mandatory trips)
