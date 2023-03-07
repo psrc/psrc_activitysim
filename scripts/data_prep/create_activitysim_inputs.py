@@ -21,10 +21,10 @@ hh_persons_file = os.path.join(land_use_dir, "hh_and_persons.h5")
 
 
 # transit score
-transit_score_file = r"R:\e2projects_two\activitysim\inputs\data\psrc\two_zone_maz\transit_index\block_transit_score2018.csv"
+transit_score_file = r"R:\e2projects_two\activitysim\inputs\data\block_transit_score2018.csv"
 
 ##### Outputs
-output_dir = r"C:\Stefan"
+output_dir = r"R:\e2projects_two\activitysim\inputs\data\data_raw"
 
 # zone_types = ['TAZ','MAZ','parcel']
 zone_types = ["MAZ"]
@@ -159,7 +159,7 @@ def process_households(zone_type, land_use_dir):
 
     # Load MTC example as a data format template
     df_mtc = pd.read_csv(
-        "https://raw.githubusercontent.com/ActivitySim/activitysim/master/activitysim/examples/example_mtc/data/households.csv",
+        r"R:\e2projects_two\activitysim\conversion\mtc_data\data\households.csv",
         nrows=10,
     )
     syn_hh = pd.read_csv(syn_hh_file)
@@ -384,7 +384,7 @@ def process_persons(df_psrc_person):
     """Convert Daysim-formatted data to MTC TM1 format for activitysim."""
 
     df_mtc_persons = pd.read_csv(
-        "https://raw.githubusercontent.com/ActivitySim/activitysim/master/activitysim/examples/example_mtc/data/persons.csv",
+        r"R:\e2projects_two\activitysim\conversion\mtc_data\data\persons.csv",
         nrows=10,
     )
 
@@ -428,7 +428,7 @@ def process_landuse(df_psrc, df_psrc_person, zone_type):
        Inputs are person and household dfs formatted to activitysim format, with all processed columns available
     """
 
-    mtc_lu_path = "https://raw.githubusercontent.com/ActivitySim/activitysim/master/activitysim/examples/example_mtc/data/land_use.csv"
+    mtc_lu_path = r"R:\e2projects_two\activitysim\conversion\mtc_data\dataland_use.csv"
     df_parcel_path = r"R:\e2projects_two\SoundCast\Inputs\dev\landuse\2018\vers2_july2020\parcels_urbansim.txt"
     df_mtc_lu = pd.read_csv(mtc_lu_path)
     df_parcel = pd.read_csv(df_parcel_path, delim_whitespace=True)
@@ -714,7 +714,7 @@ def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict)
        Inputs are person and household dfs formatted to activitysim format, with all processed columns available
     """
 
-    mtc_lu_path = "https://raw.githubusercontent.com/ActivitySim/activitysim/master/activitysim/examples/example_mtc/data/land_use.csv"
+    mtc_lu_path = r"R:\e2projects_two\activitysim\conversion\mtc_data\data\land_use.csv"
     # df_parcel_path = r'R:\e2projects_two\SoundCast\Inputs\dev\landuse\2018\vers2_july2020\parcels_urbansim.txt'
     # df_parcel_path = r'L:\RTP_2022\soundcast_rtp2050_tests_BASE\outputs\landuse\buffered_parcels.txt'
     # df_parcel_path = r'C:\Stefan\scratch\buffered_parcels.csv'
@@ -932,8 +932,9 @@ def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict)
     # Distance to transit
     # Get closest for now
 
-    df = df_parcel.groupby(zone_type)["raw_dist_transit"].mean()
-    df.reset_index(inplace=True)
+    df = df_parcel[df_parcel["raw_dist_transit"]<999]
+    df = df.groupby(zone_type)["raw_dist_transit"].mean().reset_index()
+    df["access_dist_transit"] = df["raw_dist_transit"]
 
     # recode greater than 5 miles to 0, which means no access to transit in ActivitySim
     df["access_dist_transit"] = np.where(
@@ -942,6 +943,7 @@ def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict)
     df = df[[zone_type, "access_dist_transit"]]
 
     df_lu = df_lu.merge(df, on=zone_type, how="left")
+    df_lu["access_dist_transit"] = df_lu["access_dist_transit"].fillna(0)
 
     df_lu["density"] = (df_lu.TOTPOP + (2.5 * df_lu.TOTEMP)) / df_lu.TOTACRE
     # Fill zones with no residents/employment as 0
@@ -1000,8 +1002,8 @@ def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict)
     # transit index
     transit_index_df = pd.read_csv(transit_score_file)
     df_lu = df_lu.merge(transit_index_df, on=zone_type, how="left")
-    df_lu["transit_score"] = df_lu["score"]
-    df_lu["transit_score_scaled"] = df_lu["scaled_score"]
+    #df_lu["transit_score"] = df_lu["score"]
+    #df_lu["transit_score_scaled"] = df_lu["scaled_score"]
 
     # sf and mf units:
     total = df_lu["sfunits"] + df_lu["mfunits"]
