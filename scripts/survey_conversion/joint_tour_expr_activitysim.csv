@@ -1,6 +1,6 @@
 ﻿index,table ,filter,result_col,result_value,description
 1,tour,:,start,np.floor(tour['tlvorig']/60)
-2,tour,:,end,np.floor(tour['tlvorig']/60)
+2,tour,:,end,np.floor(tour['tarorig']/60)
 3,tour,(tour['start'] <= 5) & (tour['end'] <= 5),start,5.0,
 4,tour,(tour['start'] <= 5) & (tour['end'] <= 5),end,5.0,
 5,tour,(tour['start'] <= 5) & (tour['end'] >= 5),start,5.0,
