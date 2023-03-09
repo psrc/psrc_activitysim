@@ -18,6 +18,7 @@ from pymssql import connect
 import logging
 import logcontroller
 import datetime
+from sklearn.impute import SimpleImputer, KNNImputer
 pd.options.mode.chained_assignment = None  # default='warn'
 from activitysim.abm.models.util import canonical_ids as ci
 from config_activitysim import *
@@ -56,12 +57,6 @@ synthetic_hh_dir = r'R:\e2projects_two\activitysim\inputs\data\data_full\househo
 survey_trip_file = r'data\survey_conversion\elmer_trip.csv'
 survey_person_file = r'data\survey_conversion\elmer_person.csv'
 survey_household_file = r'data\survey_conversion\elmer_hh.csv'
-
-day_dict = {'Monday': 1,
-            'Tuesday': 2,
-            'Wednesday': 3,
-            'Thursday': 4,
-            'Friday': 5}
 
 # Constants and variable definitions
 # from constants.yaml
@@ -547,21 +542,21 @@ if convert_survey:
         hh[person_type_dict[person_type]].fillna(0, inplace=True)
         hh[person_type_dict[person_type]] = hh[person_type_dict[person_type]].astype('int')
 
-    # Impute household income 
-    # Use synthetic household data if available, aggregate by PUMA and number of workers
-    # Otherwise use survey median
-    # FIXME: consider using smaller geographies and other constraints, or a model
-    if synthetic_hh_dir is not None:
-        syn_hh_df = pd.read_csv(synthetic_hh_dir, usecols=['workers','income','PUMA5'])
-        syn_hh_df = syn_hh_df.groupby(['PUMA5','workers']).median()[['income']].reset_index()
-        syn_hh_df.rename(columns={'income': 'imputed_income'}, inplace=True)
-        hh = hh.merge(syn_hh_df, how='left', left_on=['final_home_puma10','numworkers'],
-                 right_on=['PUMA5','workers'])
-        # Fill -1 values with imputed income
-        hh.loc[hh['income'] == -1, 'income'] = hh['imputed_income']
-    else:
-        hh.loc[hh['income'] == -1, 'income'] = hh[hh.imputed_income >= 0].imputed_income.median()
+    # Impute household income using K-Nearest Neighbors
+    # Select relevant numeric columns to select neighboring values
+    data = hh[['income','numtrips','numchildren','numworkers','auto_ownership']]
+    # Dependent data (X) are of similar scale (integers starting at 0) so they don't need to be scaled
+    
+    imputer = KNNImputer(missing_values=-1, n_neighbors=20)
+    imputed_data = imputer.fit_transform(data)
+    df = pd.DataFrame(imputed_data)
+    df.rename(columns={0: 'imputed_income'}, inplace=True)
 
+    hh['income_imputed_flag'] = 0
+    hh.loc[hh['income'] == -1, 'income_imputed_flag'] = 1
+    hh = hh.merge(df[['imputed_income']], left_index=True, right_index=True, how='left')
+    hh.loc[hh['income'] == -1, 'income'] = hh['imputed_income']
+    
     #########################################
     # Trip
     #########################################
@@ -580,12 +575,11 @@ if convert_survey:
     # After both the tour file is created and the trip file is updated they will be written to file
 
     # Filter out any change_mode trips
-
+    # FIXME: see if any of these can be linked together
     filter = trip['purpose'] == 'change_mode'
     logger.info(f"Dropped {len(trip[filter])} trips with purpose 'Change mode'")
     trip = trip[~filter]
-    # FIXME: perform trip linking here to combine the adjacent trips instead of deleting...
-
+    
     filter = trip['purpose'].isnull()
     logger.info(f"Dropped {len(trip[filter])} trips with null purpose")
     trip = trip[~filter]
