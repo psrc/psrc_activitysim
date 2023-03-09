@@ -1,14 +1,4 @@
-trip_file_dir = r'R:\e2projects_two\2018_base_year\survey\geocode_parcels\2018\5_trip.csv'
-hh_file_dir = r'R:\e2projects_two\2018_base_year\survey\geocode_parcels\2018\1_household.csv'
-person_file_dir = r'R:\e2projects_two\2018_base_year\survey\geocode_parcels\2018\2_person.csv'
-
-# FIXME - which columns to use?:
-hh_wt_col = 'hh_wt_combined'
-
-# Output directory
-output_dir = r'C:\Users\bnichols\travel-studies\2017\daysim_conversions'
-#output_dir = r'R:\e2projects_two\2018_base_year\survey\daysim_format'
-#output_dir  = r'C:\Users\bnichols\Documents\estimation_2017\2014_estimation'
+import numpy as np
 
 # Flexible column names, given that these may change in future surveys
 hhno = 'hhid'
@@ -21,20 +11,6 @@ hhexpfac = 'hh_wt_revised'
 hhwkrs = 'numworkers'
 hhvehs = 'vehicle_count'
 pno = 'pernum'
-
-# Heirarchy order for tour mode, per DaySim docs: https://www.psrc.org/sites/default/files/2015psrc-modechoiceautomodels.pdf
-# Drive to Transit > Walk to Transit > School Bus > HOV3+ > HOV2 > SOV > Bike > Walk > Other
-drive_transit_i = 0
-walk_transit_i = 0
-mode_heirarchy = {6: 'walk_to_transit',
-                  8: 'drive_to_transit',
-                  9: 'school_bus',
-                  5: 'hov3',
-                  4: 'hov2',
-                  3: 'sov',
-                  2: 'bike',
-                  1: 'walk',
-                  10: 'change_mode'}
 
 # Field names
 gender = 'pgend'
@@ -49,6 +25,12 @@ school_taz = 'school_taz'
 person_cols =['hhno', 'pno', 'pptyp', 'pagey', 'pgend', 'pwtyp', 'pwpcl', 'pwtaz', 'pwautime',
             'pwaudist', 'pstyp', 'pspcl', 'pstaz', 'psautime', 'psaudist', 'puwmode', 'puwarrp', 
             'puwdepp', 'ptpass', 'ppaidprk', 'pdiary', 'pproxy', 'psexpfac']
+
+day_dict = {'Monday': 1,
+            'Tuesday': 2,
+            'Wednesday': 3,
+            'Thursday': 4,
+            'Friday': 5}
 
 person_type_dict = {
     1: 'hhftw', # full time workers
@@ -139,38 +121,14 @@ mode_dict = {
     'Other rented bicycle (rMove only)':'BIKE'
             }
 
-#mode_dict = {
-#    'WALK': 1,
-#    'Bike': 2,
-#    'SOV': 3,
-#    'HOV2': 4,
-#    'HOV3+': 5,
-#    'Transit': 6,
-#    'School_Bus': 8,
-#    'TNC': 9,   # Note that 9 was other in older Daysim records
-#    'Other': 10
-#    }
+# Drive to Transit > Walk to Transit (Ferry, Commuter Rail, Light Rail, Bus) > TNC > HOV3+ > HOV2 > SOV > Bike > Walk > Other
+mode_heirarchy = ['DRIVE_TRN','WALK_FRY','WALK_COM','WALK_LR','WALK_LOC','TNC','SHARED3FREE','SHARED2FREE','DRIVEALONEFREE','BIKE','WALK','Other']
 
-commute_mode_dict = {
-    1: 3, # SOV
-    2: 4, # HOV (2 or 3)
-    3: 4, # HOV (2 or 3)
-    4: 3, # Motorcycle, assume drive alone 
-    5: 5, # vanpool, assume HOV3+
-    6: 2, # bike
-    7: 1, # walk
-    8: 6, # bus -> transit
-    9: 10, # private bus -> other
-    10: 10, # paratransit -> other
-    11: 6, # commuter rail
-    12: 6, # urban rail
-    13: 6, # streetcar
-    14: 6, # ferry
-    15: 10, # taxi -> other
-    16: 9, # TNC
-    17: 10, # plane -> other
-    97: 10 # other
-    }
+# Transit access modes by walk/bike; also include missing data so walk is default unless otherwise noted 
+walk_access_mode = ['Walked or jogged', 'Rode a bike','Other', 'Missing: Skip Logic',np.nan]
+drive_access_mode = ['Got dropped off', 'Drove and parked a car (e.g., a vehicle in my household)',
+                     'Drove and parked a carshare vehicle (e.g., ZipCar, Car2Go)',
+                     'Took ride-share/other hired car service (e.g., Lyft, Uber)']
 
 day_map = {
     'Monday': 1,
@@ -218,15 +176,7 @@ full_purpose_map = {
        'Vacation/Traveling (rMove only)': 'othdiscr'
        }
 
-dorp_map = {
-    1: 1,
-    2: 2,
-    3: 9
-}
-
 # Household
-
-
 hhrestype_map = {'Single-family house (detached house)': 1,
                  'Townhouse (attached house)': 2,
                  'Building with 3 or fewer apartments/condos': 2,
@@ -237,7 +187,6 @@ hhrestype_map = {'Single-family house (detached house)': 1,
                  }
 
 # Use the midpoint of the ranges provided 
-
 income_map = {
     'Under $10,000': 5000,
     '$10,000-$24,999': 17500,
@@ -293,17 +242,3 @@ race_dict = {
     'Missing': 8,
     'Other': 4,
     'White Only': 1}
-
-# Daysim concept of path type, 1-4 for transit hierarchy 
-# with 1 being the top of the list, to 5 for auto/non-motorized trips
-path_type_dict = {'DRIVEALONEFREE': 5,
-                  'SHARED2FREE': 5,
-                  'SHARED3FREE': 5,
-                  'BIKE': 5,
-                  'WALK': 5,
-                  'WALK_LOC': 4,
-                  'WALK_LR': 3,
-                  'WALK_COM': 2,
-                  'WALK_FRY': 1}
-
-mode_heirarchy = ['WALK_FRY','WALK_COM','WALK_LR','WALK_LOC','SHARED3FREE','SHARED2FREE','DRIVEALONEFREE','BIKE','WALK','Other']
