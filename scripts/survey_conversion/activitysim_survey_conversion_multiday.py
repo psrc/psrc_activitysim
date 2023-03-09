@@ -18,11 +18,9 @@ from pymssql import connect
 import logging
 import logcontroller
 import datetime
+from sklearn.impute import SimpleImputer, KNNImputer
 pd.options.mode.chained_assignment = None  # default='warn'
 from activitysim.abm.models.util import canonical_ids as ci
-from activitysim.abm.models.util import tour_frequency as tf
-from activitysim.core.util import reindex
-from activitysim.core import config
 from config_activitysim import *
 
 ##############################
@@ -55,12 +53,6 @@ parcel_maz_file = r'data\survey_conversion\parcel_taz_block_lookup.csv'
 survey_trip_file = r'data\survey_conversion\elmer_trip.csv'
 survey_person_file = r'data\survey_conversion\elmer_person.csv'
 survey_household_file = r'data\survey_conversion\elmer_hh.csv'
-
-day_dict = {'Monday': 1,
-            'Tuesday': 2,
-            'Wednesday': 3,
-            'Thursday': 4,
-            'Friday': 5}
 
 # Constants and variable definitions
 # from constants.yaml
@@ -546,6 +538,21 @@ if convert_survey:
         hh[person_type_dict[person_type]].fillna(0, inplace=True)
         hh[person_type_dict[person_type]] = hh[person_type_dict[person_type]].astype('int')
 
+    # Impute household income using K-Nearest Neighbors
+    # Select relevant numeric columns to select neighboring values
+    data = hh[['income','numtrips','numchildren','numworkers','auto_ownership']]
+    # Dependent data (X) are of similar scale (integers starting at 0) so they don't need to be scaled
+    
+    imputer = KNNImputer(missing_values=-1, n_neighbors=20)
+    imputed_data = imputer.fit_transform(data)
+    df = pd.DataFrame(imputed_data)
+    df.rename(columns={0: 'imputed_income'}, inplace=True)
+
+    hh['income_imputed_flag'] = 0
+    hh.loc[hh['income'] == -1, 'income_imputed_flag'] = 1
+    hh = hh.merge(df[['imputed_income']], left_index=True, right_index=True, how='left')
+    hh.loc[hh['income'] == -1, 'income'] = hh['imputed_income']
+    
     #########################################
     # Trip
     #########################################
@@ -564,11 +571,11 @@ if convert_survey:
     # After both the tour file is created and the trip file is updated they will be written to file
 
     # Filter out any change_mode trips
+    # FIXME: see if any of these can be linked together
     filter = trip['purpose'] == 'change_mode'
     logger.info(f"Dropped {len(trip[filter])} trips with purpose 'Change mode'")
     trip = trip[~filter]
-    # FIXME: perform trip linking here to combine the adjacent trips instead of deleting...
-
+    
     filter = trip['purpose'].isnull()
     logger.info(f"Dropped {len(trip[filter])} trips with null purpose")
     trip = trip[~filter]
@@ -1016,6 +1023,11 @@ if convert_survey:
         print(row['index'])
 
         exec(expr)
+
+    # After we've set begin and end hours, make sure all tour ends are after beginings
+    _filter = tour['end'] >= tour['start']
+    logger.info(f'Dropped {len(tour[~_filter])} tours: tour end < tour start time')
+    tour = tour[_filter]
 
     # Enforce canonical tours - there cannot be more than 2 mandatory work tours
     # Flag mandatory vs non-mandatory to trips by purpose (and include joint non-mandatory trips)
