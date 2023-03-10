@@ -117,7 +117,7 @@ def transit_fare_skims(emme_project, tod, results_dict, time_period_lookup):
     return results_dict
 
 
-def distance_skims(emme_project, tod, results_dict, time_period_lookup):
+def distance_skims(emme_project, tod, results_dict, time_period_lookup, vot_dict):
     # Vehicle matrices
     #### DISTANCE ####
     # Distance is only skimmed for once (7to8); apply to all TOD periods
@@ -130,52 +130,53 @@ def distance_skims(emme_project, tod, results_dict, time_period_lookup):
     for time_period, hour in time_period_lookup.items():  # EA=early AM
         emme_project.change_active_database(hour)
 
-        results_dict["SOV_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
-            "sov_inc2d", emme_project.bank, "float32"
+        for k, v in vot_dict.items():
+            results_dict[f"SOV_DIST_{k}__" + time_period] = emmeMatrix_to_numpyMatrix(
+            f"sov_{v}d", emme_project.bank, "float32"
         )
 
-        results_dict["HOV2_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
-            "hov2_inc2d", emme_project.bank, "float32"
+            results_dict[f"HOV2_DIST_{k}__" + time_period] = emmeMatrix_to_numpyMatrix(
+            f"hov2_{v}d", emme_project.bank, "float32"
         )
 
-        results_dict["HOV3_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
-            "hov3_inc2d", emme_project.bank, "float32"
+            results_dict[f"HOV3_DIST_{k}__" + time_period] = emmeMatrix_to_numpyMatrix(
+            f"hov3_{v}d", emme_project.bank, "float32"
         )
 
-        results_dict["SOV_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
-            "sov_inc2d", emme_project.bank, "float32"
+            results_dict[f"SOV_DIST_{k}__" + time_period] = emmeMatrix_to_numpyMatrix(
+            f"sov_{v}d", emme_project.bank, "float32"
         )
 
-        results_dict["HOV2_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
-            "hov2_inc2d", emme_project.bank, "float32"
+            results_dict[f"HOV2_DIST_{k}__" + time_period] = emmeMatrix_to_numpyMatrix(
+            f"hov2_{v}d", emme_project.bank, "float32"
         )
 
-        results_dict["HOV3_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
-            "hov3_inc2d", emme_project.bank, "float32"
+            results_dict[f"HOV3_DIST_{k}__" + time_period] = emmeMatrix_to_numpyMatrix(
+            f"hov3_{v}d", emme_project.bank, "float32"
         )
 
-        results_dict["SOVTOLL_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
-            "sov_inc2d", emme_project.bank, "float32"
+            results_dict[f"SOVTOLL_DIST_{k}__" + time_period] = emmeMatrix_to_numpyMatrix(
+            f"sov_{v}d", emme_project.bank, "float32"
         )
 
-        results_dict["HOV2TOLL_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
-            "hov2_inc2d", emme_project.bank, "float32"
+            results_dict[f"HOV2TOLL_DIST_{k}__" + time_period] = emmeMatrix_to_numpyMatrix(
+            f"hov2_{v}d", emme_project.bank, "float32"
         )
 
-        results_dict["HOV3TOLL_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
-            "hov3_inc2d", emme_project.bank, "float32"
+            results_dict[f"HOV3TOLL_DIST_{k}__" + time_period] = emmeMatrix_to_numpyMatrix(
+            f"hov3_{v}d", emme_project.bank, "float32"
         )
 
-        results_dict["SOVTOLL_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
-            "sov_inc2d", emme_project.bank, "float32"
+            results_dict[f"SOVTOLL_DIST_{k}__" + time_period] = emmeMatrix_to_numpyMatrix(
+            f"sov_{v}d", emme_project.bank, "float32"
         )
 
-        results_dict["HOV2TOLL_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
-            "hov2_inc2d", emme_project.bank, "float32"
+            results_dict[f"HOV2TOLL_DIST_{k}__" + time_period] = emmeMatrix_to_numpyMatrix(
+            f"hov2_{v}d", emme_project.bank, "float32"
         )
 
-        results_dict["HOV3TOLL_DIST__" + time_period] = emmeMatrix_to_numpyMatrix(
-            "hov3_inc2d", emme_project.bank, "float32"
+            results_dict[f"HOV3TOLL_DIST_{k}__" + time_period] = emmeMatrix_to_numpyMatrix(
+            f"hov3_{v}d", emme_project.bank, "float32"
         )
 
     return results_dict
@@ -195,49 +196,67 @@ def bridge_skims(results_dict, time_period_lookup):
         results_dict["HOV3TOLL_BTOLL__" + tod] = zero_array
     return results_dict
 
+    return results_dict
 
-def cost_skims(emme_project, results_dict, time_period_lookup):
+
+def bridge_skims(results_dict, time_period_lookup):
+    matrix_size = len(results_dict["DISTBIKE"])
+    zero_array = np.zeros((matrix_size, matrix_size))
+    # BTOLL is bridge toll
+    # Set this to 0 and only use the value toll (?)
+    for tod in time_period_lookup.keys():
+        results_dict["SOV_BTOLL__" + tod] = zero_array
+        results_dict["HOV2_BTOLL__" + tod] = zero_array
+        results_dict["HOV3_BTOLL__" + tod] = zero_array
+        results_dict["SOVTOLL_BTOLL__" + tod] = zero_array
+        results_dict["HOV2TOLL_BTOLL__" + tod] = zero_array
+        results_dict["HOV3TOLL_BTOLL__" + tod] = zero_array
+    return results_dict
+
+
+def time_cost_skims(emme_project, results_dict, time_period_lookup, vot_dict):
     # ime_dict = {"AM": "7to8", "MD": "10to14", "PM": "17to18", "EV": "18to20", "EA": "5to6"}
     for tod, hour in time_period_lookup.items():
         print(tod)
         print(hour)
         emme_project.change_active_database(hour)
+        for k, v in vot_dict.items():
 
         # Auto Time
-        results_dict["SOV_TIME__" + tod] = emmeMatrix_to_numpyMatrix(
-            "sov_inc2t", emme_project.bank, "float32"
+            results_dict[f"SOV_TIME_{k}__" + tod] = emmeMatrix_to_numpyMatrix(
+            f"sov_{v}t", emme_project.bank, "float32"
         )
 
-        results_dict["HOV2_TIME__" + tod] = emmeMatrix_to_numpyMatrix(
-            "hov2_inc2t", emme_project.bank, "float32"
+            results_dict[f"HOV2_TIME_{k}__" + tod] = emmeMatrix_to_numpyMatrix(
+            f"hov2_{v}t", emme_project.bank, "float32"
         )
 
-        results_dict["HOV3_TIME__" + tod] = emmeMatrix_to_numpyMatrix(
-            "hov3_inc2t", emme_project.bank, "float32"
+            results_dict[f"HOV3_TIME_{k}__" + tod] = emmeMatrix_to_numpyMatrix(
+            f"hov3_{v}t", emme_project.bank, "float32"
         )
 
-        results_dict["SOVTOLL_TIME__" + tod] = emmeMatrix_to_numpyMatrix(
-            "sov_inc2t", emme_project.bank, "float32"
+            results_dict[f"SOVTOLL_TIME_{k}__" + tod] = emmeMatrix_to_numpyMatrix(
+            f"sov_{v}t", emme_project.bank, "float32"
         )
 
-        results_dict["HOV2TOLL_TIME__" + tod] = emmeMatrix_to_numpyMatrix(
-            "hov2_inc2t", emme_project.bank, "float32"
+            results_dict[f"HOV2TOLL_TIME_{k}__" + tod] = emmeMatrix_to_numpyMatrix(
+            f"hov2_{v}t", emme_project.bank, "float32"
         )
 
-        results_dict["HOV3TOLL_TIME__" + tod] = emmeMatrix_to_numpyMatrix(
-            "hov3_inc2t", emme_project.bank, "float32"
+            results_dict[f"HOV3TOLL_TIME_{k}__" + tod] = emmeMatrix_to_numpyMatrix(
+            f"hov3_{v}t", emme_project.bank, "float32"
         )
 
-        results_dict["SOVTOLL_VTOLL__" + tod] = emmeMatrix_to_numpyMatrix(
-            "sov_inc2c", emme_project.bank, "float32"
+            results_dict[f"SOVTOLL_VTOLL_{k}__" + tod] = emmeMatrix_to_numpyMatrix(
+            f"sov_{v}c", emme_project.bank, "float32"
         )
 
-        results_dict["HOV2TOLL_VTOLL__" + tod] = emmeMatrix_to_numpyMatrix(
-            "hov2_inc2c", emme_project.bank, "float32"
+            results_dict[f"HOV2TOLL_VTOLL_{k}__" + tod] = emmeMatrix_to_numpyMatrix(
+            f"hov2_{v}c", emme_project.bank, "float32"
         )
 
-        results_dict["HOV3TOLL_VTOLL__" + tod] = emmeMatrix_to_numpyMatrix(
-            "hov3_inc2c", emme_project.bank, "float32"
+            results_dict[f"HOV3TOLL_VTOLL_{k}__" + tod] = emmeMatrix_to_numpyMatrix(
+            f"hov3_{v}c", emme_project.bank, "float32"
         )
     return results_dict
 
@@ -344,14 +363,15 @@ def all_transit_skims(emme_project, results_dict, time_period_lookup):
 
 def create_skims(my_project, skim_file_path, time_period_lookup):
     results_dict = {}
+    vot_dict = {"L" : "inc1", "M" : "inc2", "H" : "inc3"}
     # my_project = EmmeProject(project_path)
     results_dict = bike_and_walk_skims(my_project, "5to6", results_dict)
     results_dict = transit_fare_skims(
         my_project, "6to7", results_dict, time_period_lookup
     )
-    results_dict = distance_skims(my_project, "7to8", results_dict, time_period_lookup)
+    results_dict = distance_skims(my_project, "7to8", results_dict, time_period_lookup, vot_dict)
     results_dict = bridge_skims(results_dict, time_period_lookup)
-    results_dict = cost_skims(my_project, results_dict, time_period_lookup)
+    results_dict = time_cost_skims(my_project, results_dict, time_period_lookup, vot_dict)
     results_dict = transit_skims(my_project, results_dict, time_period_lookup)
     results_dict = park_and_ride_skims(my_project, results_dict, time_period_lookup)
     results_dict = all_transit_skims(my_project, results_dict, time_period_lookup)

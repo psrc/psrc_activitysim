@@ -138,20 +138,20 @@ CONSTANTS:
     5: 0
   min_waitTime: 0
   max_waitTime: 50
-  ivt_cost_multiplier: 0.6
-  topology_bike_multiplier: 20
-  topology_trn_multiplier: 2.20
-  topology_walk_multiplier: 15
-  ridehail_wait_time_multiplier: 1.5
-  walktimelong_multiplier: 5
-  biketimelong_multiplier: 5
-  xfers_wlk_multiplier: 5
-  xfers_drv_multiplier: 15
+  #ivt_cost_multiplier: 0.6
+  #topology_bike_multiplier: 20
+  #topology_trn_multiplier: 2.20
+  #topology_walk_multiplier: 15
+  #ridehail_wait_time_multiplier: 1.5
+  #walktimelong_multiplier: 5
+  #biketimelong_multiplier: 5
+  #xfers_wlk_multiplier: 5
+  #xfers_drv_multiplier: 15
   dacc_ratio_multiplier: 0
-  density_index_multiplier: -5
+  #density_index_multiplier: -5
   origin_density_index_multiplier: -15
   origin_density_index_max: -15
-  ivt_com_multiplier: 0.80
+  #ivt_com_multiplier: 0.80
 
 # so far, we can use the same spec as for non-joint tours
 preprocessor:
@@ -179,6 +179,10 @@ TOURS_MERGED_CHOOSER_COLUMNS:
   - value_of_time
   - tour_type
   - free_parking_at_work
+  - income_segment
+  - income
+  - time_factor_work
+  - time_factor_nonwork  
 
 
 MODE_CHOICE_LOGSUM_COLUMN_NAME: mode_choice_logsum

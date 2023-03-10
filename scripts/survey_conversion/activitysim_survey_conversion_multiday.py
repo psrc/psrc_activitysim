@@ -49,6 +49,10 @@ geolocated_output = r'data\survey_conversion'
 parcel_file = r'data\survey_conversion\parcels_urbansim.txt'
 parcel_maz_file = r'data\survey_conversion\parcel_taz_block_lookup.csv'
 
+# Synthetic household used to impute income if available
+# Set to "None" to skip imputation
+synthetic_hh_dir = r'R:\e2projects_two\activitysim\inputs\data\data_full\households.csv' 
+
 # If not reading raw survey files directly from db, set read_survey_from_db to False and define the following paths:
 survey_trip_file = r'data\survey_conversion\elmer_trip.csv'
 survey_person_file = r'data\survey_conversion\elmer_person.csv'
