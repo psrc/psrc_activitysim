@@ -32,10 +32,8 @@ NESTS:
               - DRIVE_TRN
       - name: RIDEHAIL
         coefficient: coef_nest_RIDEHAIL
-        alternatives:
-          - TAXI        
-          - TNC_SINGLE
-          - TNC_SHARED          
+        alternatives:       
+          - TNC_SINGLE          
      
 
 SPEC: tour_mode_choice.csv
@@ -166,7 +164,6 @@ LOGSUM_CHOOSER_COLUMNS:
   - number_of_participants
   - tour_category
   - num_workers
-  - value_of_time
   - free_parking_at_work
   - income_segment
   - income

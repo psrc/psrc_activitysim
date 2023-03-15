@@ -33,5 +33,5 @@ maz_to_maz:
 skim_time_periods:
     time_window: 1440
     period_minutes: 60
-    periods: [0, 6, 11, 16, 20, 24]
-    labels: ['EA', 'AM', 'MD', 'PM', 'EV']
+    periods: [0, 5, 9, 15, 18, 20, 24]
+    labels: ['EA', 'AM', 'MD', 'PM', 'EV', 'EA']
