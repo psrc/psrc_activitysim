@@ -28,6 +28,20 @@ def skims_preprocess(state: workflow.State):
         raise ValueError(
             f"skims_preprocess requires taz_skims.zarr in {LOS_SETTINGS_FILE_NAME}"
         )
+
+    vot_triples = [
+        "SOV_DIST",
+        'HOV2_DIST',
+        "HOV3_DIST",
+        "SOV_TIME",
+        "HOV2_TIME",
+        "HOV3_TIME",
+        "SOVTOLL_TIME",
+        "SOVTOLL_VTOLL",
+        "HOV2TOLL_VTOLL",
+        "HOV3TOLL_VTOLL",
+    ]
+
     try:
         ds_check = sh.dataset.from_zarr_with_attr(os.path.join(cache_dir, skims_zarr))
     except (GroupNotFoundError, FileNotFoundError):
@@ -36,19 +50,7 @@ def skims_preprocess(state: workflow.State):
     else:
         zarr_write_time = ds_check.attrs.get("ZARR_WRITE_TIME", 0)
         regenerate = False
-        check_names = [
-            "SOV_DIST_L",
-            "SOV_DIST_M",
-            "SOV_DIST_H",
-            'HOV2_DIST_L',
-            "HOV3_DIST_L",
-            "SOV_TIME_L",
-            "HOV2_TIME_L",
-            "HOV3_TIME_L",
-            "SOVTOLL_VTOLL_L",
-            "HOV2TOLL_VTOLL_L",
-            "HOV3TOLL_VTOLL_L",
-        ]
+        check_names = [f"{i}_L" for i in vot_triples]
         for n in check_names:
             if n not in ds_check:
                 regenerate = True
@@ -117,33 +119,11 @@ def skims_preprocess(state: workflow.State):
             time_period_sep=time_period_sep,
         )
 
-        ds['SOV_DIST_L'] = ds['SOV_DIST']
-        ds['SOV_DIST_M'] = ds['SOV_DIST']
-        ds['SOV_DIST_H'] = ds['SOV_DIST']
-        ds['SOVTOLL_VTOLL_L'] = ds['SOVTOLL_VTOLL']
-        ds['SOVTOLL_VTOLL_M'] = ds['SOVTOLL_VTOLL']
-        ds['SOVTOLL_VTOLL_H'] = ds['SOVTOLL_VTOLL']
-        ds['SOV_TIME_L'] = ds['SOV_TIME']
-        ds['SOV_TIME_M'] = ds['SOV_TIME']
-        ds['SOV_TIME_H'] = ds['SOV_TIME']
-        ds['HOV2_DIST_L'] = ds['HOV2_DIST']
-        ds['HOV2_DIST_M'] = ds['HOV2_DIST']
-        ds['HOV2_DIST_H'] = ds['HOV2_DIST']
-        ds['HOV2TOLL_VTOLL_L'] = ds['HOV2TOLL_VTOLL']
-        ds['HOV2TOLL_VTOLL_M'] = ds['HOV2TOLL_VTOLL']
-        ds['HOV2TOLL_VTOLL_H'] = ds['HOV2TOLL_VTOLL']
-        ds['HOV3TOLL_VTOLL_L'] = ds['HOV3TOLL_VTOLL']
-        ds['HOV3TOLL_VTOLL_M'] = ds['HOV3TOLL_VTOLL']
-        ds['HOV3TOLL_VTOLL_H'] = ds['HOV3TOLL_VTOLL']
-        ds['HOV2_TIME_L'] = ds['HOV2_TIME']
-        ds['HOV2_TIME_M'] = ds['HOV2_TIME']
-        ds['HOV2_TIME_H'] = ds['HOV2_TIME']
-        ds['HOV3_TIME_L'] = ds['HOV3_TIME']
-        ds['HOV3_TIME_M'] = ds['HOV3_TIME']
-        ds['HOV3_TIME_H'] = ds['HOV3_TIME']
-        ds['HOV3_DIST_L'] = ds['HOV3_DIST']
-        ds['HOV3_DIST_M'] = ds['HOV3_DIST']
-        ds['HOV3_DIST_H'] = ds['HOV3_DIST']
+        # segment into 3 VOT versions
+        for i in vot_triples:
+            ds[f'{i}_L'] = ds[i]
+            ds[f'{i}_M'] = ds[i]
+            ds[f'{i}_H'] = ds[i]
 
         ds.attrs["time_period_map"] = tp_map
         ds.attrs["time_period_imap"] = tp_imap

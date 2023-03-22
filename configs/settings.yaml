@@ -106,6 +106,7 @@ input_table_list:
 #resume_after: trip_scheduling
 
 models:
+  - skims_preprocess
   - initialize_landuse
   - initialize_households
   - compute_accessibility

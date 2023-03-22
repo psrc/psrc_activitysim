@@ -13,7 +13,7 @@ use_shadow_pricing: False
 fail_fast: True
 
 multiprocess: True
-num_processes: 4
+num_processes: 2
 
 multiprocess_steps:
   - name: mp_initialize
