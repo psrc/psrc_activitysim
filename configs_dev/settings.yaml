@@ -118,7 +118,6 @@ input_table_list:
 #resume_after: trip_purpose
 
 models:
-  - skims_preprocess
   - initialize_landuse
   - compute_accessibility
   - initialize_households
