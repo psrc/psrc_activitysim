@@ -8,7 +8,7 @@ test_dir = Path(__file__).parent
 top_dir = test_dir.parent
 
 
-def _test_psrc(tmp_path, dataframe_regression, mp=False):
+def _test_psrc(tmp_path, dataframe_regression, mp=False, use_sharrow=True):
     import activitysim.abm  # noqa: F401 # register steps
 
     if mp:
@@ -23,11 +23,16 @@ def _test_psrc(tmp_path, dataframe_regression, mp=False):
             top_dir.joinpath("configs_dev"),
         )
 
+    settings = {}
+    if use_sharrow:
+        settings["sharrow"] = "test"
+
     state = workflow.State.make_default(
         working_dir=top_dir,
         configs_dir=configs_dir,
         data_dir=top_dir.joinpath("data"),
         output_dir=tmp_path,  # test_dir.joinpath("output"),
+        settings=settings,
     )
     state.import_extensions("extensions")
 
@@ -45,8 +50,16 @@ def _test_psrc(tmp_path, dataframe_regression, mp=False):
 
 
 def test_psrc(tmp_path, dataframe_regression):
-    return _test_psrc(tmp_path, dataframe_regression, False)
+    return _test_psrc(tmp_path, dataframe_regression, mp=False, use_sharrow=False)
+
+
+def test_psrc_sh(tmp_path, dataframe_regression):
+    return _test_psrc(tmp_path, dataframe_regression, mp=False, use_sharrow=True)
 
 
 def test_psrc_mp(tmp_path, dataframe_regression):
-    return _test_psrc(tmp_path, dataframe_regression, True)
+    return _test_psrc(tmp_path, dataframe_regression, mp=True, use_sharrow=False)
+
+
+def test_psrc_sh_mp(tmp_path, dataframe_regression):
+    return _test_psrc(tmp_path, dataframe_regression, mp=True, use_sharrow=True)
