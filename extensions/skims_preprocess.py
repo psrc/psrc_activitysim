@@ -108,6 +108,7 @@ def skims_preprocess(state: workflow.State):
         openmatrix.open_file(skims_filename, mode="r")
         for skims_filename in skims_filenames
     ]
+    # omx_modified = openmatrix.open_file(skims_filenames[0]+".mod", mode="w")
     try:
         if isinstance(time_periods, (list, tuple)):
             time_periods = np.asarray(time_periods)
@@ -133,8 +134,20 @@ def skims_preprocess(state: workflow.State):
         logger.info(f"cache_dir = {os.path.join(cache_dir, skims_zarr)}")
         ds.to_zarr_with_attr(os.path.join(cache_dir, skims_zarr), mode="w")
 
+        # import tables
+        #
+        # for k, v in ds.items():
+        #     if "time_period" in v.dims:
+        #         for tp in time_periods_raw:
+        #             try:
+        #                 omx_modified.create_matrix(f"{k}__{tp}", obj=np.asarray(v.sel(time_period=tp)))
+        #             except tables.exceptions.NodeError:
+        #                 pass
+        #     else:
+        #         omx_modified.create_matrix(k, obj=np.asarray(v))
     finally:
         for f in omxs:
             f.close()
 
+    # omx_modified.close()
     logger.info("skims preprocess complete")
