@@ -1,5 +1,4 @@
-inherit_settings: settings.yaml
-
+inherit_settings: True
 MKL_NUM_THREADS: 1
 #activitysim run -c configs_mp -s settings_mp.yaml -c configs -d data/full -o output_test
 
@@ -11,15 +10,15 @@ use_shadow_pricing: False
 # - full sample - 1605264 households
 #households_sample_size:  0
 #chunk_size:  800000000
-chunk_size: 115_000_000_000
-chunk_training_mode: production
-chunk_method: uss
+#chunk_size: 115_000_000_000
+chunk_training_mode: disabled
+#chunk_method: uss
 
 # raise error if any sub-process fails without waiting for others to complete
 fail_fast: True
 
 multiprocess: True
-num_processes: 15
+num_processes: 2
 
 multiprocess_steps:
   - name: mp_initialize
@@ -29,12 +28,14 @@ multiprocess_steps:
     slice:
       tables:
         - accessibility
+      exclude: True
   - name: mp_households
     begin: school_location
     slice:
       tables:
         - households
         - persons
+      exclude: True
   - name: mp_summarize
     begin: write_data_dictionary
 
