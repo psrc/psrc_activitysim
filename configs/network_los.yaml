@@ -8,8 +8,9 @@ write_skim_cache: True
 zone_system: 2
 
 # glob 'skims*.omx' will match one or more files: skims.omx, skims1.omx, skims2.omx...
-taz_skims: skims*.omx
-
+taz_skims:
+  omx: skims*.omx
+  zarr: skims.zarr
 
 maz: maz.csv
 
