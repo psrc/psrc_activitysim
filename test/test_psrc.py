@@ -1,48 +1,65 @@
 # ActivitySim
 # See full license in LICENSE.txt.
-import os
-import subprocess
-import pkg_resources
+from pathlib import Path
 
-import pandas as pd
-import pandas.testing as pdt
+from activitysim.core import workflow
 
-from activitysim.core import inject
+test_dir = Path(__file__).parent
+top_dir = test_dir.parent
 
 
-def teardown_function(func):
-    inject.clear_cache()
-    inject.reinject_decorated_tables()
+def _test_psrc(tmp_path, dataframe_regression, mp=False, use_sharrow=True):
+    import activitysim.abm  # noqa: F401 # register steps
+
+    if mp:
+        configs_dir = (
+            test_dir.joinpath("configs_mp"),
+            test_dir.joinpath("configs"),
+            top_dir.joinpath("configs_dev"),
+        )
+    else:
+        configs_dir = (
+            test_dir.joinpath("configs"),
+            top_dir.joinpath("configs_dev"),
+        )
+
+    settings = {}
+    if use_sharrow:
+        settings["sharrow"] = "test"
+
+    state = workflow.State.make_default(
+        working_dir=top_dir,
+        configs_dir=configs_dir,
+        data_dir=top_dir.joinpath("data"),
+        output_dir=tmp_path,  # test_dir.joinpath("output"),
+        settings=settings,
+    )
+    state.import_extensions("extensions")
+
+    # persist sharrow cache in local output
+    sharrow_cache_dir = test_dir.joinpath("output", "cache")
+    sharrow_cache_dir.mkdir(parents=True, exist_ok=True)
+    state.filesystem.sharrow_cache_dir = sharrow_cache_dir
+
+    state.run.all()
+
+    for t in ("trips", "tours", "persons", "households"):
+        df = state.get_dataframe(t)
+        # check that in-memory result table is as expected
+        dataframe_regression.check(df, basename=t)
 
 
-def test_psrc():
-
-    def example_path(dirname):
-        resource = os.path.join('examples', 'example_psrc', dirname)
-        return pkg_resources.resource_filename('activitysim', resource)
-
-    def test_path(dirname):
-        return os.path.join(os.path.dirname(__file__), dirname)
-
-    def regress():
-        regress_trips_df = pd.read_csv(test_path('regress/final_trips.csv'))
-        final_trips_df = pd.read_csv(test_path('output/final_trips.csv'))
-
-        # person_id,household_id,tour_id,primary_purpose,trip_num,outbound,trip_count,purpose,
-        # destination,origin,destination_logsum,depart,trip_mode,mode_choice_logsum
-        # compare_cols = []
-        pdt.assert_frame_equal(final_trips_df, regress_trips_df)
-
-    file_path = os.path.join(os.path.dirname(__file__), 'simulation.py')
-
-    subprocess.run(['coverage', 'run', '-a', file_path,
-                    '-c', test_path('configs'), '-c', example_path('configs'),
-                    '-d', example_path('data'),
-                    '-o', test_path('output')], check=True)
-
-    regress()
+def test_psrc(tmp_path, dataframe_regression):
+    return _test_psrc(tmp_path, dataframe_regression, mp=False, use_sharrow=False)
 
 
-if __name__ == '__main__':
+def test_psrc_sh(tmp_path, dataframe_regression):
+    return _test_psrc(tmp_path, dataframe_regression, mp=False, use_sharrow=True)
 
-    test_psrc()
+
+def test_psrc_mp(tmp_path, dataframe_regression):
+    return _test_psrc(tmp_path, dataframe_regression, mp=True, use_sharrow=False)
+
+
+def test_psrc_sh_mp(tmp_path, dataframe_regression):
+    return _test_psrc(tmp_path, dataframe_regression, mp=True, use_sharrow=True)
