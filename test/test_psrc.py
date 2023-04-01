@@ -1,5 +1,6 @@
 # ActivitySim
 # See full license in LICENSE.txt.
+import sys
 from pathlib import Path
 
 from activitysim.core import workflow
@@ -55,7 +56,11 @@ def _test_psrc(tmp_path, dataframe_regression, mp=False, use_sharrow=True):
     for t in ("trips", "tours", "persons", "households"):
         df = state.get_dataframe(t)
         # check that in-memory result table is as expected
-        dataframe_regression.check(df, basename=t)
+        try:
+            dataframe_regression.check(df, basename=t)
+        except AssertionError:
+            print(f"AssertionError for {t!r} table", file=sys.stderr)
+            raise
 
 # If it is necessary to update/regenerate the target regression files, run
 # pytest with the `--regen-all` flag.
