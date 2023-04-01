@@ -11,3 +11,5 @@ WORK_FROM_HOME_ALT: 0
 
 DEST_CHOICE_COLUMN_NAME: workplace_zone_id
 CHOOSER_FILTER_COLUMN_NAME: is_worker
+
+sharrow_skip: true  # spec not sharrow-compliant
