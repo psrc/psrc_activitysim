@@ -39,6 +39,10 @@ NESTS:
         coefficient: coef_nest_RIDEHAIL
         alternatives:
           - TNC_SINGLE
+      - name: SCHOOL_BUS
+        coefficient: coef_nest_SCHOOL_BUS
+        alternatives:
+          - SCH_BUS
 
 CONSTANTS:
   orig_col_name: origin
@@ -179,7 +183,8 @@ TOURS_MERGED_CHOOSER_COLUMNS:
   - income_segment
   - income
   - time_factor_work
-  - time_factor_nonwork  
-
-
+  - time_factor_nonwork
+  - sex
+  - ptype
+  
 MODE_CHOICE_LOGSUM_COLUMN_NAME: mode_choice_logsum

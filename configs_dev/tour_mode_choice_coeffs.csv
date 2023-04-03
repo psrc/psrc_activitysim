@@ -1,4 +1,5 @@
 coefficient_name,value,constrain
+coef_zero,0,T
 coef_one,1,T
 coef_nest_root,1,T
 coef_nest_AUTO,0.72,T
@@ -10,6 +11,7 @@ coef_nest_TRANSIT,0.72,T
 coef_nest_TRANSIT_WALKACCESS,0.5,T
 coef_nest_TRANSIT_DRIVEACCESS,0.5,T
 coef_nest_RIDEHAIL,0.36,T
+coef_nest_SCHOOL_BUS,0.36,T
 coef_ivt_disc,-0.006708581,F
 coef_ivt_maint,-0.006708581,F
 coef_ivt_school,-0.006064107,F
@@ -422,3 +424,7 @@ drive_transit_CBD_ASC_eatout_escort_othdiscr_othmaint_shopping_social,-11.838529
 drive_transit_CBD_ASC_school_univ,0.672,F
 drive_transit_CBD_ASC_work,-11.6355317,F
 drive_transit_CBD_ASC_atwork,0.564,F
+coef_age0105_schb_school,0,F
+coef_age0612_schb_school,1.448589,F
+coef_age1315_schb_school,1.296494,F
+coef_female_schb_school,0,F

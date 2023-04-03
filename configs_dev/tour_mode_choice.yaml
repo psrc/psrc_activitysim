@@ -33,7 +33,11 @@ NESTS:
       - name: RIDEHAIL
         coefficient: coef_nest_RIDEHAIL
         alternatives:       
-          - TNC_SINGLE          
+          - TNC_SINGLE     
+      - name: SCHOOL_BUS
+        coefficient: coef_nest_SCHOOL_BUS
+        alternatives:       
+          - SCH_BUS       
      
 
 SPEC: tour_mode_choice.csv
@@ -155,6 +159,8 @@ nontour_preprocessor:
 # to reduce memory needs filter chooser table to these fields
 LOGSUM_CHOOSER_COLUMNS:
   - tour_type
+  - ptype
+  - sex
   - hhsize
   - density_index
   - age
