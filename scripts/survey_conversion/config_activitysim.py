@@ -100,7 +100,7 @@ mode_dict = {
     'Other non-household vehicle': 'Auto',
     'Car from work': 'Auto', 
     'Carshare service (e.g., Turo, Zipcar, ReachNow)': 'Auto',
-    'School bus': 'School_Bus', 
+    'School bus': 'SCH_BUS', 
     'Urban Rail (e.g., Link light rail, monorail)': 'Transit',
     'Airplane or helicopter': 'Other', 
     'Missing: Non-response': 'Other', 
@@ -121,8 +121,8 @@ mode_dict = {
     'Other rented bicycle (rMove only)':'BIKE'
             }
 
-# Drive to Transit > Walk to Transit (Ferry, Commuter Rail, Light Rail, Bus) > TNC > HOV3+ > HOV2 > SOV > Bike > Walk > Other
-mode_heirarchy = ['DRIVE_TRN','WALK_FRY','WALK_COM','WALK_LR','WALK_LOC','TNC','SHARED3FREE','SHARED2FREE','DRIVEALONEFREE','BIKE','WALK','Other']
+# School Bus > Drive to Transit > Walk to Transit (Ferry, Commuter Rail, Light Rail, Bus) > TNC > HOV3+ > HOV2 > SOV > Bike > Walk > Other
+mode_heirarchy = ['SCH_BUS','DRIVE_TRN','WALK_FRY','WALK_COM','WALK_LR','WALK_LOC','TNC','SHARED3FREE','SHARED2FREE','DRIVEALONEFREE','BIKE','WALK','Other']
 
 # Transit access modes by walk/bike; also include missing data so walk is default unless otherwise noted 
 walk_access_mode = ['Walked or jogged', 'Rode a bike','Other', 'Missing: Skip Logic',np.nan]
