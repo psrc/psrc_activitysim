@@ -1,7 +1,11 @@
 # ActivitySim
 # See full license in LICENSE.txt.
 import sys
+import time
 from pathlib import Path
+import subprocess
+
+import pandas as pd
 
 from activitysim.core import workflow
 
@@ -79,3 +83,32 @@ def test_psrc_mp(tmp_path, dataframe_regression):
 
 def test_psrc_sh_mp(tmp_path, dataframe_regression):
     return _test_psrc(tmp_path, dataframe_regression, mp=True, use_sharrow=True)
+
+
+def test_psrc_cli(tmp_path, dataframe_regression):
+    tag = time.strftime("%Y-%m-%d-%H%M%S")
+    tmp_path = Path(f"/tmp/psrc-cli/{tag}")
+    cli_args = [
+        "-m",
+        "activitysim",
+        "run",
+        "-c",
+        test_dir.joinpath("configs"),
+        "-c",
+        top_dir.joinpath("configs_dev"),
+        "-d",
+        top_dir.joinpath("data"),
+        "-o",
+        tmp_path,
+    ]
+    subprocess.run([sys.executable] + cli_args, check=True)
+
+    # Check that result tables all match as expected.
+    for t in ("trips", "tours", "persons", "households"):
+        df = pd.read_csv(tmp_path / f"final_{t}.csv", index_col=f"{t[:-1]}_id")
+        # check that in-memory result table is as expected
+        try:
+            dataframe_regression.check(df, basename=t)
+        except AssertionError:
+            print(f"AssertionError for {t!r} table", file=sys.stderr)
+            raise

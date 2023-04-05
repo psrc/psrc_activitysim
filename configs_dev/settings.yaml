@@ -105,10 +105,12 @@ input_table_list:
       - TOPOLOGY
       - TERMINAL
       - transit_score_scaled
-      - density_index
+#      - density_index
       - buff_density_index
       - GSENROLL
       - access_dist_transit
+      - hh_1
+      - emptot_1
   - tablename: land_use_taz
     filename: taz.csv
     index_col: TAZ
