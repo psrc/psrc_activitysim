@@ -46,13 +46,11 @@ def _test_psrc(tmp_path, dataframe_regression, mp=False, use_sharrow=True):
     # IF extensions are ever included, this is how to tell ActivitySim
     # state.import_extensions("extensions")
 
-    # persisting sharrow cache in local output speeds testing runtimes
+    # persisting sharrow cache locally speeds testing runtimes
     # on local machines.  CI testing won't have a pre-built cache, so
     # it will be slower but more reliable (and will not be blocking a
     # developer's individual computer).
-    sharrow_cache_dir = test_dir.joinpath("output", "cache")
-    sharrow_cache_dir.mkdir(parents=True, exist_ok=True)
-    state.filesystem.sharrow_cache_dir = sharrow_cache_dir
+    state.filesystem.persist_sharrow_cache()
 
     state.run.all()
 
