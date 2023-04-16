@@ -7,7 +7,7 @@ import subprocess
 
 import pandas as pd
 
-from activitysim.core import workflow
+from activitysim.core import testing, workflow
 
 test_dir = Path(__file__).parent
 top_dir = test_dir.parent
@@ -114,3 +114,75 @@ def test_psrc_cli(tmp_path, dataframe_regression, original_datadir: Path):
         except AssertionError:
             print(f"AssertionError for {t!r} table", file=sys.stderr)
             raise
+
+EXPECTED_MODELS = [
+    "initialize_landuse",
+    "compute_accessibility",
+    "initialize_households",
+    "school_location",
+    "work_from_home",
+    "workplace_location",
+    "auto_ownership_simulate",
+    "free_parking",
+    "telecommute_frequency",
+    "cdap_simulate",
+    "mandatory_tour_frequency",
+    "mandatory_tour_scheduling",
+    "joint_tour_frequency",
+    "joint_tour_composition",
+    "joint_tour_participation",
+    "joint_tour_destination",
+    "joint_tour_scheduling",
+    "non_mandatory_tour_frequency",
+    "non_mandatory_tour_destination",
+    "non_mandatory_tour_scheduling",
+    "tour_mode_choice_simulate",
+    "atwork_subtour_frequency",
+    "atwork_subtour_destination",
+    "atwork_subtour_scheduling",
+    "atwork_subtour_mode_choice",
+    "stop_frequency",
+    "trip_purpose",
+    "trip_destination",
+    "trip_purpose_and_destination",
+    "trip_scheduling",
+    "trip_mode_choice",
+    "write_data_dictionary",
+    "track_skim_usage",
+    "write_trip_matrices",
+    "write_tables",
+]
+
+@testing.run_if_exists("prototype_psrc_reference_pipeline.zip")
+def test_psrc_progressive(tmp_path):
+
+    import activitysim.abm  # register components # noqa: F401
+
+    configs_dir = (
+        test_dir.joinpath("configs"),
+        top_dir.joinpath("configs_dev"),
+    )
+    state = workflow.State.make_default(
+        working_dir=top_dir,
+        configs_dir=configs_dir,
+        data_dir=top_dir.joinpath("data"),
+        output_dir=tmp_path,  # test_dir.joinpath("output"),
+    )
+    state.filesystem.persist_sharrow_cache()
+
+    assert state.settings.models == EXPECTED_MODELS
+    assert state.settings.chunk_size == 0
+    assert state.settings.sharrow is False
+
+    for step_name in EXPECTED_MODELS:
+        state.run.by_name(step_name)
+        try:
+            state.checkpoint.check_against(
+                Path(__file__).parent.joinpath("prototype_psrc_reference_pipeline.zip"),
+                checkpoint_name=step_name,
+            )
+        except Exception:
+            print(f"> prototype_psrc {step_name}: ERROR")
+            raise
+        else:
+            print(f"> prototype_psrc {step_name}: ok")
