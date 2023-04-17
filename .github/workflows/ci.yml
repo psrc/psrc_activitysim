@@ -1,0 +1,79 @@
+name: PSRC Testing
+
+on:
+  push:
+    branches:
+      - '*'
+
+  pull_request:
+    branches:
+      - '*'
+
+  workflow_dispatch:
+
+env:
+  CACHE_NUMBER: 0  # increase to reset cache manually
+
+jobs:
+  foundation:
+
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+    defaults:
+      run:
+        shell: bash -l {0}
+    name: linux-64-py${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/checkout@v3
+        with:
+          repository: 'camsys/activitysim' # Repository name with owner.
+          ref: 'explicit-chunk'            # The branch, tag or SHA to checkout.
+          path: 'activitysim'              # Relative path under $GITHUB_WORKSPACE
+
+      - name: Setup Mambaforge
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+            miniforge-variant: Mambaforge
+            miniforge-version: latest
+            activate-environment: asim-test
+            use-mamba: true
+            python-version: ${{ matrix.python-version }}
+
+      - name: Set cache date for year and month
+        run: echo "DATE=$(date +'%Y%m')" >> $GITHUB_ENV
+
+      - uses: actions/cache@v3
+        with:
+          path: /usr/share/miniconda3/envs/asim-test
+          key: linux-64-conda-${{ hashFiles('activitysim/conda-environments/github-actions-tests.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+        id: cache
+
+      - name: Update environment
+        run: mamba env update -n asim-test -f activitysim/conda-environments/github-actions-tests.yml
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: Install activitysim
+        # installing without dependencies is faster, we trust that all needed dependencies
+        # are in the conda environment defined above.  Also, this avoids pip getting
+        # confused and reinstalling tables (pytables).
+        run: |
+          python -m pip install -e ./activitysim --no-deps
+
+      - name: Conda checkup
+        run: |
+          mamba info -a
+          mamba list
+
+      # - name: Lint with Black
+      #   run: |
+      #     # stop the build if there are problems
+      #     black --check --diff .
+
+      - name: Test PSRC Example
+        run: |
+          python -m pytest ./test/test_psrc.py
+
