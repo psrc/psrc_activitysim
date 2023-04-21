@@ -1,5 +1,6 @@
 coefficient_name,value,constrain
 coef_one,1,T
+coef_zero,0,T
 coef_nest_root,1,T
 coef_nest_AUTO,0.72,T
 coef_nest_AUTO_DRIVEALONE,0.35,T
@@ -10,6 +11,7 @@ coef_nest_TRANSIT,0.72,T
 coef_nest_TRANSIT_WALKACCESS,0.5,T
 coef_nest_TRANSIT_DRIVEACCESS,0.5,T
 coef_nest_RIDEHAIL,0.36,T
+coef_nest_SCHOOL_BUS,0.5,T
 #,,
 coef_ivt_disc,-0.0279,F
 coef_ivt_maint,-0.0279,F
@@ -461,3 +463,4 @@ coef_walk_transit_ASC_walk_eatout,1.3504,F
 adjust_tnc_shared,30,T
 coef_origin_density_applied_work_univ_school,0,T
 coef_origin_density_applied_escort_shopping_eatout_othmaint_social_othdiscr_atwork,1,T
+coef_age6to12_schb_school,0.5,T

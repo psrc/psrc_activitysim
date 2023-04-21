@@ -12,6 +12,8 @@ Description,Target,Expression
 #,,
 ,i_tour_mode,df.tour_mode.map(I_MODE_MAP)
 ,tour_mode_is_SOV,i_tour_mode.isin(I_SOV_MODES)
+,tour_mode_is_SR2,i_tour_mode.isin(I_SR2_MODES)
+,tour_mode_is_SR3P,i_tour_mode.isin(I_SR3P_MODES)
 ,tour_mode_is_auto,i_tour_mode.isin(I_AUTO_MODES)
 ,tour_mode_is_walk,i_tour_mode == I_WALK_MODE
 ,tour_mode_is_bike,i_tour_mode == I_BIKE_MODE
@@ -90,6 +92,8 @@ dest terminal time not counted at home,_dest_terminal_time,"np.where(inbound & l
 ,origin_zone_sharedTNC_wait_time_mean,"origin_density.map({k: v for k, v in TNC_shared_waitTime_mean.items()})"
 ,origin_zone_sharedTNC_wait_time_sd,"origin_density.map({k: v for k, v in TNC_shared_waitTime_sd.items()})"
 ,origSharedTNCWaitTime,"rng.lognormal_for_df(df, mu=origin_zone_sharedTNC_wait_time_mean, sigma=origin_zone_sharedTNC_wait_time_sd, broadcast=True, scale=True).clip(min_waitTime, max_waitTime)"
+,SCHBUS_available,(df.tour_type =='school') & (df.ptype!=3)
+Tour mode is school bus,tourSchBus,(df.tour_mode == 'SCH_BUS').astype(int)
 #,,
 #,od_dist_walk,od_skims['DISTWALK']
 #,do_dist_walk,od_skims.reverse('DISTWALK')
