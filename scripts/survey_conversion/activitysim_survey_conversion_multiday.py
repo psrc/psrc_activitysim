@@ -1079,8 +1079,8 @@ if convert_survey:
         if row.tour_id not in skip_tour:
             print(row.tour_id)
             filter = (tour.day==row.day)&(tour.topcl==row.topcl)&\
-                    (tour.tdpcl==row.tdpcl)&(tour.start==row.start)&\
-                    (tour.end==row.end)&(tour.household_id==row.household_id)
+                    (tour.tdpcl==row.tdpcl)&(tour.tardest==row.tardest)&\
+                    (tour.tlvdest==row.tlvdest)&(tour.household_id==row.household_id)
             # Get total number of participants (total number of matching tours) and assign a participant number
             participants = len(tour[filter])
 
