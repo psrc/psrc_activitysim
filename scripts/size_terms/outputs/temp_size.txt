@@ -1,0 +1,3 @@
+Variable Coefficient SE
+empedu_p 1.000000 0.000000 
+hh_p 0.015423 0.089206 
