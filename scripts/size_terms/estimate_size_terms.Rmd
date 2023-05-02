@@ -212,7 +212,7 @@ estimate_size_terms(trips_purp_lu_other_maint, 'outputs/othmaint_size.csv', all_
 
 
 ```{r}
-trips_purp_lu_social<- trip_dest_lu%>%select(zone, social, empfoo_p, empsvc_p,hh_p, empsvc_p, empret_p)
+trips_purp_lu_social<- trip_dest_lu%>%select(zone, social, empsvc_p, empfoo_p, hh_p, empret_p)
 estimate_size_terms(trips_purp_lu_social, 'outputs/social_size.csv', all_lu_vars)
 
 ```
