@@ -95,9 +95,12 @@ validate_inputs <-function(estimdata){
 }
 
 
-estimate_size_terms<- function(estimdata, outfilename='size_coeff.txt', all_lu_vars){
+estimate_size_terms<- function(.data, outfilename='size_coeff.txt', select_var_list, all_lu_vars){
+  
+  estimdata <- .data[, c("zone", select_var_list)]
   nzones <- nrow(estimdata)
   nitems <- ncol(estimdata)
+  
   cat("\n")
   cat("\n")
   cat("Num. zones: ", nzones,"\n")
@@ -120,39 +123,45 @@ estimate_size_terms<- function(estimdata, outfilename='size_coeff.txt', all_lu_v
     }
   }
   
-  if (length(obszerosize) > 0){
-    cat("The following zones have observed choices but zero size and will be ignored:","\n")
-    print(estimdata[obszerosize,])
-    cat("\n")
-  }
+  # if (length(obszerosize) > 0){
+  print(paste("The following zones have observed choices but zero size and will be ignored:",
+              paste(estimdata[obszerosize,]$zone,collapse = ",")))
+  # print(estimdata[obszerosize,]$zone)
+  cat("\n")
+  # }
   
   estimdata <- estimdata[-zerosize,]
   startvals <- rep(0,nitems-3)
   
   cat("Maximizing Log-Likelihood...\n")
-  p <- optim(startvals,loglik,zoneobs=estimdata,hessian=TRUE,control=list(trace=1, maxit=5000))
+  p <- optim(startvals,loglik,zoneobs=estimdata,hessian=TRUE,control=list(#trace=1,   # don't print optimization progress
+                                                                          maxit=5000))
   cat("Convergence code: ",p$convergence,"\n")
+  cat("Log-likelihood value: ",p$value,"\n") # more selected variables will always have higher Log-likelihood value
   
   cvar <- solve(p$hessian)
   stderr <- sqrt(diag(cvar))
   #rewrite this; unnecessarily complicated, just making it work
-  tempoutfile<-'outputs/temp_size.txt'
-  sink(tempoutfile)
-  cat("Variable Coefficient SE\n")
-  cat(sprintf(names(estimdata)[3]),sprintf("%f",1),sprintf("%f",0),"\n")
-  for (i in 4:nitems){
-    cat(sprintf(names(estimdata)[i]),sprintf("%f",exp(p$par[i-3])),sprintf("%f",stderr[i-3]),"\n")
-    
-  }
-  sink()
-  coeff_small<-fread(tempoutfile)
+  result <- data.frame(variable = names(estimdata)[-c(1,2)],
+                       est. = c(1,exp(p$par)),
+                       std. = c(0,stderr))
+  test <- result %>% mutate(t=est./std.,
+                            pval=2*(1-pt(abs(t),nrow(estimdata)-(ncol(estimdata)-2))))
+  print(test)
+  
+  tempoutfile<-'outputs/temp_size.csv'
+  write.csv(test,tempoutfile)
+  
+  
   # fill in zeros for variables you don't use
-
-  coeff_all<- all_lu_vars%>%left_join(coeff_small)%>% replace(is.na(.), 0)%>%select(Variable, Coefficient)%>%
-  pivot_wider(names_from=Variable, values_from=Coefficient)
+  coeff_all<- all_lu_vars%>%
+    left_join(test)%>% 
+    replace(is.na(.), 0)%>%select(variable, est.)%>%
+    pivot_wider(names_from=variable, values_from=est.)
   
   print(coeff_all)
-
+  
+  print(paste("results saved in", outfilename))
   write.csv(coeff_all, outfilename)
 }
 
