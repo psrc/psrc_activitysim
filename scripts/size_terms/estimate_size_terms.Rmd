@@ -41,12 +41,12 @@ work_loc_lu<-read.csv('size_term_17_19_workplace.csv') %>% # work trips
   mutate(log_hh_p = log(1+hh_p))
 school_loc_lu<-read.csv('size_term_17_19_school.csv') %>%  # school trips
   mutate(log_hh_p = log(1+hh_p))
-# non_mandatory_tour_lu<-read.csv('size_term_17_19_non_mandatory.csv') # non-mandatory primary
 wb_sub_lu<- read.csv('size_term_17_19_atwork.csv') %>%
   mutate(log_hh_p = log(1+hh_p))
-# trip_dest_lu<-read.csv('size_term_17_19_trip.csv')
-all_trip_dest_lu<-read.csv('C:/Joanne_PSRC/travel_models/psrc_activitysim/scripts/size_terms/size_term_17_19_all_trip.csv') %>%
+all_trip_dest_lu<-read.csv('size_term_17_19_all_trip.csv') %>%
   mutate(log_hh_p = log(1+hh_p))
+# non_mandatory_tour_lu<-read.csv('size_term_17_19_non_mandatory.csv') # non-mandatory primary
+# trip_dest_lu<-read.csv('size_term_17_19_trip.csv')
 
 ```
 
@@ -342,7 +342,7 @@ non_mandatory_social<-estimate_size_terms(all_trip_dest_lu,
 
 non_mandatory_othdiscr<-estimate_size_terms(all_trip_dest_lu, 
                     model = "non_mandatory", 
-                    seg = "social",
+                    seg = "othdiscr",
                     select_var_list=c("othdiscr", 
                                       "empsvc_p", "empedu_p",	"empfoo_p","empret_p",	"log_hh_p",
                                       "log_aparks"),

@@ -94,6 +94,7 @@ size_term_workplace_pums_1 <- size_term_work %>%
   add_column(non_work_cols) %>%
   ungroup() %>%
   add_row(read_csv("outputs/destination_choice_size_terms_psrc/size_terms_mle_all_trips_no_workplace.csv"))
+# 5-year
 size_term_workplace_pums_5 <- size_term_work_5 %>%
   pivot_wider(id_cols = "INC_BIN", names_from = "sc_jobsector",values_from = "size_term") %>%
   rename(segment=INC_BIN) %>%
