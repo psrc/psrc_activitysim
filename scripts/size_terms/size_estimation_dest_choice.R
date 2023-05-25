@@ -44,7 +44,8 @@ library(leaflet)
 
 
 
-
+zoneobs<-estimdata
+pars <- startvals
 loglik <- function(pars,zoneobs){
   nzones <- nrow(zoneobs)
   nitems <- ncol(zoneobs)
@@ -95,7 +96,7 @@ validate_inputs <-function(estimdata){
 }
 
 
-estimate_size_terms<- function(.data, outfilename='size_coeff.txt', select_var_list, all_lu_vars){
+estimate_size_terms<- function(.data, model, seg, select_var_list, all_lu_vars){
   
   estimdata <- .data[, c("zone", select_var_list)]
   nzones <- nrow(estimdata)
@@ -157,12 +158,12 @@ estimate_size_terms<- function(.data, outfilename='size_coeff.txt', select_var_l
   coeff_all<- all_lu_vars%>%
     left_join(test)%>% 
     replace(is.na(.), 0)%>%select(variable, est.)%>%
-    pivot_wider(names_from=variable, values_from=est.)
+    pivot_wider(names_from=variable, values_from=est.) %>%
+    mutate(model_selector = model,
+           segment = seg,
+           .before = "empedu_p")
   
-  print(coeff_all)
-  
-  print(paste("results saved in", outfilename))
-  write.csv(coeff_all, outfilename)
+  return(coeff_all)
 }
 
 
