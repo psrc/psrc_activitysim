@@ -89,7 +89,34 @@ M<-cor(work_loc_lu[,var_list])
 head(round(M,2))
 corrplot(M, method="number")
 ```
+```{r count sample size}
+count_jobs <- work_loc_lu %>%
+  mutate(dum_low = ifelse(work_low>0,"low",0),
+         dum_med = ifelse(work_med>0,"med",0),
+         dum_high = ifelse(work_high>0,"high",0),
+         dum_very_high = ifelse(work_very_high>0,"very_high",0))
 
+# count zones that have workers in each income bin
+fn <- function(.data,var){
+  .data %>% 
+    add_row(count_jobs %>%
+    group_by({{var}}) %>%
+    summarise_at(vars(empedu_p:emptot_p),~sum(.>0)) %>%
+    rename(worker_inc = {{var}}) %>%
+    ungroup())
+}
+# sum all jobs in zones that have workers in each income bin
+test <-count_jobs %>%
+  group_by(dum_low) %>%
+  summarise_at(vars(empedu_p:emptot_p),~sum(.>0)) %>%
+  rename(worker_inc = dum_low) %>%
+  fn(dum_med) %>%
+  fn(dum_high) %>%
+  fn(dum_very_high) %>%
+  filter(worker_inc!="0")
+write.csv(test,"outputs/mle_sample_size_workplace.csv")
+getwd()
+```
 
 all vars: empsvc_p, empedu_p,	empfoo_p, empgov_p,	empind_p,	empmed_p,	empofc_p,	empoth_p,	empret_p,	hh_p, log_aparks
 ## Regular Work Location
