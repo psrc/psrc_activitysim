@@ -11,6 +11,7 @@ seed_hh_file = r"R:\e2projects_two\SyntheticPopulation_2018\keep\2018\population
 seed_person_file = r"R:\e2projects_two\SyntheticPopulation_2018\keep\2018\populationsim_files\data\seed_persons.csv"
 # parcel_block_file = r'R:\e2projects_two\activitysim\conversion\parcel_taz_block_lookup.csv'
 parcel_block_file = r"R:\e2projects_two\activitysim\conversion\geographic_crosswalks\parcel_taz_block_lookup.csv"
+maz_area = pd.read_csv(r'R:\e2projects_two\activitysim\conversion\tables\maz_acres.csv')
 # raw_parcel_file = r'R:\e2projects_two\SoundCast\Inputs\dev\landuse\2018\new_emp\parcels_urbansim.txt'
 # buffered_parcel_path = r'R:\e2projects_two\activitysim\conversion\land_use\buffered_parcels.csv'
 buffered_parcel_path = r"L:\RTP_2022\final_runs\sc_rtp_2018_final\soundcast\outputs\landuse\buffered_parcels.txt"
@@ -24,7 +25,7 @@ hh_persons_file = os.path.join(land_use_dir, "hh_and_persons.h5")
 transit_score_file = r"R:\e2projects_two\activitysim\inputs\data\block_transit_score2018.csv"
 
 ##### Outputs
-output_dir = r"R:\e2projects_two\activitysim\inputs\data\data_raw"
+output_dir = r"C:\workspace\activitysim_inputs\data_raw"
 
 # zone_types = ['TAZ','MAZ','parcel']
 zone_types = ["MAZ"]
@@ -61,6 +62,7 @@ lu_aggregate_dict = {
     "mfunits": "sum",
     "TAZ": "first",
 }
+
 
 lu_rename_dict = {
     "hh_p": "TOTHH",
@@ -707,7 +709,7 @@ def process_landuse(df_psrc, df_psrc_person, zone_type):
     return df_lu
 
 
-def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict):
+def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict, maz_area):
 
     """Convert Daysim-formatted land use data to MTC TM1 format for activitysim.
        Geographic aggregation from parcel level to TAZ, MAZ, or parcel as defined in zone_type. 
@@ -824,22 +826,24 @@ def process_buffered_landuse(df_psrc, df_psrc_person, zone_type, aggregate_dict)
     df_lu = df_lu.merge(df, on=zone_type, how="left")
 
     # Total acres, based on parcel size
-    df_parcel_area = pd.read_csv(parcel_area_file)
-    # df_parcel_area['parcel_id'] = df_parcel_area['pin'].astype(int)
-    df_parcel = df_parcel.merge(df_parcel_area, how="left", on="parcel_id")
-    df_parcel["area"].fillna(0, inplace=True)
-    df_parcel["area"] = np.where(
-        df_parcel["area"] < 1, df_parcel["area"].mean(), df_parcel["area"]
-    )
+    # df_parcel_area = pd.read_csv(parcel_area_file)
+    # # df_parcel_area['parcel_id'] = df_parcel_area['pin'].astype(int)
+    # df_parcel = df_parcel.merge(df_parcel_area, how="left", on="parcel_id")
+    # df_parcel["area"].fillna(0, inplace=True)
+    # df_parcel["area"] = np.where(
+    #     df_parcel["area"] < 1, df_parcel["area"].mean(), df_parcel["area"]
+    # )
 
-    # df = (df_parcel.groupby(zone_type).sum()[['sqft_p']]/43560).reset_index()
-    df = (df_parcel.groupby(zone_type).sum()[["area"]] / 43560).reset_index()
-    df.rename(columns={"area": "TOTACRE"}, inplace=True)
-    df_lu = df_lu.merge(df, on=zone_type, how="left")
+    # # df = (df_parcel.groupby(zone_type).sum()[['sqft_p']]/43560).reset_index()
+    # df = (df_parcel.groupby(zone_type).sum()[["area"]] / 43560).reset_index()
+    # df.rename(columns={"area": "TOTACRE"}, inplace=True)
+    # df_lu = df_lu.merge(df, on=zone_type, how="left")
+
+    df_lu = df_lu.merge(maz_area, how = 'left', on = 'MAZ')
 
     # Some TAZs have 0 TOTACRE fields.
     # Popuilate with regional average
-    df_lu.loc[df_lu["TOTACRE"] == 0, "TOTACRE"] = df_lu.TOTACRE.mean()
+    #df_lu.loc[df_lu["TOTACRE"] == 0, "TOTACRE"] = df_lu.TOTACRE.mean()
 
     # Acreage occupied by residential development;
     df_lu["RESACRE"] = df_lu["TOTACRE"] * (
@@ -1094,7 +1098,7 @@ for zone_type in zone_types:
         df_psrc_person = pd.read_csv(os.path.join(output_dir, zone_type, "persons.csv"))
     if use_buffered_parcels:
         df_lu = process_buffered_landuse(
-            df_psrc, df_psrc_person, zone_type, lu_aggregate_dict
+            df_psrc, df_psrc_person, zone_type, lu_aggregate_dict, maz_area
         )
     else:
         df_lu = process_landuse(df_psrc, df_psrc_person, zone_type)
