@@ -19,16 +19,7 @@ maz_to_maz:
   tables:
    - maz_to_maz_walk.csv
    - maz_to_maz_bike.csv
-    
-  #maz_to_maz blending distance (missing or 0 means no blending)
-  max_blend_distance:
-   DIST: 0
-    #blend distance of 0 means no blending
-   DISTBIKE: 0
-   DISTWALK: 0
-
-  #missing means use the skim value itself rather than DIST skim (e.g. DISTBIKE)
-  blend_distance_skim_name: DIST
+  #max_blend_distance: 0
 
 skim_time_periods:
     time_window: 1440
