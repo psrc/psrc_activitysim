@@ -89,7 +89,7 @@ def bike_and_walk_skims(emme_project, tod, results_dict):
     # Assuming 10 mph bike speed
     results_dict["DISTBIKE"] = emmeMatrix_to_numpyMatrix(
         "walkt", emme_project.bank, "float32"
-    ) * (10.0 / 60.0)
+    ) * (3.0 / 60.0)
 
     # Assuming 3 mph bike speed
     results_dict["DISTWALK"] = emmeMatrix_to_numpyMatrix(
