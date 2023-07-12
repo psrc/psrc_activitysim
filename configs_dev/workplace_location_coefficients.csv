@@ -1,0 +1,9 @@
+coefficient_name,value,constrain
+coef_dist_0_1,0.6513567519399378,F
+coef_dist_1_2,-0.4218475480234022,F
+coef_dist_2_5,-0.4405791410423078,F
+coef_dist_5_15,-0.14054101265152755,F
+coef_dist_15_up,-0.09058075475407117,F
+coef_dist_0_5_high,0.23970144818293895,F
+coef_dist_5_up_high,0.0,T
+coef_mode_logsum,1.2444816885713779,F

@@ -1,0 +1,503 @@
+---
+title: "size-term-estimation"
+author: "suzanne"
+date: "2023-04-13"
+output: html_document
+---
+
+# Read in libraries, set working directory, source code for doing the size estimation work
+```{r, setup}
+knitr::opts_knit$set(root.dir = "R:/e2projects_two/activitysim/estimation/2017_2019_data/size_terms")
+```
+
+```{r}
+library(dplyr)
+library(tidyverse)
+# for mapping places that have people going to them, but size variables are zero:
+library(sf)
+library(leaflet)
+library(htmlwidgets)
+library(stats)
+library(data.table)
+
+#put your input data here, outputs will also be written out here
+setwd("R:/e2projects_two/activitysim/estimation/2017_2019_data/size_terms")
+
+#this file does the work
+source('C:/Joanne_PSRC/travel_models/psrc_activitysim/scripts/size_terms/size_estimation_dest_choice.R')
+
+```
+
+There are 5 estimation files for the following destination types:
+regular work location 
+school location
+non-mandatory tour
+work-based subtour aka atwork
+intermediate stop aka trip destination
+
+```{r}
+
+work_loc_lu<-read.csv('size_term_17_19_workplace.csv') %>% # work trips
+  mutate(log_hh_p = log(1+hh_p))
+school_loc_lu<-read.csv('size_term_17_19_school.csv') %>%  # school trips
+  mutate(log_hh_p = log(1+hh_p))
+wb_sub_lu<- read.csv('size_term_17_19_atwork.csv') %>%
+  mutate(log_hh_p = log(1+hh_p))
+all_trip_dest_lu<-read.csv('size_term_17_19_all_trip.csv') %>%
+  mutate(log_hh_p = log(1+hh_p))
+# non_mandatory_tour_lu<-read.csv('size_term_17_19_non_mandatory.csv') # non-mandatory primary
+# trip_dest_lu<-read.csv('size_term_17_19_trip.csv')
+
+```
+
+
+
+
+write out the list of columns that could be used in the estimation
+```{r}
+
+var_list<-c('empedu_p',	# education jobs
+            'empfoo_p', # food jobs
+            'empgov_p',	# government jobs
+            'empind_p',	# industrial job
+            'empmed_p',	# medicine jobs?
+            'empofc_p',	# office jobs
+            'empoth_p',	# other jobs?
+            'empret_p',	# retail jobs
+            # 'emprsc_p',	# resource jobs
+            'empsvc_p',	# service jobs
+            'emptot_p',	# total jobs
+            # 'hh_p',	    # number of households?
+            "log_hh_p",
+            'stugrd_p',	
+            'stuhgh_p',	
+            'stuuni_p',	
+            'log_aparks')
+all_lu_vars<-data.frame(variable=var_list,Zeros=rep(0,(length(var_list))))
+ 
+
+```
+
+```{r}
+summary(work_loc_lu[,var_list])
+```
+
+
+```{r correlation, fig.width = 9, fig.height = 7}
+library(corrplot)
+M<-cor(work_loc_lu[,var_list])
+head(round(M,2))
+corrplot(M, method="number")
+```
+```{r count sample size}
+count_jobs <- work_loc_lu %>%
+  mutate(dum_low = ifelse(work_low>0,"low",0),
+         dum_med = ifelse(work_med>0,"med",0),
+         dum_high = ifelse(work_high>0,"high",0),
+         dum_very_high = ifelse(work_very_high>0,"very_high",0))
+
+# count zones that have workers in each income bin
+fn <- function(.data,var){
+  .data %>% 
+    add_row(count_jobs %>%
+    group_by({{var}}) %>%
+    summarise_at(vars(empedu_p:emptot_p),~sum(.>0)) %>%
+    rename(worker_inc = {{var}}) %>%
+    ungroup())
+}
+# sum all jobs in zones that have workers in each income bin
+test <-count_jobs %>%
+  group_by(dum_low) %>%
+  summarise_at(vars(empedu_p:emptot_p),~sum(.>0)) %>%
+  rename(worker_inc = dum_low) %>%
+  fn(dum_med) %>%
+  fn(dum_high) %>%
+  fn(dum_very_high) %>%
+  filter(worker_inc!="0")
+write.csv(test,"outputs/mle_sample_size_workplace.csv")
+getwd()
+```
+
+all vars: empsvc_p, empedu_p,	empfoo_p, empgov_p,	empind_p,	empmed_p,	empofc_p,	empoth_p,	empret_p,	hh_p, log_aparks
+## Regular Work Location
+```{r workplace_work_low}
+workplace_work_low <- estimate_size_terms(work_loc_lu, 
+                    model = "workplace", 
+                    seg = "work_low", 
+                    select_var_list=c("work_low",	
+                                      'empsvc_p',	
+                                      'empfoo_p',
+                                      'empedu_p', 
+                                      'empgov_p',	
+                                      'empind_p',	
+                                      'empmed_p',	
+                                      'empofc_p',	
+                                      # 'empoth_p',	
+                                      'empret_p'),# all variables
+                    all_lu_vars=all_lu_vars)
+
+```
+
+
+```{r workplace_work_med}
+workplace_work_med<-estimate_size_terms(work_loc_lu, 
+                    model = "workplace", 
+                    seg = "work_med", 
+                    select_var_list=c("work_med",
+                                      'empsvc_p', 
+                                      'empfoo_p', # food jobs
+                                      'empedu_p',	# education jobs
+                                      'empgov_p',	# government jobs
+                                      'empind_p',	# industrial job
+                                      'empmed_p',	# medicine jobs?
+                                      'empofc_p',	# office jobs
+                                      # 'empoth_p',	# other jobs?
+                                      'empret_p'),
+                    all_lu_vars=all_lu_vars)
+```
+
+```{r workplace_work_high}
+workplace_work_high<-estimate_size_terms(work_loc_lu,  
+                    model = "workplace", 
+                    seg = "work_high", 
+                    select_var_list=c("work_high",  
+                                      'empofc_p',
+                                      'empsvc_p',	
+                                      'empfoo_p', 
+                                      'empedu_p',	
+                                      'empgov_p',	
+                                      'empind_p',	
+                                      'empmed_p',	
+                                      # 'empoth_p',	
+                                      'empret_p'),
+                    all_lu_vars=all_lu_vars)
+```
+```{r workplace_work_very_high}
+workplace_work_very_high <- estimate_size_terms(work_loc_lu,  
+                    model = "workplace", 
+                    seg = "work_very_high", 
+                    select_var_list=c("work_very_high", 
+                                      'empofc_p',	# office jobs
+                                      'empsvc_p', 
+                                      'empfoo_p', # food jobs
+                                      'empedu_p',	# education jobs
+                                      'empgov_p',	# government jobs
+                                      'empind_p',	# industrial job
+                                      'empmed_p',	# medicine jobs?
+                                      'empoth_p',	# other jobs?
+                                      'empret_p'),
+                    all_lu_vars=all_lu_vars)
+```
+# University can't get this model to estimate when include stuuni_p
+
+```{r}
+school_loc_lu_uni<- school_loc_lu%>%
+select(zone, university,   stuuni_p, empedu_p)
+```
+
+
+won't estimate
+
+```{r}
+#estimate_size_terms(school_loc_lu_uni, 'outputs/school_university.csv', all_lu_vars)
+```
+
+```{r}
+ggplot(school_loc_lu_uni, aes(x=stuuni_p, y=university))+geom_point()
+
+```
+
+
+
+
+
+```{r}
+ggplot(school_loc_lu_uni, aes(x=empedu_p, y=university))+geom_point()+geom_smooth( method="lm", se = TRUE)
+
+```
+Alternatively estimate a linear model and see what happens
+```{r}
+fitted_model_university<-glm(university ~ stuuni_p+ empedu_p-1, data=school_loc_lu_uni)
+summary(fitted_model_university)
+```
+
+
+## Gradeschool
+# won't estimate
+
+```{r}
+school_loc_lu_gradeschool<- school_loc_lu%>%
+select(zone, gradeschool, stugrd_p,empedu_p)
+```
+
+## won't estimate
+```{r}
+#estimate_size_terms(school_loc_lu_gradeschool, 'outputs/school_gradeschool.csv', all_lu_vars)
+```
+
+
+```{r}
+fitted_model_gradeschool<-glm(gradeschool ~ stugrd_p +empedu_p-1, data=school_loc_lu_gradeschool)
+summary(fitted_model_gradeschool)
+```
+## high school
+```{r}
+school_loc_lu_highschool<- school_loc_lu%>%
+select(zone, highschool, stuhgh_p,empedu_p)
+```
+
+## won't estimate
+```{r}
+#estimate_size_terms(school_loc_lu_highschool, 'outputs/school_highschool.csv', all_lu_vars)
+```
+
+```{r}
+fitted_model_highschool<-glm(highschool ~ stuhgh_p +empedu_p-1, data=school_loc_lu_highschool)
+summary(fitted_model_highschool)
+```
+
+## Non-mandatory primary tour destinations and intermediate trip destinations - escort
+
+```{r work_size}
+non_mandatory_work<-estimate_size_terms(all_trip_dest_lu, 
+                    model = "non_mandatory", 
+                    seg = "work",  
+                    select_var_list=c("work", 
+                                      "empofc_p","empsvc_p", "empedu_p",	"empfoo_p", "empgov_p"),
+                    all_lu_vars=all_lu_vars)
+```
+```{r univ}
+# 1 for stuuni_p
+
+# non_mandatory_univ<-estimate_size_terms(all_trip_dest_lu, 
+#                     model = "non_mandatory", 
+#                     seg = "univ",  
+#                     select_var_list=c("univ",
+#                                       "stuuni_p", 
+#                                       "empedu_p"),
+#                     all_lu_vars=all_lu_vars)
+```
+
+```{r non_mandatory_escort}
+non_mandatory_escort <- estimate_size_terms(all_trip_dest_lu, 
+                    model = "non_mandatory", 
+                    seg = "escort", 
+                    select_var_list=c("escort", 
+                                      'empsvc_p',	# service jobs
+                                      'empfoo_p',
+                                      'empret_p',	# retail jobs
+                                      'hh_p',	    # number of households?
+                                      'stugrd_p',	
+                                      'stuhgh_p'
+                                      ),
+                    all_lu_vars=all_lu_vars)
+```
+
+```{r non_mandatory_shopping}
+non_mandatory_shopping<- estimate_size_terms(all_trip_dest_lu, 
+                    model = "non_mandatory", 
+                    seg = "shopping", 
+                    select_var_list=c("shopping",
+                                      'empret_p', 
+                                      'empsvc_p',	# service jobs
+                                      'empfoo_p'
+                                      ),
+                    all_lu_vars=all_lu_vars)
+```
+
+## Non-mandatory eatout
+```{r non_mandatory_eat}
+non_mandatory_eatout<-estimate_size_terms(all_trip_dest_lu, 
+                    model = "non_mandatory", 
+                    seg = "eatout", 
+                    select_var_list=c("eatout", 
+                                      'empfoo_p',
+                                      'empret_p'
+                                      ),
+                    all_lu_vars=all_lu_vars)
+```
+```{r non_mandatory_othmaint}
+non_mandatory_othmaint<-estimate_size_terms(all_trip_dest_lu, 
+                    model = "non_mandatory", 
+                    seg = "othmaint", 
+                    select_var_list=c("othmaint", 
+                                      "empsvc_p",
+                                      'empfoo_p',"empmed_p",
+                                      #"empgov_p",	"empofc_p",	
+                                      "empret_p"),
+                    all_lu_vars=all_lu_vars)
+```
+
+```{r non_mandatory_social}
+non_mandatory_social<-estimate_size_terms(all_trip_dest_lu, 
+                    model = "non_mandatory", 
+                    seg = "social", 
+                    select_var_list=c("social", 
+                                      "log_hh_p",
+                                      "empsvc_p", "empfoo_p",	
+                                      "empret_p", # TODO: keep or not keep?
+                                      "log_aparks"),
+                    all_lu_vars=all_lu_vars)
+
+```
+```{r non_mandatory_othdiscr}
+
+non_mandatory_othdiscr<-estimate_size_terms(all_trip_dest_lu, 
+                    model = "non_mandatory", 
+                    seg = "othdiscr",
+                    select_var_list=c("othdiscr", 
+                                      "empsvc_p", "empedu_p",	"empfoo_p","empret_p",	"log_hh_p",
+                                      "log_aparks"),
+                    all_lu_vars=all_lu_vars)
+```
+## At Work
+
+wb_sub_lu
+
+empsvc_p, empedu_p,	empfoo_p, empgov_p,	empind_p,	empmed_p,	empofc_p,	empoth_p,	empret_p,	hh_p, log_aparks
+```{r atwork}
+atwork<- estimate_size_terms(wb_sub_lu, 
+                    model = "atwork", 
+                    seg = "atwork",
+                    select_var_list=c("atwork", 
+                                      "empfoo_p","empsvc_p","empofc_p","empmed_p","empret_p",
+                                      "log_aparks"),
+                    all_lu_vars=all_lu_vars)
+```
+
+```{r save all size terms}
+size_terms_no_school <- rbind(workplace_work_low,
+                    workplace_work_med,
+                    workplace_work_high,
+                    workplace_work_very_high,
+                    atwork,
+                    non_mandatory_escort,
+                    non_mandatory_shopping,
+                    non_mandatory_eatout,
+                    non_mandatory_othmaint,
+                    non_mandatory_social,
+                    non_mandatory_othdiscr)
+
+create_school_size <- function(model,seg){
+  df <- data.frame(matrix(c(model,seg,integer(15)), nrow=1))
+  colnames(df) <- names(size_terms_no_school)
+  return(df)
+}
+school_gradeschool <- create_school_size("school","gradeschool") %>% 
+  mutate(stugrd_p=1)
+school_highschool <- create_school_size("school","highschool") %>% 
+  mutate(stuhgh_p=1)
+school_university <- create_school_size("school","university") %>% 
+  mutate(stuuni_p=1)
+non_mandatory_univ <- create_school_size("trip", "univ") %>% 
+  mutate(stuuni_p=1)
+
+repeat_trips <-rbind(non_mandatory_work,
+                     non_mandatory_univ,
+                     non_mandatory_escort,
+                     non_mandatory_shopping,
+                     non_mandatory_eatout,
+                     non_mandatory_othmaint,
+                     non_mandatory_social,
+                     non_mandatory_othdiscr) %>%
+  mutate(model_selector="trip")
+size_terms <- rbind(size_terms_no_school,
+                    school_gradeschool,
+                    school_highschool,
+                    school_university,
+                    repeat_trips)
+write.csv(size_terms,
+          "outputs/destination_choice_size_terms_psrc/size_terms_mle_all_trips_all_variables_for_workplace.csv",
+          row.names = FALSE)
+write.csv(size_terms %>% filter(model_selector!="workplace"),
+          "outputs/destination_choice_size_terms_psrc/size_terms_mle_all_trips_no_workplace.csv",
+          row.names = FALSE)
+
+```
+
+```{r pums work locations and other size terms}
+
+```
+
+### Intermediate Stops/Trip Ends
+
+```{r work_size}
+estimate_size_terms(trip_dest_lu, 
+                    outfilename='outputs/work_size.csv', 
+                    select_var_list=c("work", 
+                                      "empofc_p","empsvc_p", "empedu_p",	"empfoo_p", "empgov_p"),
+                    all_lu_vars=all_lu_vars)
+```
+```{r}
+
+estimate_size_terms(trip_dest_lu, 
+                    outfilename='outputs/escort_size.csv', 
+                    select_var_list=c("escort", 
+                                      "empsvc_p","empedu_p",  "empret_p", "empmed_p", "stugrd_p",
+                                      "stuhgh_p", "log_aparks"),
+                    all_lu_vars=all_lu_vars)
+
+```
+```{r shopping_size}
+estimate_size_terms(trip_dest_lu, 
+                    outfilename='outputs/shopping_size.csv', 
+                    select_var_list=c("shopping", 
+                                      "empret_p", "empfoo_p", "empsvc_p"),
+                    all_lu_vars=all_lu_vars)
+
+```
+
+```{r eatout_size}
+estimate_size_terms(trip_dest_lu, 
+                    outfilename='outputs/eatout_size.csv', 
+                    select_var_list=c("eatout", 
+                                      "empfoo_p", "empret_p", "empsvc_p"),
+                    all_lu_vars=all_lu_vars)
+
+```
+
+
+```{r othmaint_size}
+estimate_size_terms(trip_dest_lu, 
+                    outfilename='outputs/othmaint_size.csv', 
+                    select_var_list=c("othmaint", 
+                                      "empfoo_p","empsvc_p","empgov_p", "empmed_p","empret_p",
+                                      "log_aparks"),
+                    all_lu_vars=all_lu_vars)
+```
+
+
+```{r social_size}
+estimate_size_terms(trip_dest_lu, 
+                    outfilename='outputs/social_size.csv', 
+                    select_var_list=c("social", 
+                                      "empsvc_p", "empfoo_p", "hh_p", "empret_p"),
+                    all_lu_vars=all_lu_vars)
+
+```
+
+
+
+```{r other_discr_size}
+estimate_size_terms(trip_dest_lu, 
+                    outfilename='outputs/other_discr_size.csv', 
+                    select_var_list=c("othdiscr", 
+                                      "empsvc_p","empedu_p","empfoo_p","empret_p","hh_p",
+                                      "log_aparks"),
+                    all_lu_vars=all_lu_vars)
+```
+
+# University
+I'm going to constrain this to one. I'm just not sure we want university students attracted to education jobs.
+```{r univeristy_size}
+estimate_size_terms(trip_dest_lu, 
+                    outfilename='outputs/univeristy_size.csv', 
+                    select_var_list=c("univ", 
+                                      "empedu_p","stuuni_p"),
+                    all_lu_vars=all_lu_vars)
+
+```
+
+
+
+

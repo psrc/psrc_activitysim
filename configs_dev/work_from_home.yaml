@@ -15,3 +15,5 @@ CHOOSER_FILTER_COLUMN_NAME: is_worker
 preprocessor:
   SPEC: work_from_home_annotate_persons_preprocessor
   DF: persons
+
+sharrow_skip: true  # spec not sharrow-compliant

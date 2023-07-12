@@ -1,0 +1,117 @@
+```{r, setup}
+knitr::opts_knit$set(root.dir = "R:/e2projects_two/activitysim/estimation/2017_2019_data/size_terms")
+```
+
+```{r}
+library(psrc.travelsurvey)
+library(psrccensus)
+library(tidyverse)
+library(gridExtra)
+library(grid)
+
+Sys.setenv(CENSUS_API_KEY = '3fc20d0d6664692c0becc323b82c752408d843d9')
+Sys.getenv("CENSUS_API_KEY")
+
+
+sc_variables <- function(.data){
+  .data %>% mutate(INC_BIN=case_when(HINCP<= 43000 ~ "work_low", # custom bins, as built-in are 
+                                     HINCP<= 82000 ~ "work_med", # - 25, 50, 75, 100K 
+                                     HINCP<=135000 ~ "work_high", 
+                                     HINCP >135000 ~ "work_very_high"),
+                   sc_jobsector = case_when(
+                     LUM_JOBSECTOR %in% c("01 - Natural Resources","02 - Construction")~"empoth_p",
+                     LUM_JOBSECTOR %in% c("03 - Manufacturing","04 - WTU")~             "empind_p",
+                     LUM_JOBSECTOR == "05 - Retail"~                                    "empret_p",
+                     LUM_JOBSECTOR == "07 - Business Services"~                         "empofc_p",
+                     LUM_JOBSECTOR == "09 - Healthcare"~                                "empmed_p",
+                     LUM_JOBSECTOR == "10 - Food Services"~                             "empfoo_p",
+                     LUM_JOBSECTOR == "11 - Personal Services"~                         "empsvc_p",
+                     LUM_JOBSECTOR == "12 - Government"~                                "empgov_p",
+                     LUM_JOBSECTOR == "13 - Public Education"~                          "empedu_p"))
+}
+income_job_share <- get_psrc_pums(span = 1, dyear = 2019, level = "p",
+                           vars = c("HINCP","LUM_JOBSECTOR")) %>%
+  sc_variables() %>%
+  psrc_pums_count(., group_vars=c("INC_BIN","sc_jobsector"),
+                  incl_na = FALSE) %>%
+  filter(sc_jobsector!="Total")
+
+income_job_share_5 <- get_psrc_pums(span = 5,
+                           dyear = 2019,
+                           level = "p",
+                           vars = c("HINCP","LUM_JOBSECTOR")) %>% 
+  sc_variables() %>% 
+  psrc_pums_count(., group_vars=c("INC_BIN","sc_jobsector"),
+                  incl_na = FALSE) %>%
+  filter(sc_jobsector!="Total")
+
+```
+
+
+
+```{r Size terms (scaled to 1), fig.width = 6, fig.height = 4}
+size_term_work <- income_job_share %>%
+  select(INC_BIN,sc_jobsector,share) %>%
+  group_by(INC_BIN) %>%
+  mutate(size_term = share/share[share==max(share)])
+
+size_term_work_5 <- income_job_share_5 %>%
+  select(INC_BIN,sc_jobsector,share) %>%
+  group_by(INC_BIN) %>%
+  mutate(size_term = share/share[share==max(share)])
+
+# visualize
+pf <- function(.data,inc_bin){
+    ggplot(.data %>% 
+             filter(INC_BIN==inc_bin), 
+      aes(x=fct_reorder(sc_jobsector,size_term),y=size_term,fill=sc_jobsector))+
+      geom_col()+
+      labs(title=paste(inc_bin,"workers")) +
+      theme_bw()+
+      theme(axis.title.x= element_blank(),
+          axis.title.y= element_blank(),
+          legend.position = "none")+
+      coord_flip()
+}
+
+print_plot <- grid.arrange(pf(size_term_work,"work_low"),pf(size_term_work,"work_med"),
+             pf(size_term_work,"work_high"),pf(size_term_work,"work_very_high"),
+             top=textGrob("2019 Share of Job Sectors (PUMS 1-year data)"),
+             ncol=2)
+grid.arrange(pf(size_term_work_5,"work_low"),pf(size_term_work_5,"work_med"),
+             pf(size_term_work_5,"work_high"),pf(size_term_work_5,"work_very_high"),
+             top=textGrob("2019 Share of Job Sectors (PUMS 5-year data)"),
+             ncol=2)
+```
+```{r save data}
+non_work_cols <- data.frame(matrix(c(integer(24)), nrow=4))
+names(non_work_cols) <- c("emptot_p","log_hh_p","stugrd_p","stuhgh_p","stuuni_p","log_aparks" )
+# 1-year
+size_term_workplace_pums_1 <- size_term_work %>%
+  pivot_wider(id_cols = "INC_BIN", names_from = "sc_jobsector",values_from = "size_term") %>%
+  rename(segment=INC_BIN) %>%
+  mutate(model_selector = "workplace", .before = "segment") %>%
+  add_column(non_work_cols) %>%
+  ungroup() %>%
+  add_row(read_csv("outputs/destination_choice_size_terms_psrc/size_terms_mle_all_trips_no_workplace.csv"))
+# 5-year
+size_term_workplace_pums_5 <- size_term_work_5 %>%
+  pivot_wider(id_cols = "INC_BIN", names_from = "sc_jobsector",values_from = "size_term") %>%
+  rename(segment=INC_BIN) %>%
+  mutate(model_selector = "workplace", .before = "segment") %>%
+  add_column(non_work_cols) %>%
+  ungroup() %>%
+  add_row(read_csv("outputs/destination_choice_size_terms_psrc/size_terms_mle_all_trips_no_workplace.csv"))
+
+write.csv(size_term_workplace_pums_1,
+          "outputs/destination_choice_size_terms_psrc/size_terms_mle_all_trips_pums_1year_for_workplace.csv",
+          row.names = FALSE)
+write.csv(size_term_workplace_pums_5,
+          "outputs/destination_choice_size_terms_psrc/size_terms_mle_all_trips_pums_5year_for_workplace.csv",
+          row.names = FALSE)
+```
+
+
+
+
+

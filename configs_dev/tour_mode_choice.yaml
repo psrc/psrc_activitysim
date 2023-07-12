@@ -4,40 +4,43 @@ LOGIT_TYPE: NL
 NESTS:
   name: root
   coefficient: coef_nest_root
+  
   alternatives:
       - name: AUTO
-        coefficient: coef_nest_AUTO
+        coefficient: coef_nest_AUTO_TRN_NM
         alternatives:
           - DRIVEALONEFREE
           - SHARED2FREE
           - SHARED3FREE
       - name: NONMOTORIZED
-        coefficient: coef_nest_NONMOTORIZED
+        coefficient: coef_nest_AUTO_TRN_NM
         alternatives:
           - WALK
           - BIKE
       - name: TRANSIT
-        coefficient:  coef_nest_TRANSIT
+        coefficient:  coef_nest_AUTO_TRN_NM
         alternatives:
-            - name: WALKACCESS
-              coefficient: coef_nest_TRANSIT_WALKACCESS
-              alternatives:
-              - WALK_LOC
-              - WALK_LR
-              - WALK_FRY
-              - WALK_COM
-            - name: DRIVEACCESS
-              coefficient: coef_nest_TRANSIT_DRIVEACCESS
-              alternatives:
-              - DRIVE_TRN
+          - WALK_LOC
+          - WALK_LR
+          - WALK_FRY
+          - WALK_COM
+      - name: DRIVEACCESS
+        coefficient: coef_nest_TRANSIT_DRIVEACCESS
+        alternatives:
+          - DRIVE_TRN
       - name: RIDEHAIL
         coefficient: coef_nest_RIDEHAIL
         alternatives:       
-          - TNC_SINGLE          
-     
-
+          - TNC     
+      - name: SCHOOL_BUS
+        coefficient: coef_nest_SCHOOL_BUS
+        alternatives:       
+          - SCH_BUS        
+              
+           
+    
 SPEC: tour_mode_choice.csv
-COEFFICIENTS: tour_mode_choice_coeffs.csv
+COEFFICIENTS: tour_mode_choice_coefficients.csv
 COEFFICIENT_TEMPLATE: tour_mode_choice_coeffs_template.csv
 
 CONSTANTS:
@@ -155,8 +158,12 @@ nontour_preprocessor:
 # to reduce memory needs filter chooser table to these fields
 LOGSUM_CHOOSER_COLUMNS:
   - tour_type
+  - ptype
+  - sex
   - hhsize
   - density_index
+  - log_hh_1
+  - log_emptot_1
   - age
   - age_16_p
   - age_16_to_19
