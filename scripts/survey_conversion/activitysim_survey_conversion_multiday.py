@@ -81,12 +81,15 @@ home = 'Home'    # destination value for Home
 school_taz ='school_zone_id'
 work_taz = 'workplace_zone_id' 
 school_parcel = 'school_loc_parcel'
+home_parcel = 'final_home_parcel'
 work_parcel = 'work_parcel'
 missing_school_zone = 9999999999999
 
-# houeshold weight
-home_parcel = 'final_home_parcel'
+# Weight
 hh_weight = 'hh_weight_2017_2019'
+person_weight = 'hh_weight_2017_2019'   # no specific person weight available, use HH weight
+trip_weight = 'trip_weight_2017_2019'
+tour_weight = 'trip_weight_2017_2019' # FIXME: this needs work | average the trip_weight_2017_2019 across the tour
 
 # Departure/arrival times in minutes after midnight
 deptm = 'depart_time_mam'
@@ -106,7 +109,6 @@ adtyp_work = 'Work'
 purp_work = 'Work'
 purp_home = 'Home'
 purp_school = 'School'
-trip_weight = 'trip_weight_2017_2019'
 
 # tour columns
 totaz = 'origin'
@@ -510,6 +512,10 @@ if convert_survey:
     trip = pd.read_csv(os.path.join(geolocated_output,'elmer_trip_geocoded.csv'))
     person = pd.read_csv(os.path.join(geolocated_output,'elmer_person_geocoded.csv'))
 
+    # Keep original Elmer household and person IDs for later use
+    hh['household_id_elmer'] = hh['household_id'].copy()
+    person['person_id_elmer'] = person['person_id'].copy()
+
     # Person file is recoded during geocoding; export as standard output file
     person.to_csv(os.path.join(output_dir,r'survey_persons.csv'), index=False)
 
@@ -635,6 +641,9 @@ if convert_survey:
     # FIXME: try to find ways to retain these people but exclude them for location choice models only so we can retain their travel data
     logger.info(f"Dropped {len(trip[~trip['person_id'].isin(person['person_id'])])} trips because person was removed from data")
     trip = trip[trip['person_id'].isin(person['person_id'])]
+
+    # Save original trip ID
+    trip['trip_id_elmer'] = trip['trip_id'].copy()
 
     bad_trips = ()
 
@@ -1078,9 +1087,9 @@ if convert_survey:
     for index, row in tour.iterrows():
         if row.tour_id not in skip_tour:
             print(row.tour_id)
-            filter = (tour.day==row.day)&(tour.topcl==row.topcl)&\
-                    (tour.tdpcl==row.tdpcl)&(tour.tardest==row.tardest)&\
-                    (tour.tlvdest==row.tlvdest)&(tour.household_id==row.household_id)
+            filter = (tour.day==row.day)&(tour.origin==row.origin)&\
+                    (tour.destination==row.destination)&(tour.start==row.start)&\
+                    (tour.end==row.end)&(tour.household_id==row.household_id)
             # Get total number of participants (total number of matching tours) and assign a participant number
             participants = len(tour[filter])
 
@@ -1107,6 +1116,17 @@ if convert_survey:
     df = df[~df['tour_type'].isin(['Work','School','Escort'])]
     # joint_tour_list = df[df['joint_tour'].duplicated()]['joint_tour'].values
     joint_tour_list = df['joint_tour'].unique()
+
+    # See if there are any other tours we missed by comparing against the trip-level number of participants
+    # Get list of non-joint tours
+    test_list = []
+    for tour_id in tour.loc[(tour['joint_tour'].isnull()) & 
+                            (~tour['tour_type'].isin(['work','school','escort'])), 'tour_id']:
+        print(tour_id)
+        _df = trip.loc[trip['tour'] == tour_id]
+        if _df['travelers_hh'].sum() > len(_df)*2:
+            # Do some further testing
+            test_list.append(tour_id)
 
     # Assume Tour ID of first participant, so sort by joint_tour and person ID
     df = df.sort_values(['joint_tour','person_id'])
@@ -1201,6 +1221,8 @@ if convert_survey:
     # select trips that only exist in tours - is this necessary or can we use the trip file directly?
 
     # canonical_trip_num: 1st trip out = 1, 2nd trip out = 2, 1st in = 5, etc.
+    # Keep the original trip ID for later use
+
     canonical_trip_num = (~trip.outbound * MAX_TRIPS_PER_LEG) + trip.trip_num
     trip['trip_id'] = trip['tour_id'] * (2 * MAX_TRIPS_PER_LEG) + canonical_trip_num
 
@@ -1246,13 +1268,13 @@ if convert_survey:
     # These are errors noted during estimation that must be changed manually
     # FIXME: pass these in as inputs somehow
     tour.loc[(tour['origin'] == 38677) & (tour['destination'] == 20072)
-             & (tour['tour_mode'] == 'WALK_LOC'),'tour_mode'] = 'WLK_FRY'
+             & (tour['tour_mode'] == 'WALK_LOC'),'tour_mode'] = 'WALK_FRY'
     tour.loc[(tour['origin'] == 22883) & (tour['destination'] == 38711)
-             & (tour['tour_mode'] == 'WALK_LOC'),'tour_mode'] = 'WLK_FRY'
+             & (tour['tour_mode'] == 'WALK_LOC'),'tour_mode'] = 'WALK_FRY'
     tour.loc[(tour['origin'] == 37112) & (tour['destination'] == 12648)
-                & (tour['tour_mode'] == 'WALK_LOC'),'tour_mode'] = 'WLK_FRY'
+                & (tour['tour_mode'] == 'WALK_LOC'),'tour_mode'] = 'WALK_FRY'
     tour.loc[(tour['origin'] == 40711) & (tour['destination'] == 22228)
-             & (tour['tour_mode'] == 'WALK_LOC'),'tour_mode'] = 'WLK_FRY'
+             & (tour['tour_mode'] == 'WALK_LOC'),'tour_mode'] = 'WALK_FRY'
     
     #########################################
     # at work tours
@@ -1354,10 +1376,10 @@ if convert_survey:
     # We should figure out how to better deal with these
     tour = tour[~tour['household_id'].isin(too_many_jt_hh)]
 
-    person_cols = ['person_id','household_id','age','PNUM','sex','pemploy','pstudent','ptype','school_zone_id','workplace_zone_id','free_parking_at_work']
+    person_cols = ['person_id','household_id','age','PNUM','sex','pemploy','pstudent','ptype','school_zone_id','workplace_zone_id','free_parking_at_work', 'race_category', 'person_id_elmer', person_weight]
     tour_cols = ['tour_id','person_id','household_id','tour_type','tour_category','destination','origin','start','end','tour_mode','parent_tour_id']
-    trip_cols = ['trip_id','person_id','household_id','tour_id','outbound','purpose','destination','origin','depart','trip_mode']
-    hh_cols = ['household_id','home_zone_id','income','hhsize','HHT','auto_ownership','num_workers']
+    trip_cols = ['trip_id','person_id','household_id','tour_id','outbound','purpose','destination','origin','depart','trip_mode', 'trip_id_elmer', trip_weight]
+    hh_cols = ['household_id','home_zone_id','income','hhsize','HHT','auto_ownership','num_workers', 'hh_race_category', 'household_id_elmer', hh_weight]
 
     # Make sure all records align with available and existing households/persons
     _filter = person['household_id'].isin(households['household_id'])
@@ -1381,6 +1403,7 @@ if convert_survey:
     person[['person_id','person_id_original','household_id','household_id_original']].to_csv(os.path.join(output_dir,'person_and_household_id_mapping.csv'))
     person['person_id'] = person['person_id'].astype('int32')
     households['person_id'] = households['household_id'].astype('int32')
+    trip[['trip_id','trip_id','trip_id_elmer']].to_csv(os.path.join(output_dir,'trip_id_mapping.csv'))
 
     # Set new person and household ID on all other files
     trip.drop('household_id', inplace=True, axis=1)
