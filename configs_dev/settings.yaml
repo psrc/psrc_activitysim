@@ -121,6 +121,9 @@ input_table_list:
 #resume_after: compute_accessibility
 
 models:
+  ## Disaggregate Accessibility steps
+  - initialize_proto_population # Separate step so proto tables can be split for multiprocess.
+  - compute_disaggregate_accessibility
   - initialize_landuse
   - compute_accessibility
   - initialize_households
@@ -186,6 +189,7 @@ output_tables:
         origin: land_use.zone_id
         destination: land_use.zone_id
     - joint_tour_participants
+    - proto_disaggregate_accessibility
 
 # area_types less than this are considered urban
 urban_threshold: 4
