@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import h5py
 import os
+from pandera import check_output
+from inputs_validation import households_out_schema, persons_out_schema, landuse_out_schema
 
 # Set location for outputs
 output_dir = r"\\modelstation4\c$\workspace\activitysim_inputs\data_raw"
@@ -121,6 +123,7 @@ def log4(df, col1, col2, col3, col4, min):
     )
 
 
+@check_output(households_out_schema, 0)
 def process_households(zone_type, land_use_dir):
     """ Convert Daysim-formatted household data to MTC TM1 format for activitysim.
         Write necessary df columns to file and return full df for downstream processing.
@@ -334,6 +337,7 @@ def process_households(zone_type, land_use_dir):
     return df_psrc, df_psrc_person
 
 
+@check_output(persons_out_schema)
 def process_persons(df_psrc_person):
     """Convert Daysim-formatted data to MTC TM1 format for activitysim."""
 
@@ -375,6 +379,8 @@ def process_persons(df_psrc_person):
 
     return df_psrc_person
 
+
+@check_output(landuse_out_schema)
 def process_landuse(df_psrc, df_psrc_person, zone_type, use_buffered_parcels):
     """Convert parcel land use data to MTC TM1 format for activitysim.
        Geographic aggregation from parcel level to TAZ, MAZ, or parcel as defined in zone_type. 
