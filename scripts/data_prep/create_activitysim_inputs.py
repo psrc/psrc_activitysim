@@ -123,7 +123,6 @@ def log4(df, col1, col2, col3, col4, min):
     )
 
 
-@check_output(households_out_schema, 0)
 def process_households(zone_type, land_use_dir):
     """ Convert Daysim-formatted household data to MTC TM1 format for activitysim.
         Write necessary df columns to file and return full df for downstream processing.
@@ -326,6 +325,10 @@ def process_households(zone_type, land_use_dir):
         parcel_block, left_on="hhparcel", right_on="parcel_id", how="left"
     )
     df_psrc.rename(columns={"maz_id": "MAZ"}, inplace=True)
+
+    # validate household input
+    households_out_schema.validate(df_psrc)
+
     df = write_csv(
         df_psrc,
         df_mtc,
@@ -337,7 +340,6 @@ def process_households(zone_type, land_use_dir):
     return df_psrc, df_psrc_person
 
 
-@check_output(persons_out_schema)
 def process_persons(df_psrc_person):
     """Convert Daysim-formatted data to MTC TM1 format for activitysim."""
 
@@ -370,6 +372,10 @@ def process_persons(df_psrc_person):
     df_psrc_person["PNUM"] = df_psrc_person["pno"]
     df_psrc_person["PERID"] = range(len(df_psrc_person))
 
+
+    # validate person input
+    persons_out_schema.validate(df_psrc_person)
+
     df = write_csv(
         df_psrc_person,
         df_mtc_persons,
@@ -380,7 +386,6 @@ def process_persons(df_psrc_person):
     return df_psrc_person
 
 
-@check_output(landuse_out_schema)
 def process_landuse(df_psrc, df_psrc_person, zone_type, use_buffered_parcels):
     """Convert parcel land use data to MTC TM1 format for activitysim.
        Geographic aggregation from parcel level to TAZ, MAZ, or parcel as defined in zone_type. 
@@ -707,6 +712,10 @@ def process_landuse(df_psrc, df_psrc_person, zone_type, use_buffered_parcels):
     ]
     df_lu[cols] = df_lu[cols].fillna(0)
     df_lu[cols] = df_lu[cols].replace(-1, 0)
+
+    # validate landuse input
+    landuse_out_schema.validate(df_lu)
+
     df_lu_out = write_csv(
         df_lu,
         df_mtc_lu,
