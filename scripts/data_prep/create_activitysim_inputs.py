@@ -445,6 +445,8 @@ def process_landuse(df_psrc, df_psrc_person, zone_type, use_buffered_parcels):
         },
         inplace=True,
     )
+    # sum variables with same names
+    df_lu = df_lu.groupby(lambda x: x, axis=1).sum()
     df_lu = df_lu.reset_index()
 
     # FIXME: assert all college students are full-time for now...

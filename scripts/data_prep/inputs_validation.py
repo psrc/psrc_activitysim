@@ -62,7 +62,7 @@ persons_out_schema = pa.DataFrameSchema(
 )
 
 landuse_out_schema = pa.DataFrameSchema(
-    {
+    columns={
         "AGE0004": Column(int, Check(lambda s: s >= 0)),
         "AGE0519": Column(int, Check(lambda s: s >= 0)),
         "AGE2044": Column(int, Check(lambda s: s >= 0)),
@@ -101,7 +101,7 @@ landuse_out_schema = pa.DataFrameSchema(
         "TOTHH": Column(int, Check(lambda s: s >= 0)),
         "TOTPOP": Column(int, Check(lambda s: s >= 0)),
         "ZERO": Column(int, Check(lambda s: s == 0)),
-        "area_type": Column(int, Check.isin([0,1,2,3,4,5])),
+        "area_type": Column(int, Check.isin([0, 1, 2, 3, 4, 5])),
         # "gqpop"
         # "hhlds"
         # "sftaz"
@@ -122,5 +122,7 @@ landuse_out_schema = pa.DataFrameSchema(
         "hh_2": Column(float),
         "emptot_2": Column(float),
         "access_dist_transit": Column(float)
-    }
+    },
+    checks=Check(lambda df: df['TOTEMP'] == df[["RETEMPN", "AGREMPN", "FPSEMPN", "HEREMPN", "MWTEMPN", "OTHEMPN"]].\
+                 sum(axis=1))
 )
