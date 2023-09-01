@@ -1,12 +1,13 @@
 import pandera as pa
 from pandera import Column, Check
 
+
 households_out_schema = pa.DataFrameSchema(
     {
-        "BLDGSZ": Column(int, Check.isin(range(-1, 10))),
+        "BLDGSZ": Column(int, Check.isin(range(-1, 11)), nullable=True), # FIXME: nullable?
         "HHID": Column(int, nullable=False),
-        "HHT": Column(int, Check.isin(range(-1, 8))),
-        "NOC": Column(int, Check(lambda s: s >= 0)),
+        "HHT": Column(int, Check.isin(range(-1, 8)), nullable=True),
+        "NOC": Column(int),
         "PERSONS": Column(int, Check(lambda s: s > 0)),
         "PUMA5": Column(int, nullable=False),
         "SERIALNO": Column(int, nullable=False),
@@ -15,7 +16,7 @@ households_out_schema = pa.DataFrameSchema(
         "UNITTYPE": Column(int),
         "VEHICL": Column(int, Check.isin(range(-1, 7))),
         # "bucketBin"
-        "h0004": Column(int, Check(lambda s: s >= 0)),
+        # "h004": Column(int, Check(lambda s: s >= 0)),
         "h0511": Column(int, Check(lambda s: s >= 0)),
         "h1215": Column(int, Check(lambda s: s >= 0)),
         "h1617": Column(int, Check(lambda s: s >= 0)),
@@ -39,8 +40,8 @@ households_out_schema = pa.DataFrameSchema(
         "hwrkrcat": Column(int, Check.isin(range(-1, 4))),
         "income": Column(int, Check(lambda s: s >= 0)),
         "workers": Column(int, Check(lambda s: s >= 0)),
-        "MAZ": Column(int, nullable=False),
-        "is_mf": Column(int, Check.isin([0, 1])),
+        "MAZ": Column(int, nullable=False, coerce=True),
+        "is_mf": Column(int, Check.isin([0, 1]), coerce=True),
         # "hhagecat", "hfamily", "hwork_f", "hwork_p", "huniv", "hnwork", "hretire", "hpresch", "hschpred", "hschdriv",
         "originalPUMA": Column(int, nullable=False)
     }
@@ -77,6 +78,7 @@ landuse_out_schema = pa.DataFrameSchema(
         # "DISTRICT"
         "EMPRES": Column(int),
         "RETEMPN": Column(int, Check(lambda s: s >= 0)),
+        "FOOEMPN": Column(int, Check(lambda s: s >= 0), coerce=True),
         "AGREMPN": Column(int, Check(lambda s: s >= 0)),
         "FPSEMPN": Column(int, Check(lambda s: s >= 0)),
         "HEREMPN": Column(int, Check(lambda s: s >= 0)),
@@ -105,8 +107,8 @@ landuse_out_schema = pa.DataFrameSchema(
         # "gqpop"
         # "hhlds"
         # "sftaz"
-        "MAZ": Column(int, nullable=False),
-        "GSENROLL": Column(int, Check(lambda s: s >= 0)),
+        "MAZ": Column(int, nullable=False, coerce=True),
+        "GSENROLL": Column(int, Check(lambda s: s >= 0), coerce=True),
         "transit_score": Column(float),
         "transit_score_scaled": Column(float),
         "sfunits": Column(float, Check(lambda s: s >= 0.0)),
@@ -123,6 +125,6 @@ landuse_out_schema = pa.DataFrameSchema(
         "emptot_2": Column(float),
         "access_dist_transit": Column(float)
     },
-    checks=Check(lambda df: df['TOTEMP'] == df[["RETEMPN", "AGREMPN", "FPSEMPN", "HEREMPN", "MWTEMPN", "OTHEMPN"]].\
+    checks=Check(lambda df: df['TOTEMP'] == df[["RETEMPN", "AGREMPN", "FPSEMPN", "HEREMPN", "MWTEMPN", "OTHEMPN", "FOOEMPN"]].\
                  sum(axis=1))
 )

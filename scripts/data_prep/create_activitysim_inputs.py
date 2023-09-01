@@ -52,7 +52,7 @@ lu_aggregate_dict = {
     "TAZ": "first",     # TAZ ID
 }
 
-def write_csv(df, control_df, output_dir, fname, additional_cols=[]):
+def write_csv(df, control_df, output_dir, fname, validate_schema, additional_cols=[]):
     """Write modified dataframe to file using existing file columns as template."""
 
     # Find common set of columns
@@ -312,7 +312,7 @@ def process_households(zone_type, land_use_dir):
     df_psrc["bucketBin"] = 1
 
     # originalPUMA
-    df_psrc["orginalPUMA"] = df_psrc["PUMA5"].copy()
+    df_psrc["originalPUMA"] = df_psrc["PUMA5"].copy()
 
     # hmultiunit
     df_psrc["hmultiunit"] = 1
@@ -326,15 +326,13 @@ def process_households(zone_type, land_use_dir):
     )
     df_psrc.rename(columns={"maz_id": "MAZ"}, inplace=True)
 
-    # validate household input
-    households_out_schema.validate(df_psrc)
-
     df = write_csv(
         df_psrc,
         df_mtc,
         os.path.join(output_dir, zone_type),
         "households.csv",
-        additional_cols=["MAZ", "is_mf"],
+        households_out_schema,
+        additional_cols=["MAZ", "is_mf"]
     )
 
     return df_psrc, df_psrc_person
@@ -372,15 +370,12 @@ def process_persons(df_psrc_person):
     df_psrc_person["PNUM"] = df_psrc_person["pno"]
     df_psrc_person["PERID"] = range(len(df_psrc_person))
 
-
-    # validate person input
-    persons_out_schema.validate(df_psrc_person)
-
     df = write_csv(
         df_psrc_person,
         df_mtc_persons,
         os.path.join(output_dir, zone_type),
         "persons.csv",
+        persons_out_schema
     )
 
     return df_psrc_person
@@ -434,7 +429,7 @@ def process_landuse(df_psrc, df_psrc_person, zone_type, use_buffered_parcels):
             "stuhgh_p": "HSENROLL", # students: high school
             "stuuni_p": "COLLFTE",  # students: college FTE
             "empedu_p": "HEREMPN",  # educational: health, education, and recreational
-            "empfoo_p": "RETEMPN",  # retail trade: retail trade
+            "empfoo_p": "FOOEMPN",  # retail trade: retail trade
             "empgov_p": "OTHEMPN",  # government: other employment
             "empind_p": "MWTEMPN",  # industrial: manufacturing, wholesale trade, and transport
             "empmed_p": "HEREMPN",  # medical: health, educational, and recreational
@@ -446,6 +441,7 @@ def process_landuse(df_psrc, df_psrc_person, zone_type, use_buffered_parcels):
         inplace=True,
     )
     # sum variables with same names
+    # FIXME: check aggregated numbers
     df_lu = df_lu.groupby(lambda x: x, axis=1).sum()
     df_lu = df_lu.reset_index()
 
@@ -689,6 +685,7 @@ def process_landuse(df_psrc, df_psrc_person, zone_type, use_buffered_parcels):
             "hh_2",
             "emptot_2",
             "access_dist_transit",
+            "FOOEMPN"
         ]
     else:
         additional_cols = ["MAZ"]
@@ -715,15 +712,13 @@ def process_landuse(df_psrc, df_psrc_person, zone_type, use_buffered_parcels):
     df_lu[cols] = df_lu[cols].fillna(0)
     df_lu[cols] = df_lu[cols].replace(-1, 0)
 
-    # validate landuse input
-    landuse_out_schema.validate(df_lu)
-
     df_lu_out = write_csv(
         df_lu,
         df_mtc_lu,
         os.path.join(output_dir, zone_type),
         "land_use.csv",
-        additional_cols=additional_cols,
+        landuse_out_schema,
+        additional_cols=additional_cols
     )
 
     return df_lu
