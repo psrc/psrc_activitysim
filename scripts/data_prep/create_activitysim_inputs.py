@@ -75,6 +75,9 @@ def write_csv(df, control_df, output_dir, fname, validate_schema, additional_col
                     print("")
                 df[col] = df[col].astype(control_df[col].dtype)
 
+    # validate output data
+    validate_schema.validate(df)
+    
     df.to_csv(os.path.join(output_dir, fname), index=False)
 
     return df
