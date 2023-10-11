@@ -1,0 +1,28 @@
+project:
+  type: book
+  output-dir: "validation-notebook"
+  
+book:
+  title: "ActivitySim Validation Notebooks"
+  chapters:
+    - index.qmd
+    - auto_ownership/auto_ownership.ipynb
+    - school_location/school_location.ipynb
+    - school_location/school_location_unweighted.ipynb
+    - work_location/work_location.ipynb
+    - work_location/work_location_unweighted.ipynb
+    - cdap/cdap.ipynb
+
+format:
+  html:
+    theme: 
+      light: comos
+      dark: darkly
+    code-fold: true
+    code-tools: true
+
+toc: true
+
+
+
+
