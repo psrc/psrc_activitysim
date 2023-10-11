@@ -34,7 +34,7 @@ def main():
         run_ipynb(sheet_name, CURRENT_DIR)
 
     # render quarto book
-    text = "quarto render"
+    text = "quarto render " + CURRENT_DIR
     os.system(text)
     print("validation notebook created")
 
