@@ -1,18 +1,10 @@
 import os, sys, shutil
+import toml
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 
+config = toml.load(os.path.join(os.getcwd(), 'validation_configuration.toml'))
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-output_path = "outputs/validation"
-
-# list of all validation notebooks
-all_validation_nb = ['auto_ownership/auto_ownership',
-                     'cdap/cdap',
-                     'school_location/school_location',
-                     'school_location/school_location_unweighted',
-                     'work_location/work_location',
-                     'work_location/work_location_unweighted']
-# all_validation_nb = ['auto_ownership/auto_ownership']
 
 
 def run_ipynb(sheet_name, nb_path):
@@ -30,18 +22,20 @@ def run_ipynb(sheet_name, nb_path):
 
 
 def main():
-    for sheet_name in all_validation_nb:
+    for sheet_name in config['run_validation_nb']:
         run_ipynb(sheet_name, CURRENT_DIR)
 
     # render quarto book
+    # TODO: automate _quarto.yml chapter list
     text = "quarto render " + CURRENT_DIR
     os.system(text)
     print("validation notebook created")
 
     # Move these files to output folder
-    # if os.path.exists(os.path.join(os.getcwd(),output_path,"validation-notebook")):
-    #     os.remove(os.path.join(os.getcwd(),output_path,"validation-notebook"))
-    # os.rename((os.path.join(CURRENT_DIR,"validation-notebook"))), os.path.join(os.getcwd(),output_path,"validation-notebook")))
+    # if os.path.exists(os.path.join(os.getcwd(),config['p_output_dir'],"validation-notebook")):
+    #     os.remove(os.path.join(os.getcwd(),config['p_output_dir'],"validation-notebook"))
+    # os.rename((os.path.join(CURRENT_DIR,"validation-notebook"))),
+    #            os.path.join(os.getcwd(),config['p_output_dir'],"validation-notebook")))
 
 
 if __name__ == '__main__':
