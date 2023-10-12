@@ -1,4 +1,8 @@
-# Quarto tips {.unnumbered}
+---
+title: Quarto tips
+date: today
+---
+
 
 ## Install Quarto
 
