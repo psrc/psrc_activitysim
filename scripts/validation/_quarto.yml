@@ -3,7 +3,10 @@ project:
   output-dir: "validation-notebook"
   
 book:
-  title: "ActivitySim Validation Notebooks"
+  title: "ActivitySim Validation"
+  sidebar:
+    logo: PSRClogo2016path.png
+
   chapters:
     - index.qmd
     - auto_ownership/auto_ownership.ipynb
@@ -12,13 +15,15 @@ book:
     - work_location/work_location.ipynb
     - work_location/work_location_unweighted.ipynb
     - cdap/cdap.ipynb
+    - tour_mode_choice/tour_mode_choice.ipynb
 
 format:
   html:
+    mainfont: Poppins
     theme: 
-      light: comos
-      dark: darkly
-    code-fold: true
+      light: [cosmo, custom.scss]
+      dark: [darkly, custom.scss]
+    echo: false
     code-tools: true
 
 toc: true
