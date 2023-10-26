@@ -1,0 +1,33 @@
+project:
+  type: book
+  output-dir: "validation-notebook"
+  
+book:
+  title: "ActivitySim Validation"
+  sidebar:
+    logo: PSRClogo2016path.png
+
+  chapters:
+    - index.qmd
+    - auto_ownership/auto_ownership.ipynb
+    - school_location/school_location.ipynb
+    - school_location/school_location_unweighted.ipynb
+    - work_location/work_location.ipynb
+    - work_location/work_location_unweighted.ipynb
+    - cdap/cdap.ipynb
+    - tour_mode_choice/tour_mode_choice.ipynb
+
+format:
+  html:
+    mainfont: Poppins
+    theme: 
+      light: [cosmo, custom.scss]
+      dark: [darkly, custom.scss]
+    echo: false
+    code-tools: true
+
+toc: true
+
+
+
+

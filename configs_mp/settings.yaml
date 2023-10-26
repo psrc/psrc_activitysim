@@ -6,7 +6,7 @@ MKL_NUM_THREADS: 1
 # turn shadow_pricing on and off for all models (e.g. school and work)
 # shadow pricing is deprecated for less than full samples
 # see shadow_pricing.yaml for additional settings
-use_shadow_pricing: False
+#use_shadow_pricing: False
 #chunk_size: 115_000_000_000
 chunk_training_mode: disabled
 #chunk_method: uss
@@ -15,15 +15,26 @@ chunk_training_mode: disabled
 fail_fast: True
 
 multiprocess: True
-num_processes: 20
+num_processes: 12
 
 multiprocess_steps:
+  - name: mp_initialize_proto
+    begin: initialize_proto_population
+    num_processes: 1
+  - name: mp_compute_disaggregate_accessibility
+    begin: compute_disaggregate_accessibility
+    num_processes: 20
+    slice:
+      tables:
+        - proto_households
+        - proto_persons
+        - proto_tours
   - name: mp_initialize
     begin: initialize_landuse
     num_processes: 1
   - name: mp_accessibility
     begin: compute_accessibility
-    num_processes: 100
+    num_processes: 80
     slice:
       tables:
         - accessibility
@@ -32,14 +43,14 @@ multiprocess_steps:
     begin: initialize_households
     num_processes: 1
   - name: mp_households
-    begin: school_location
+    begin: auto_ownership_simulate
     num_processes: 20
     slice:
       tables:
         - households
         - persons
   - name: mp_summarize
-    begin: write_data_dictionary
+    begin: write_tables
 
 output_tables:
   h5_store: False
