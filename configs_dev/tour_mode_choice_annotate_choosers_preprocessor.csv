@@ -4,7 +4,8 @@ local,_DF_IS_TOUR,'tour_type' in df.columns
 ,number_of_participants,df.number_of_participants if _DF_IS_TOUR else 1
 ,is_joint,(df.tour_category=='joint') if _DF_IS_TOUR else False
 treat tours as work if tour_type not yet decided,tour_type,"df.get('tour_type', default='work')"
-#,,
+deal with negative durations,start,"np.where((df.duration < 0) & (df.out_period == 'NT'), 5, df.start) if 'start' in df.columns else np.nan"
+#,duration,(df.end - start) if 'start' in df.columns else df.duration
  local,_HAVE_PARENT_TOURS,'parent_tour_id' in df.columns
 ,_parent_tour_mode,"reindex(tours.tour_mode, df.parent_tour_id) if _HAVE_PARENT_TOURS else ''"
 ,work_tour_is_drive,_parent_tour_mode.isin(['DRIVEALONEFREE'])
