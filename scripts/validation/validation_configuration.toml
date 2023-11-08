@@ -7,6 +7,7 @@ p_survey_households = "R:/e2projects_two/activitysim/estimation/2017_2019_data/v
 p_survey_persons =    "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/survey_outputs/final_persons.csv"
 p_survey_landuse =    "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/survey_outputs/final_land_use.csv"
 p_survey_tours =      "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/survey_outputs/override_tours.csv"
+p_survey_trips =      "R:/e2projects_two/activitysim/survey/formatted_data/tues_wed_thur/override_trips.csv"
 
 # model results
 p_model_households = "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs/pipeline.parquetpipeline/households/mp_households.parquet"
@@ -29,6 +30,7 @@ run_validation_nb = ['auto_ownership/auto_ownership',
                      'school_location/school_location_unweighted',
                      'tour_mode_choice/tour_mode_choice',
                      'work_location/work_location',
-                     'work_location/work_location_unweighted']
+                     'work_location/work_location_unweighted',
+                     'free_parking/free_parking']
 
 psrc_color = ["#F05A28", "#00A7A0", "#8CC63E", "#91268F","#4C4C4C"]

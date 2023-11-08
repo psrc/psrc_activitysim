@@ -4,6 +4,7 @@ project:
   
 book:
   title: "ActivitySim Validation"
+  repo-url: https://github.com/psrc/psrc_activitysim/tree/main/scripts/validation
   sidebar:
     logo: PSRClogo2016path.png
 
@@ -16,6 +17,7 @@ book:
     - work_location/work_location_unweighted.ipynb
     - cdap/cdap.ipynb
     - tour_mode_choice/tour_mode_choice.ipynb
+    - free_parking/free_parking.ipynb
 
 format:
   html:
