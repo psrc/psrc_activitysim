@@ -2,9 +2,11 @@ import os
 import toml
 import pandas as pd
 import numpy as np
+import plotly.express as px
 
 config = toml.load(os.path.join(os.getcwd(), 'validation_configuration.toml'))
 
+# read hh, person, tour data from activitysim results for all model results, survey data and unweighted survey
 def get_households_data(col_list=None):
 
     if col_list is None:
