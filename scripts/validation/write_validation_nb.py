@@ -22,8 +22,8 @@ def run_ipynb(sheet_name, nb_path):
 
 
 def main():
-    # for sheet_name in config['run_validation_nb']:
-    #     run_ipynb(sheet_name, CURRENT_DIR)
+    for sheet_name in config['run_validation_nb']:
+        run_ipynb(sheet_name, CURRENT_DIR)
 
     # render quarto book
     # TODO: automate _quarto.yml chapter list
