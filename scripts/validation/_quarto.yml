@@ -10,18 +10,19 @@ book:
 
   chapters:
     - index.qmd
-    - auto_ownership/auto_ownership.ipynb
-    - school_location/school_location.ipynb
-    - school_location/school_location_unweighted.ipynb
-    - work_location/work_location.ipynb
-    - work_location/work_location_unweighted.ipynb
-    - cdap/cdap.ipynb
-    - tour_mode_choice/tour_mode_choice.ipynb
-    - free_parking/free_parking.ipynb
+    - validation_scripts/auto_ownership.ipynb
+    - validation_scripts/school_location_unweighted.ipynb
+    - validation_scripts/work_location_unweighted.ipynb
+    - validation_scripts/cdap.ipynb
+    - validation_scripts/tour_mode_choice.ipynb
+    - validation_scripts/free_parking.ipynb
+    - validation_scripts/mandatory_tour_frequency.ipynb
+    - validation_scripts/mandatory_tour_scheduling.ipynb
 
 format:
   html:
     mainfont: Poppins
+    fontsize: "7"
     theme: 
       light: [cosmo, custom.scss]
       dark: [darkly, custom.scss]
@@ -29,6 +30,7 @@ format:
     code-tools: true
 
 toc: true
+warning: false
 
 
 
