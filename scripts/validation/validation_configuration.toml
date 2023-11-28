@@ -31,6 +31,7 @@ run_validation_nb = ['validation_scripts/auto_ownership',
                      'validation_scripts/work_location_unweighted',
                      'validation_scripts/free_parking',
                      'validation_scripts/mandatory_tour_frequency',
-                     'validation_scripts/mandatory_tour_scheduling']
+                     'validation_scripts/mandatory_tour_scheduling',
+                     'validation_scripts/telecommute_frequency']
 
 psrc_color = ["#F05A28", "#00A7A0", "#8CC63E", "#91268F","#4C4C4C"]
