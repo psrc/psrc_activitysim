@@ -28,7 +28,7 @@ want_dest_choice_sample_tables: False
 
 # trace household id; comment out or leave empty for no trace
 # households with all tour types
-trace_hh_id: 251535
+trace_hh_id: 707417
 
 
 # trace origin, destination in accessibility calculation; comment out or leave empty for no trace
