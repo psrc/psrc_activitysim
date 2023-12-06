@@ -34,7 +34,7 @@ multiprocess_steps:
     num_processes: 1
   - name: mp_accessibility
     begin: compute_accessibility
-    num_processes: 90
+    num_processes: 20
     slice:
       tables:
         - accessibility
