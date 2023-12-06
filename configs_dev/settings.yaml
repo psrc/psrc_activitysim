@@ -119,7 +119,7 @@ input_table_list:
     recode_columns:
       TAZ: zero-based
 # to resume after last successful checkpoint, specify resume_after: _
-#resume_after: work_from_home
+#resume_after: trip_scheduling
 
 models:
   ## Disaggregate Accessibility steps
@@ -158,7 +158,7 @@ models:
   - trip_mode_choice
   - write_data_dictionary
   - track_skim_usage
-  - write_trip_matrices
+#  - write_trip_matrices
   - write_tables
 
 
