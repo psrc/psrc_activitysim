@@ -10,9 +10,10 @@ p_survey_tours =      "R:/e2projects_two/activitysim/estimation/2017_2019_data/v
 p_survey_trips =      "R:/e2projects_two/activitysim/survey/formatted_data/tues_wed_thur/override_trips.csv"
 
 # model results
-p_model_households = "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs/pipeline.parquetpipeline/households/mp_households.parquet"
-p_model_persons =    "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs/pipeline.parquetpipeline/persons/mp_households.parquet"
-p_model_tours =      "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs/pipeline.parquetpipeline/tours/mp_households.parquet"
+# model results
+p_model_households = "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs/final_households.parquet"
+p_model_persons =    "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs/final_persons.parquet"
+p_model_tours =      "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs/final_tours.parquet"
 
 # other validation dataset
 p_acs_auto_ownership = "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/auto_ownership/bg_auto_ownership.csv"
