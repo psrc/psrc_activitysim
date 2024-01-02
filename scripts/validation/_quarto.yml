@@ -12,7 +12,7 @@ book:
     - index.qmd
     - validation_scripts/auto_ownership.ipynb
     - validation_scripts/school_location_unweighted.ipynb
-    - validation_scripts/work_location_unweighted.ipynb
+    - validation_scripts/work_location.ipynb
     - validation_scripts/cdap.ipynb
     - validation_scripts/tour_mode_choice.ipynb
     - validation_scripts/free_parking.ipynb
