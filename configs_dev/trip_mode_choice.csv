@@ -1,6 +1,6 @@
 Label,Description,Expression,DRIVEALONEFREE,SHARED2FREE,SHARED3FREE,WALK,BIKE,WALK_LOC,WALK_LR,WALK_FRY,WALK_COM,DRIVE_TRN,TNC_SINGLE,SCH_BUS
 #,Drive alone no toll,,,,,,,,,,,,,
-util_DRIVEALONEFREE_Unavailable,DRIVEALONEFREE - Unavailable,sov_available == False,-999,,,,,,,,,,,
+util_DRIVEALONEFREE_Unavailable,DRIVEALONEFREE - Unavailable,sov_available == False,-5,,,,,,,,,,,
 #util_DRIVEALONEFREE_Unavailable_for_zero_auto_households,DRIVEALONEFREE - Unavailable for zero auto households,auto_ownership == 0,-999,,,,,,,,,,,
 util_DRIVEALONEFREE_Unavailable_for_persons_less_than_16,DRIVEALONEFREE - Unavailable for persons less than 16,age < 16,-999,,,,,,,,,,,
 util_DRIVEALONEFREE_Unavailable_for_joint_tours,DRIVEALONEFREE - Unavailable for joint tours,is_joint == True,-999,,,,,,,,,,,
