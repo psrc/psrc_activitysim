@@ -33,6 +33,7 @@ run_validation_nb = ['validation_scripts/auto_ownership',
                      'validation_scripts/free_parking',
                      'validation_scripts/mandatory_tour_frequency',
                      'validation_scripts/mandatory_tour_scheduling',
+                     'validation_scripts/non_mandatory_tour_frequency',
                      'validation_scripts/telecommute_frequency',
                      'validation_scripts/joint_tour_frequency',
                      'validation_scripts/joint_tour_composition']
