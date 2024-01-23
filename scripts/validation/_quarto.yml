@@ -14,7 +14,6 @@ book:
     - validation_scripts/school_location_unweighted.ipynb
     - validation_scripts/work_location.ipynb
     - validation_scripts/cdap.ipynb
-    - validation_scripts/tour_mode_choice.ipynb
     - validation_scripts/free_parking.ipynb
     - validation_scripts/mandatory_tour_frequency.ipynb
     - validation_scripts/mandatory_tour_scheduling.ipynb
@@ -22,6 +21,7 @@ book:
     - validation_scripts/telecommute_frequency.ipynb
     - validation_scripts/joint_tour_frequency.ipynb
     - validation_scripts/joint_tour_composition.ipynb
+    - validation_scripts/tour_mode_choice.ipynb
 
 format:
   html:

@@ -25,19 +25,19 @@ p_output_dir = "outputs/validation"
 ################################################################
 # run validation notebooks
 ################################################################
-run_validation_nb = ['validation_scripts/auto_ownership',
-                     'validation_scripts/cdap',
-                     'validation_scripts/school_location_unweighted',
-                     'validation_scripts/tour_mode_choice',
-                     'validation_scripts/work_location',
-                     'validation_scripts/free_parking',
-                     'validation_scripts/mandatory_tour_frequency',
-                     'validation_scripts/mandatory_tour_scheduling',
-                     'validation_scripts/non_mandatory_tour_frequency',
-                     'validation_scripts/telecommute_frequency',
-                     'validation_scripts/joint_tour_frequency',
-                     'validation_scripts/joint_tour_composition']
-#run_validation_nb = ['validation_scripts/non_mandatory_tour_frequency']
+#run_validation_nb = ['validation_scripts/auto_ownership',
+#                     'validation_scripts/cdap',
+#                     'validation_scripts/school_location_unweighted',
+#                     'validation_scripts/tour_mode_choice',
+#                     'validation_scripts/work_location',
+#                     'validation_scripts/free_parking',
+#                     'validation_scripts/mandatory_tour_frequency',
+#                     'validation_scripts/mandatory_tour_scheduling',
+#                     'validation_scripts/non_mandatory_tour_frequency',
+#                     'validation_scripts/telecommute_frequency',
+#                     'validation_scripts/joint_tour_frequency',
+#                     'validation_scripts/joint_tour_composition']
+run_validation_nb = ['validation_scripts/tour_mode_choice']
 
 # color palatte for plots
 psrc_color = ["#91268F", "#00A7A0", "#8CC63E", "#F05A28", "#4C4C4C", "#630460", "#9f3913", "#588527", "#00716c", "#3e4040"]
