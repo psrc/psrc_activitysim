@@ -18,6 +18,7 @@ book:
     - validation_scripts/mandatory_tour_frequency.ipynb
     - validation_scripts/mandatory_tour_scheduling.ipynb
     - validation_scripts/non_mandatory_tour_frequency.ipynb
+    - validation_scripts/non_mandatory_tour_scheduling.ipynb
     - validation_scripts/telecommute_frequency.ipynb
     - validation_scripts/joint_tour_frequency.ipynb
     - validation_scripts/joint_tour_composition.ipynb
