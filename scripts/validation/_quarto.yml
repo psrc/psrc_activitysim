@@ -23,6 +23,7 @@ book:
     - validation_scripts/joint_tour_frequency.ipynb
     - validation_scripts/joint_tour_composition.ipynb
     - validation_scripts/tour_mode_choice.ipynb
+    - validation_scripts/trip_mode_choice.ipynb
 
 format:
   html:

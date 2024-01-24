@@ -84,7 +84,7 @@ def get_tours_data(col_list=None):
     tour_weights = trip_data.groupby(['tour_id'], group_keys=False)['trip_weight_2017_2019'].mean().reset_index()
 
     survey = pd.read_csv(config['p_survey_tours'], usecols=survey_cols).\
-        merge(tour_weights, how="left", on='tour_id')
+        merge(tour_weights, how="left", on='tour_id').reset_index()
     survey['source'] = "survey data"
 
     # unweighted survey data
@@ -95,3 +95,31 @@ def get_tours_data(col_list=None):
     tour_data = pd.concat([model, survey, survey_unweighted])
 
     return tour_data
+
+
+def get_trips_data(col_list=None):
+
+    if col_list is None:
+        model_cols = None
+        survey_cols = None
+    else:
+        model_cols = col_list + ['person_id', 'household_id', 'trip_id']
+        survey_cols = col_list + ['person_id', 'household_id', 'trip_id']
+
+    # model data
+    model = pd.read_parquet(config['p_model_trips'], columns=model_cols).reset_index()
+    model['trip_weight_2017_2019'] = np.repeat(1, len(model))
+    model['source'] = "model results"
+
+    # survey data
+    survey = pd.read_csv(config['p_survey_trips'], usecols=survey_cols).reset_index()
+    survey['source'] = "survey data"
+
+    # unweighted survey data
+    survey_unweighted = survey.copy()
+    survey_unweighted['trip_weight_2017_2019'] = np.repeat(1, len(survey_unweighted))
+    survey_unweighted['source'] = "unweighted survey"
+
+    trip_data = pd.concat([model, survey, survey_unweighted])
+
+    return trip_data
