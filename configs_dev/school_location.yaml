@@ -1,9 +1,14 @@
 SAMPLE_SIZE: 30
+#ESTIMATION_SAMPLE_SIZE: 10
 
 SIMULATE_CHOOSER_COLUMNS:
   - home_zone_id
   - school_segment
   - household_id
+  - ptype
+  - is_student
+  - pemploy
+  - age
 
 # model-specific logsum-related settings
 CHOOSER_ORIG_COL_NAME: home_zone_id
@@ -14,6 +19,8 @@ OUT_PERIOD: 8
 DEST_CHOICE_COLUMN_NAME: school_zone_id
 # comment out DEST_CHOICE_LOGSUM_COLUMN_NAME if not desired in persons table
 DEST_CHOICE_LOGSUM_COLUMN_NAME: school_location_logsum
+# comment out MODE_CHOICE_LOGSUM_COLUMN_NAME if not desired in persons table
+#MODE_CHOICE_LOGSUM_COLUMN_NAME: school_modechoice_logsum
 
 # comment out DEST_CHOICE_LOGSUM_COLUMN_NAME if saved alt logsum table
 DEST_CHOICE_SAMPLE_TABLE_NAME: school_location_sample
@@ -52,9 +59,10 @@ CHOOSER_FILTER_COLUMN_NAME: is_student
 
 # FIXME - these are assigned to persons in annotate_persons. we need a better way to manage this
 SEGMENT_IDS:
-  university: 3
-  highschool: 2
-  gradeschool: 1
+  university: 3  # SCHOOL_SEGMENT_UNIV DEFINED IN constants.yaml
+  highschool: 2  # SCHOOL_SEGMENT_HIGH
+  gradeschool: 1  # SCHOOL_SEGMENT_GRADE
+  
 
 
 # model adds these tables (informational - not added if commented out)

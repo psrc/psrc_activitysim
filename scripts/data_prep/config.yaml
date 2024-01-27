@@ -8,7 +8,7 @@ time_period_lookup:
       "MD": "10to14" 
       "PM": "17to18" 
       "EV": "18to20" 
-      "EA": "5to6"
+      "EA": "20to5"
 
 
 build_skims: True

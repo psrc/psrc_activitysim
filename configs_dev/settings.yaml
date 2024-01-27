@@ -20,7 +20,7 @@ check_for_variability: False
 # turn shadow_pricing on and off for all models (e.g. school and work)
 # shadow pricing is deprecated for less than full samples
 # see shadow_pricing.yaml for additional settings
-use_shadow_pricing: False
+use_shadow_pricing: True
 
 # turn writing of sample_tables on and off for all models
 # (if True, tables will be written if DEST_CHOICE_SAMPLE_TABLE_NAME is specified in individual model settings)
@@ -30,7 +30,7 @@ want_dest_choice_sample_tables: False
 
 # trace household id; comment out or leave empty for no trace
 # households with all tour types
-trace_hh_id: 11219
+trace_hh_id: 251535
 
 
 # trace origin, destination in accessibility calculation; comment out or leave empty for no trace
@@ -97,6 +97,7 @@ input_table_list:
       - OTHEMPN
       - AGREMPN
       - MWTEMPN
+      - FOOEMPN
       - PRKCST
       - OPRKCST
       - area_type
@@ -118,7 +119,7 @@ input_table_list:
     recode_columns:
       TAZ: zero-based
 # to resume after last successful checkpoint, specify resume_after: _
-#resume_after: compute_accessibility
+#resume_after: trip_scheduling
 
 models:
   ## Disaggregate Accessibility steps
@@ -150,13 +151,13 @@ models:
   - atwork_subtour_scheduling
   - atwork_subtour_mode_choice
   - stop_frequency
-# - trip_purpose
-# - trip_destination
-# - trip_purpose_and_destination
-# - trip_scheduling
-# - trip_mode_choice
+  - trip_purpose
+  - trip_destination
+  - trip_purpose_and_destination
+  - trip_scheduling
+  - trip_mode_choice
   - write_data_dictionary
-#  - track_skim_usage
+  - track_skim_usage
 #  - write_trip_matrices
   - write_tables
 
