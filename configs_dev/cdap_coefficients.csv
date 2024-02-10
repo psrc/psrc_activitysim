@@ -169,3 +169,7 @@ coef_H_xxxx,-3.7330,F
 coef_M_xxxxx,-1.5280,F
 coef_N_xxxxx,-3.4530,F
 coef_H_xxxxx,-8.6210,F
+# non-mandatory disaggregate accessibility,,
+coef_non_mand_accessibility_med_low_N,0,F
+coef_non_mand_accessibility_med_high_N,0,F
+coef_non_mand_accessibility_high_N,0,F

@@ -208,4 +208,5 @@ coef_1_plus_maintenance_tours_constant,-0.4344,F
 coef_1_plus_eating_out_tours_constant,-0.0242,F
 coef_1_plus_visting_tours_constant,0.2367,F
 coef_1_plus_other_discretionary_tours_constant,-0.2602,F
-coef_0_auto_household_and_escorting_tour,-2,
+coef_0_auto_household_and_escorting_tour,-2,F
+coef_shopping_accessibility_shopping,0,F

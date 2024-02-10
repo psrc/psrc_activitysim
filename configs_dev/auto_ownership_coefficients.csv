@@ -84,3 +84,6 @@ coef_cars1_emp_density,-0.14888335820619056,F
 coef_cars2_emp_density,-0.26264908370307144,F
 coef_cars3_emp_density,-0.3441339137654396,F
 coef_cars4_emp_density,-0.33078364722393266,F
+coef_nonmand_logsum_0,0,F
+coef_nonmand_logsum_1,0,F
+coef_nonmand_logsum_2p,0,F
