@@ -8,8 +8,8 @@ p_survey_persons =    "R:/e2projects_two/activitysim/estimation/2017_2019_data/v
 p_survey_landuse =    "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/survey_outputs/final_land_use.csv"
 p_survey_tours =      "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/survey_outputs/override_tours.csv"
 p_survey_trips =      "R:/e2projects_two/activitysim/survey/formatted_data/tues_wed_thur/override_trips.csv"
+p_survey_tours_temp = "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/survey_outputs/tour_mode_choice/tour_mode_choice_values_combined.csv"
 
-# model results
 # model results
 p_model_households = "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs/final_households.parquet"
 p_model_persons =    "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs/final_persons.parquet"
@@ -39,8 +39,9 @@ run_validation_nb = ['validation_scripts/auto_ownership',
                      'validation_scripts/joint_tour_frequency',
                      'validation_scripts/joint_tour_composition',
                      'validation_scripts/tour_mode_choice',
-                     'validation_scripts/trip_mode_choice']
-#run_validation_nb = ['validation_scripts/trip_mode_choice']
+                     'validation_scripts/trip_mode_choice',
+                     'validation_scripts/non_mandatory_tour_destination_choice']
+#run_validation_nb = ['validation_scripts/non_mandatory_tour_destination_choice']
 
 # color palatte for plots
 psrc_color = ["#91268F", "#00A7A0", "#8CC63E", "#F05A28", "#4C4C4C", "#630460", "#9f3913", "#588527", "#00716c", "#3e4040"]
