@@ -25,6 +25,8 @@ book:
     - validation_scripts/non_mandatory_tour_scheduling.ipynb
     - validation_scripts/tour_mode_choice.ipynb
     - validation_scripts/trip_mode_choice.ipynb
+    - validation_scripts/atwork_subtours_frequency.ipynb
+    - validation_scripts/trip_destination_choice.ipynb
 
 format:
   html:
