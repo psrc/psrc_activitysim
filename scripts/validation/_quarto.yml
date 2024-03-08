@@ -3,25 +3,35 @@ project:
   output-dir: "validation-notebook"
   
 book:
-  title: "ActivitySim Validation"
+  title: "<br>ActivitySim Validation"
   repo-url: https://github.com/psrc/psrc_activitysim/tree/main/scripts/validation
+  search: false
   sidebar:
     logo: PSRClogo2016path.png
 
   chapters:
     - index.qmd
-    - validation_scripts/auto_ownership.ipynb
     - validation_scripts/school_location_unweighted.ipynb
     - validation_scripts/work_location.ipynb
-    - validation_scripts/cdap.ipynb
-    - validation_scripts/tour_mode_choice.ipynb
+    - validation_scripts/auto_ownership.ipynb
+    - validation_scripts/telecommute_frequency.ipynb
     - validation_scripts/free_parking.ipynb
+    - validation_scripts/cdap.ipynb
     - validation_scripts/mandatory_tour_frequency.ipynb
     - validation_scripts/mandatory_tour_scheduling.ipynb
-    - validation_scripts/non_mandatory_tour_frequency.ipynb
-    - validation_scripts/telecommute_frequency.ipynb
     - validation_scripts/joint_tour_frequency.ipynb
     - validation_scripts/joint_tour_composition.ipynb
+    - validation_scripts/non_mandatory_tour_frequency.ipynb
+    - validation_scripts/non_mandatory_tour_destination_choice.ipynb
+    - validation_scripts/non_mandatory_tour_scheduling.ipynb
+    - validation_scripts/tour_mode_choice.ipynb
+    - validation_scripts/trip_mode_choice.ipynb
+    - validation_scripts/atwork_subtours_frequency.ipynb
+    - validation_scripts/atwork_subtours_destination_choice.ipynb
+    - validation_scripts/atwork_subtours_scheduling.ipynb
+    - validation_scripts/atwork_subtour_mode.ipynb
+    - validation_scripts/intermediate_stop_frequency.ipynb
+    - validation_scripts/trip_destination_choice.ipynb
 
 format:
   html:
