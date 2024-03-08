@@ -52,16 +52,7 @@ multiprocess_steps:
   - name: mp_summarize
     begin: write_tables
 
-output_tables:
-  h5_store: False
-  action: include
-  prefix: final_
-  sort: True
-  tables:
-    - checkpoints
-    - accessibility
-    - land_use
-    - households
-    - persons
+
+
  
 
