@@ -3,8 +3,9 @@ project:
   output-dir: "validation-notebook"
   
 book:
-  title: "ActivitySim Validation"
+  title: "<br>ActivitySim Validation"
   repo-url: https://github.com/psrc/psrc_activitysim/tree/main/scripts/validation
+  search: false
   sidebar:
     logo: PSRClogo2016path.png
 
@@ -29,6 +30,7 @@ book:
     - validation_scripts/atwork_subtours_destination_choice.ipynb
     - validation_scripts/atwork_subtours_scheduling.ipynb
     - validation_scripts/atwork_subtour_mode.ipynb
+    - validation_scripts/intermediate_stop_frequency.ipynb
     - validation_scripts/trip_destination_choice.ipynb
 
 format:
