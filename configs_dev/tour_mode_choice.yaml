@@ -155,6 +155,12 @@ nontour_preprocessor:
   TABLES:
     - land_use
 
+annotate_tours:
+  SPEC: annotate_tours_tour_mode_choice
+  DF: choosers
+  TABLES:
+    - tours
+
 # to reduce memory needs filter chooser table to these fields
 LOGSUM_CHOOSER_COLUMNS:
   - tour_type

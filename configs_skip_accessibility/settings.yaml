@@ -5,7 +5,7 @@
 
 
 # number of households to simulate
-households_sample_size: 20000
+households_sample_size: 0
 
 #chunk_size: 
 #chunk_size: 123_000_000_000
@@ -113,6 +113,7 @@ input_table_list:
       - OTHEMPN
       - AGREMPN
       - MWTEMPN
+      - FOOEMPN
       - PRKCST
       - OPRKCST
       - area_type

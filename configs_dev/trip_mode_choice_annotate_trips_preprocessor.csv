@@ -99,4 +99,4 @@ Tour mode is school bus,tourSchBus,(df.tour_mode == 'SCH_BUS').astype(int)
 ,do_dist_walk,od_skims.reverse('DISTWALK')
 ,max_dist_walk,od_skims.max('DISTWALK')
 #,dist_bike,od_skims['DISTBIKE']
-#,dist_only,od_skims['DIST']
+,od_dist_drive,od_skims['DIST']
