@@ -21,6 +21,7 @@ input_table_list:
       - trOpTotal
       - nmRetail
       - nmTotal
+      - TotalAcc
   #
   # households (table index 'household_id')
   #
@@ -75,6 +76,7 @@ input_table_list:
       - OTHEMPN
       - AGREMPN
       - MWTEMPN
+      - FOOEMPN
       - PRKCST
       - OPRKCST
       - area_type
@@ -84,10 +86,12 @@ input_table_list:
       - TOPOLOGY
       - TERMINAL
       - transit_score_scaled
-      - density_index
+#      - density_index
       - buff_density_index
       - GSENROLL
-#      - access_dist_transit
+      - access_dist_transit
+      - hh_1
+      - emptot_1
 
 write_raw_tables: False
 rng_base_seed: 0
@@ -102,7 +106,7 @@ want_dest_choice_sample_tables: False
 households_sample_size:  0
 
 # to resume after last successful checkpoint, specify resume_after: _
-#resume_after: workplace_location
+#resume_after: initialize_landuse
 
 trace_hh_id:
 
@@ -120,13 +124,17 @@ output_tables:
     - persons
 
 models:
+  - initialize_proto_population # Separate step so proto tables can be split for multiprocess.
+  - compute_disaggregate_accessibility
   - initialize_landuse
+#  - compute_accessibility
   - initialize_households
- # - compute_accessibility
-  - school_location
-  - workplace_location
   - auto_ownership_simulate
+  - school_location
+  - work_from_home
+  - workplace_location
   - free_parking
+  - telecommute_frequency
   - cdap_simulate
   - mandatory_tour_frequency
   - mandatory_tour_scheduling
@@ -146,11 +154,11 @@ models:
   - stop_frequency
   - trip_purpose
   - trip_destination
-#  - trip_purpose_and_destination
+  - trip_purpose_and_destination
   - trip_scheduling
   - trip_mode_choice
-#  - write_data_dictionary
-#  - track_skim_usage
+  - write_data_dictionary
+  - track_skim_usage
 #  - write_trip_matrices
   - write_tables
 
