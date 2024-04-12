@@ -46,8 +46,9 @@ run_validation_nb = ['validation_scripts/auto_ownership',
                      'validation_scripts/atwork_subtours_scheduling',
                      'validation_scripts/atwork_subtour_mode',
                      'validation_scripts/intermediate_stop_frequency',
+                     'validation_scripts/trip_purpose',
                      'validation_scripts/trip_destination_choice']
-#run_validation_nb = ['validation_scripts/cdap']
+#run_validation_nb = ['validation_scripts/trip_purpose']
 
 # color palatte for plots
 psrc_color = ["#91268F", "#00A7A0", "#8CC63E", "#F05A28", "#4C4C4C", "#630460", "#9f3913", "#588527", "#00716c", "#3e4040"]

@@ -31,6 +31,7 @@ book:
     - validation_scripts/atwork_subtours_scheduling.ipynb
     - validation_scripts/atwork_subtour_mode.ipynb
     - validation_scripts/intermediate_stop_frequency.ipynb
+    - validation_scripts/trip_purpose.ipynb
     - validation_scripts/trip_destination_choice.ipynb
 
 format:
