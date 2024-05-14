@@ -35,6 +35,10 @@ input_table_list:
       - HHT
       - auto_ownership
       - num_workers
+      - hh_race_category
+      - hh_weight
+      - household_id_original
+  
   #
   # persons (table index 'person_id')
   #
@@ -49,6 +53,9 @@ input_table_list:
       - pemploy
       - pstudent
       - ptype
+      - household_id_original
+      - person_id_elmer_original
+      - person_weight
   #
   # land_use (table index 'zone_id')
   #
@@ -106,10 +113,9 @@ want_dest_choice_sample_tables: False
 households_sample_size:  0
 
 # to resume after last successful checkpoint, specify resume_after: _
-#resume_after: initialize_landuse
+resume_after: free_parking
 
-trace_hh_id:
-
+#trace_hh_id: 3404
 
 output_tables:
   h5_store: False
