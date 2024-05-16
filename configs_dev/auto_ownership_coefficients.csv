@@ -85,7 +85,5 @@ coef_cars2_emp_density,-0.26264908370307144,F
 coef_cars3_emp_density,-0.3441339137654396,F
 coef_cars4_emp_density,-0.33078364722393266,F
 coef_nonmand_logsum_zero_auto,0,F
-coef_nonmand_logsum_auto_def_driver,0,F
-coef_nonmand_logsum_auto_suff_driver,0,F
-coef_nonmand_logsum_auto_def_worker,0,F
-coef_nonmand_logsum_auto_suff_worker,0,F
+coef_nonmand_logsum_one_or_more_auto_by_driver,0,F
+coef_nonmand_logsum_one_or_more_auto_by_worker,0,F
