@@ -20,10 +20,6 @@ PRIMARY_DEST: destination
 REDUNDANT_TOURS_MERGED_CHOOSER_COLUMNS:
   - tour_mode
 
-CONSTANTS:
-    max_walk_distance: 3
-    max_bike_distance: 8
-
 preprocessor:
   SPEC: trip_destination_annotate_trips_preprocessor
   DF: trips
