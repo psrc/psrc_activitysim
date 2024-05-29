@@ -10,7 +10,7 @@ bundles:
   - telecommute_frequency
   - cdap
   - mandatory_tour_frequency
-#  - mandatory_tour_scheduling_work
+  - mandatory_tour_scheduling_work
   - mandatory_tour_scheduling_school
   - joint_tour_frequency
   - joint_tour_composition
