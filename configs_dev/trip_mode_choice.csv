@@ -128,7 +128,7 @@ util_TNC_Single_Tolls,TNC Single - Tolls,"@df.s2_vtoll_skims/(np.maximum(df.inco
 util_TNC_Single_Cost,TNC Single - Cost,"@np.maximum(TNC_single_baseFare + df.s2_dist_skims * TNC_single_costPerMile + df.s2_time_skims * TNC_single_costPerMinute, TNC_single_costMinimum)*100/(np.maximum(df.income,1000)**df.income_exponent)",,,,,,,,,,,coef_inc_adj_cost,
 #,School bus,,,,,,,,,,,,,
 util_School Bus - Unavailable,School Bus - Unavailable,SCHBUS_available==0,,,,,,,,,,,,-999
-util_School Bus - In-vehicle Time at 20 miles per hour,School Bus - In-vehicle Time at 20 miles per hour,(da_dist_skims) * 60 / schBusSpeed * time_factor,,,,,,,,,,,,coef_ivt
+util_School Bus - In-vehicle Time at 20 miles per hour,School Bus - In-vehicle Time at 20 miles per hour,@(df.da_dist_skims)*60/schBusSpeed*df.time_factor,,,,,,,,,,,,coef_ivt
 util_School Bus - Wait Time (asserted),School Bus - Wait Time (asserted),10 * time_factor,,,,,,,,,,,,coef_iwait
 util_School Bus - Walk Time (asserted),School Bus - Walk Time (asserted),10 * time_factor,,,,,,,,,,,,coef_walktime_short
 util_School Bus - Age 1 to 5,School Bus - Age 1 to 5,@(df.age > 0) & (df.age < 6),,,,,,,,,,,,coef_age0105_schb
