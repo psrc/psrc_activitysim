@@ -26,7 +26,7 @@ def get_households_data(uncloned = True, col_list=None):
         survey = pd.read_csv(config['p_survey_households_uncloned'], usecols=survey_cols).groupby('hhid_elmer').first().reset_index() # remove duplicates
         survey['source'] = "survey data"
     else:
-        survey = pd.read_csv(config['p_survey_households'], usecols=survey_cols).groupby('hhid_elmer').first().reset_index() # remove duplicates
+        survey = pd.read_csv(config['p_survey_households'], usecols=survey_cols) 
         survey['source'] = "survey data"
 
     # unweighted survey data
@@ -58,8 +58,7 @@ def get_persons_data(uncloned=True, col_list=None):
         survey = pd.read_csv(config['p_survey_persons_uncloned'], usecols=survey_cols).\
         groupby('person_id_elmer_original').first().reset_index() # remove duplicates
     else: 
-        survey = pd.read_csv(config['p_survey_persons'], usecols=survey_cols).\
-        groupby('person_id_elmer_original').first().reset_index() # remove duplicates
+        survey = pd.read_csv(config['p_survey_persons'], usecols=survey_cols)
     survey['source'] = "survey data"
 
     # unweighted survey data
