@@ -3,16 +3,22 @@
 ################################################################
 
 # uncloned survey data
-p_survey_households_uncloned = "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/uncloned/survey_households.csv"
-p_survey_persons_uncloned =    "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/uncloned/survey_persons.csv"
-p_survey_tours_uncloned =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/uncloned/survey_tours.csv"
-p_survey_trips_uncloned =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/unclonedsurvey_trips.csv"
+#p_survey_households_uncloned = "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/uncloned/survey_households.csv"
+#p_survey_persons_uncloned =    "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/uncloned/survey_persons.csv"
+#p_survey_tours_uncloned =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/uncloned/survey_tours.csv"
+#p_survey_trips_uncloned =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/unclonedsurvey_trips.csv"
+
+# uncloned survey data
+p_survey_households_uncloned = "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/uncloned/override_households.csv"
+p_survey_persons_uncloned =    "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/uncloned/override_persons.csv"
+p_survey_tours_uncloned =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/uncloned/override_tours.csv"
+p_survey_trips_uncloned =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/uncloned/override_trips.csv"
 
 # survey data
-p_survey_households = "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/survey_households.csv"
-p_survey_persons =    "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/survey_persons.csv"
-p_survey_tours =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/survey_tours.csv"
-p_survey_trips =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/survey_trips.csv"
+p_survey_households = "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/override_households.csv"
+p_survey_persons =    "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/override_persons.csv"
+p_survey_tours =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/override_tours.csv"
+p_survey_trips =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/override_trips.csv"
 #p_survey_tours_temp = "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/survey_outputs/tour_mode_choice/tour_mode_choice_values_combined.csv"
 
 # model results
@@ -57,14 +63,21 @@ p_output_dir = "outputs/validation"
 #                     'validation_scripts/trip_destination_choice']
 
 run_validation_nb = ['validation_scripts/get_data',
-                        'validation_scripts/work_location',
+                        'validation_scripts/mandatory_tour_scheduling',
+                        'validation_scripts/cdap',
                         'validation_scripts/auto_ownership',
-                        'validation_scripts/telecommute_frequency',
+                        'validation_scripts/school_location',
                         'validation_scripts/work_from_home',
-                        'validation_scripts/free_parking']
+                        'validation_scripts/work_location',
+                        'validation_scripts/free_parking',
+                        'validation_scripts/telecommute_frequency']
 
 # color palatte for plots
 psrc_color = ["#91268F", "#00A7A0", "#8CC63E", "#F05A28", "#4C4C4C", "#630460", "#9f3913", "#588527", "#00716c", "#3e4040"]
 
 hh_columns = ['home_zone_id','auto_ownership','hhsize','num_workers','num_adults','num_drivers','income']
-persons_columns = ['home_zone_id', 'workplace_zone_id', 'person_id', 'pemploy', 'household_id', 'telecommute_frequency', 'work_from_home', 'is_worker', 'distance_to_work', 'free_parking_at_work']
+persons_columns = ['home_zone_id', 'workplace_zone_id', 'person_id', 'ptype', 'pemploy', 'household_id', 
+                    'telecommute_frequency', 'work_from_home', 'is_worker', 'is_highschool', 'is_university', 
+                    'is_student', 'is_gradeschool', 'distance_to_work', 'free_parking_at_work', 'distance_to_school', 
+                    'cdap_activity']
+tours_columns = ['tour_category', 'tour_type', 'start', 'end']
