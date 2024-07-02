@@ -63,7 +63,6 @@ p_output_dir = "outputs/validation"
 #                     'validation_scripts/trip_destination_choice']
 
 run_validation_nb = ['validation_scripts/get_data',
-                        'validation_scripts/trip_mode_choice',
                         'validation_scripts/tour_mode_choice',
                         'validation_scripts/auto_ownership',
                         'validation_scripts/mandatory_tour_scheduling',

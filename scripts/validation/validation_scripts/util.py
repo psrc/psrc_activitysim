@@ -7,10 +7,12 @@ class ValidationData():
     def __init__(self, config) -> None:
         self.config = config
         self.hh_data_uncloned = self._get_hh_data()
+        self.hh_data = self._get_hh_data(False)
         self.persons_data_uncloned = self._get_persons_data()
         self.persons_data = self._get_persons_data(False)
         self.land_use = self._get_landuse_data()
         self.tours = self._get_tours_data(False)
+        self.trips = self._get_trips_data(False)
 
     def _get_hh_data(self, uncloned = True):
         # if col_list is None:
@@ -109,7 +111,34 @@ class ValidationData():
         tour_data = pd.concat([model, survey, survey_unweighted])
 
         return tour_data
+
+    def _get_trips_data(self, uncloned=True):
         
+        # model data
+        model = pd.read_parquet(self.config['p_model_trips'], columns=self.config['trips_columns']).reset_index()
+        model['trip_weight'] = np.repeat(1, len(model))
+        model['source'] = "model results"
+
+        # survey data
+        # get tour weights from average trip weights
+        survey_cols = self.config['trips_columns'] + ['trip_weight']  
+
+        if uncloned:
+            survey = pd.read_csv(self.config['p_survey_trips_uncloned'], usecols=survey_cols)
+        else:
+            survey = pd.read_csv(self.config['p_survey_trips'], usecols=survey_cols)
+
+        survey['source'] = "survey data"
+
+        
+        # unweighted survey data
+        survey_unweighted = survey.copy()
+        survey_unweighted['trip_weight'] = np.repeat(1, len(survey_unweighted))
+        survey_unweighted['source'] = "unweighted survey"
+
+        trip_data = pd.concat([model, survey, survey_unweighted])
+
+        return trip_data
 
 def plot_segments(df:pd.DataFrame, summary_var, segment_var:str, title, title_cat:str,sub_name:str):
     # print(f"n=\n"
