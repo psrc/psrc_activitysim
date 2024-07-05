@@ -1,5 +1,6 @@
 from typing import Any
 import pandas as pd
+from pathlib import Path
 import plotly.express as px
 import numpy as np
 
@@ -24,7 +25,7 @@ class ValidationData():
 
         # model data
         #model = pd.read_parquet(self.config['p_model_households'], columns=model_cols).reset_index()
-        model = pd.read_parquet(self.config['p_model_households'], columns=self.config['hh_columns']).reset_index()
+        model = pd.read_parquet(Path(self.config['p_model_path']) / self.config['p_model_households'], columns=self.config['hh_columns']).reset_index()
         model['hh_weight'] = np.repeat(1, len(model))
         model['source'] = "model results"
 
@@ -34,7 +35,7 @@ class ValidationData():
             #survey = pd.read_csv(self.config['p_survey_households_uncloned']).groupby('hhid_elmer').first().reset_index() # remove duplicates
             survey['source'] = "survey data"
         else:
-            survey = pd.read_csv(self.config['p_survey_households'], usecols=survey_cols) 
+            survey = pd.read_csv(self.config['p_survey_households'], usecols=survey_cols)
             #survey = pd.read_csv(self.config['p_survey_households']) 
             survey['source'] = "survey data"
 
@@ -57,7 +58,7 @@ class ValidationData():
         #     survey_cols = col_list + ['person_id', 'household_id', 'person_id_elmer', 'person_weight']
 
         # model data
-        model = pd.read_parquet(self.config['p_model_persons'], columns=self.config['persons_columns']).reset_index()
+        model = pd.read_parquet(Path(self.config['p_model_path']) / self.config['p_model_persons'], columns=self.config['persons_columns']).reset_index()
         #model = pd.read_parquet(self.config['p_model_persons']).reset_index()
         model['person_weight'] = np.repeat(1, len(model))
         model['source'] = "model results"
@@ -82,12 +83,12 @@ class ValidationData():
         return per_data
     
     def _get_landuse_data(self):
-        return pd.read_parquet(self.config['p_landuse']).reset_index()
+        return pd.read_parquet(Path(self.config['p_model_path']) / self.config['p_landuse']).reset_index()
     
     def _get_tours_data(self, uncloned=True):
         
         # model data
-        model = pd.read_parquet(self.config['p_model_tours'], columns=self.config['tours_columns']).reset_index()
+        model = pd.read_parquet(Path(self.config['p_model_path']) / self.config['p_model_tours'], columns=self.config['tours_columns']).reset_index()
         model['tour_weight'] = np.repeat(1, len(model))
         model['source'] = "model results"
 
@@ -115,7 +116,7 @@ class ValidationData():
     def _get_trips_data(self, uncloned=True):
         
         # model data
-        model = pd.read_parquet(self.config['p_model_trips'], columns=self.config['trips_columns']).reset_index()
+        model = pd.read_parquet(Path(self.config['p_model_path']) / self.config['p_model_trips'], columns=self.config['trips_columns']).reset_index()
         model['trip_weight'] = np.repeat(1, len(model))
         model['source'] = "model results"
 
