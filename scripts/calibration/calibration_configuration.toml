@@ -1,0 +1,46 @@
+################################################################
+# Validation input files and output directory names
+################################################################
+acs_data = 'R:/e2projects_two/SoundCast/Inputs/db_inputs/observed_acs_vehicles_drivers.csv'
+acs_1_year_source = '2022'
+acs_5_year_source = '2017_2022'
+configs_dir = "C:/Workspace/psrc_activitysim/configs_dev"
+output_dir = "C:/Workspace/psrc_activitysim/calibration"
+damp_factor = 1
+
+# uncloned survey data
+p_survey_households_uncloned = "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/uncloned/override_households.csv"
+p_survey_persons_uncloned =    "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/uncloned/override_persons.csv"
+p_survey_tours_uncloned =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/uncloned/override_tours.csv"
+p_survey_trips_uncloned =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/uncloned/override_trips.csv"
+
+# survey data
+p_survey_households = "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/override_households.csv"
+p_survey_persons =    "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/override_persons.csv"
+p_survey_tours =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/override_tours.csv"
+p_survey_trips =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/override_trips.csv"
+#p_survey_tours_temp = "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/survey_outputs/tour_mode_choice/tour_mode_choice_values_combined.csv"
+
+# model results
+p_model_households = "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs/final_households.parquet"
+p_model_persons =    "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs//final_persons.parquet"
+p_model_tours =      "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs//final_tours.parquet"
+p_model_trips =      "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs//final_trips.parquet"
+
+p_landuse =          "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs//final_land_use.parquet"
+
+# other validation dataset
+p_acs_auto_ownership = "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/auto_ownership/bg_auto_ownership.csv"
+p_maz_bg_lookup =      "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/auto_ownership/maz_bg_lookup.csv"
+
+# validation output directory
+p_output_dir = "outputs/validation"
+
+
+hh_columns = ['home_zone_id','household_id', 'auto_ownership','hhsize','num_workers','num_adults','num_drivers','income']
+persons_columns = ['home_zone_id', 'workplace_zone_id', 'person_id', 'ptype', 'pemploy', 'household_id', 
+                    'telecommute_frequency', 'work_from_home', 'is_worker', 'is_highschool', 'is_university', 
+                    'is_student', 'is_gradeschool', 'distance_to_work', 'free_parking_at_work', 'distance_to_school', 
+                    'cdap_activity']
+tours_columns = ['person_id', 'household_id','tour_category', 'tour_type', 'tour_mode', 'start', 'end']
+trips_columns = ['person_id', 'trip_mode', 'purpose']
