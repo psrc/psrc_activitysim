@@ -94,12 +94,14 @@ class ValidationData():
 
         # survey data
         # get tour weights from average trip weights
-        survey_cols = self.config['tours_columns'] + ['tour_weight']  
+        survey_cols = self.config['tours_columns'] + ['survey_tour_id','tour_weight']
 
         if uncloned:
-            survey = pd.read_csv(self.config['p_survey_tours_uncloned'], usecols=survey_cols)
+            survey = pd.read_csv(self.config['p_survey_tours_uncloned'], usecols=survey_cols). \
+                rename(columns={"survey_tour_id": "tour_id"})
         else:
-            survey = pd.read_csv(self.config['p_survey_tours'], usecols=survey_cols)
+            survey = pd.read_csv(self.config['p_survey_tours'], usecols=survey_cols). \
+                rename(columns={"survey_tour_id": "tour_id"})
 
         survey['source'] = "survey data"
 
