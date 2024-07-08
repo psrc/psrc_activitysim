@@ -164,6 +164,7 @@ models:
 
 output_tables:
   h5_store: False
+  file_type: parquet
   action: include
   prefix: final_
   sort: True
