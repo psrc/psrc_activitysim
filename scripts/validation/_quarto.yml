@@ -11,11 +11,12 @@ book:
 
   chapters:
     - index.qmd
-    - validation_scripts/school_location_unweighted.ipynb
-    - validation_scripts/work_location.ipynb
     - validation_scripts/auto_ownership.ipynb
-    - validation_scripts/telecommute_frequency.ipynb
+    - validation_scripts/school_location.ipynb
+    - validation_scripts/work_from_home.ipynb
+    - validation_scripts/work_location.ipynb
     - validation_scripts/free_parking.ipynb
+    - validation_scripts/telecommute_frequency.ipynb
     - validation_scripts/cdap.ipynb
     - validation_scripts/mandatory_tour_frequency.ipynb
     - validation_scripts/mandatory_tour_scheduling.ipynb
