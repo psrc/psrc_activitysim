@@ -11,7 +11,7 @@ households_sample_size: 0
 
 #chunk_size: 
 #chunk_size: 123_000_000_000
-#chunk_training_mode: production
+chunk_training_mode: explicit
 # set false to disable variability check in simple_simulate and interaction_simulate
 check_for_variability: False
 
@@ -30,7 +30,7 @@ want_dest_choice_sample_tables: False
 
 # trace household id; comment out or leave empty for no trace
 # households with all tour types
-trace_hh_id: 251535
+#trace_hh_id: 251535
 
 
 # trace origin, destination in accessibility calculation; comment out or leave empty for no trace

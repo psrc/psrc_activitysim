@@ -11,15 +11,15 @@ Description,Target,Expression
 ,work_tour_is_bike,parent_tour_mode=='BIKE'
 #,,
 ,i_tour_mode,df.tour_mode.map(I_MODE_MAP)
-,tour_mode_is_SOV,i_tour_mode.isin(I_SOV_MODES)
-,tour_mode_is_SR2,i_tour_mode.isin(I_SR2_MODES)
-,tour_mode_is_SR3P,i_tour_mode.isin(I_SR3P_MODES)
+,tour_mode_is_SOV,i_tour_mode == I_SOV_MODES
+,tour_mode_is_SR2,i_tour_mode == I_SR2_MODES
+,tour_mode_is_SR3P,i_tour_mode == I_SR3P_MODES
 ,tour_mode_is_auto,i_tour_mode.isin(I_AUTO_MODES)
 ,tour_mode_is_walk,i_tour_mode == I_WALK_MODE
 ,tour_mode_is_bike,i_tour_mode == I_BIKE_MODE
 ,tour_mode_is_walk_transit,i_tour_mode.isin(I_WALK_TRANSIT_MODES)
-,tour_mode_is_drive_transit,i_tour_mode.isin(I_DRIVE_TRANSIT_MODES)
-,tour_mode_is_ride_hail,i_tour_mode.isin(I_RIDE_HAIL_MODES)
+,tour_mode_is_drive_transit,i_tour_mode == I_DRIVE_TRANSIT_MODES
+,tour_mode_is_ride_hail,i_tour_mode == I_RIDE_HAIL_MODES
 #,,
 ,inbound,~df.outbound
 ,first_trip,df.trip_num == 1

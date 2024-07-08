@@ -8,14 +8,14 @@ inherit_settings: True
 # see shadow_pricing.yaml for additional settings
 #use_shadow_pricing: False
 #chunk_size: 115_000_000_000
-chunk_training_mode: disabled
+chunk_training_mode: explicit
 #chunk_method: uss
 
 # raise error if any sub-process fails without waiting for others to complete
 fail_fast: True
 
 multiprocess: True
-num_processes: 12
+#num_processes: 12
 
 multiprocess_steps:
   - name: mp_initialize_proto

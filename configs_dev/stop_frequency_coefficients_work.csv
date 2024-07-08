@@ -32,3 +32,33 @@ Alternative specific constant for outbound stops,-0.833,coef_alternative_specifi
 Alternative specific constant for outbound stops,-2.613,coef_alternative_specific_constant_for_outbound_stops_2out_0in
 Alternative specific constant for the total number of stops,0.695,coef_alternative_specific_constant_for_the_total_number_of_stops_2out_3in
 Alternative specific constant for outbound stops,-3.9339999999999997,coef_alternative_specific_constant_for_outbound_stops_3out_0in
+workplace accessibility work 0 out 1 in,0,coef_workplace_location_accessibility_0out_1in_work
+workplace accessibility work 0 out 2 in,0,coef_workplace_location_accessibility_0out_2in_work
+workplace accessibility work 0 out 3 in,0,coef_workplace_location_accessibility_0out_3in_work
+workplace accessibility work 1 out 0 in,0,coef_workplace_location_accessibility_1out_0in_work
+workplace accessibility work 1 out 1 in,0,coef_workplace_location_accessibility_1out_1in_work
+workplace accessibility work 1 out 2 in,0,coef_workplace_location_accessibility_1out_2in_work
+workplace accessibility work 1 out 3 in,0,coef_workplace_location_accessibility_1out_3in_work
+workplace accessibility work 2 out 0 in,0,coef_workplace_location_accessibility_2out_0in_work
+workplace accessibility work 2 out 1 in,0,coef_workplace_location_accessibility_2out_1in_work
+workplace accessibility work 2 out 2 in,0,coef_workplace_location_accessibility_2out_2in_work
+workplace accessibility work 2 out 3 in,0,coef_workplace_location_accessibility_2out_3in_work
+workplace accessibility work 3 out 0 in,0,coef_workplace_location_accessibility_3out_0in_work
+workplace accessibility work 3 out 1 in,0,coef_workplace_location_accessibility_3out_1in_work
+workplace accessibility work 3 out 2 in,0,coef_workplace_location_accessibility_3out_2in_work
+workplace accessibility work 3 out 3 in,0,coef_workplace_location_accessibility_3out_3in_work
+non mandatory accessibility work 0 out 1 in,0,coef_non_mandatory_accessibility_0out_1in_work
+non mandatory accessibility work 0 out 2 in,0,coef_non_mandatory_accessibility_0out_2in_work
+non mandatory accessibility work 0 out 3 in,0,coef_non_mandatory_accessibility_0out_3in_work
+non mandatory accessibility work 1 out 0 in,0,coef_non_mandatory_accessibility_1out_0in_work
+non mandatory accessibility work 1 out 1 in,0,coef_non_mandatory_accessibility_1out_1in_work
+non mandatory accessibility work 1 out 2 in,0,coef_non_mandatory_accessibility_1out_2in_work
+non mandatory accessibility work 1 out 3 in,0,coef_non_mandatory_accessibility_1out_3in_work
+non mandatory accessibility work 2 out 0 in,0,coef_non_mandatory_accessibility_2out_0in_work
+non mandatory accessibility work 2 out 1 in,0,coef_non_mandatory_accessibility_2out_1in_work
+non mandatory accessibility work 2 out 2 in,0,coef_non_mandatory_accessibility_2out_2in_work
+non mandatory accessibility work 2 out 3 in,0,coef_non_mandatory_accessibility_2out_3in_work
+non mandatory accessibility work 3 out 0 in,0,coef_non_mandatory_accessibility_3out_0in_work
+non mandatory accessibility work 3 out 1 in,0,coef_non_mandatory_accessibility_3out_1in_work
+non mandatory accessibility work 3 out 2 in,0,coef_non_mandatory_accessibility_3out_2in_work
+non mandatory accessibility work 3 out 3 in,0,coef_non_mandatory_accessibility_3out_3in_work

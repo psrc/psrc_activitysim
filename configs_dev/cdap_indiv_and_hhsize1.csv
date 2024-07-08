@@ -55,3 +55,7 @@ Telecommutes 4 days per week,telecommute_frequency=='4_days_week',,1.848,1.711
 #Turning Mandatory pattern for FT and PT who work from home,,,,
 "Full time worker, works from home",(ptype == 1)&(work_from_home),coef_UNAVAILABLE,,
 "Part time worker, works from home",(ptype == 2)&(work_from_home),coef_UNAVAILABLE,,
+# cutting non-mandatory disaggregate accessibility into roughly quartiles with low as base,,,,
+Non-mandatory accessibility med low,@(((df.shopping_accessibility + df.othdiscr_accessibility) / 2) >= 12) & (((df.shopping_accessibility + df.othdiscr_accessibility) / 2) < 13.5),,coef_non_mand_accessibility_med_low_N,
+Non-mandatory accessibility med high,@(((df.shopping_accessibility + df.othdiscr_accessibility) / 2) >= 13.5) & (((df.shopping_accessibility + df.othdiscr_accessibility) / 2) < 15),,coef_non_mand_accessibility_med_high_N,
+Non-mandatory accessibility high,@(((df.shopping_accessibility + df.othdiscr_accessibility) / 2) > 15),,coef_non_mand_accessibility_high_N,

@@ -209,3 +209,8 @@ coef_1_plus_eating_out_tours_constant,0.9612,F
 coef_1_plus_visting_tours_constant,0.4424,F
 coef_1_plus_other_discretionary_tours_constant,1.4935,F
 coef_0_auto_household_and_escorting_tour,-2,T
+coef_log_total_hours_available_7am_to_10pm_othdiscr,0,F
+coef_shopping_accessibility_shopping,0,F
+coef_shopping_accessibility_maintenance,0,F
+coef_othdiscr_accessibility_othdiscr,0,F
+coef_othdiscr_accessibility_social,0,F
