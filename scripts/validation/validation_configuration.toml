@@ -66,6 +66,9 @@ p_output_dir = "outputs/validation"
 
 run_validation_nb = ['validation_scripts/get_data',
                         'validation_scripts/tour_mode_choice',
+                        'validation_scripts/trip_mode_choice',
+    #                     'validation_scripts/trip_purpose',
+    #                     'validation_scripts/trip_destination_choice',
                         'validation_scripts/auto_ownership',
                         'validation_scripts/mandatory_tour_frequency',
                         'validation_scripts/mandatory_tour_scheduling',
@@ -74,7 +77,17 @@ run_validation_nb = ['validation_scripts/get_data',
                         'validation_scripts/work_from_home',
                         'validation_scripts/work_location',
                         'validation_scripts/free_parking',
-                        'validation_scripts/telecommute_frequency']
+                        'validation_scripts/telecommute_frequency',
+#                       'validation_scripts/non_mandatory_tour_frequency',
+                        'validation_scripts/non_mandatory_tour_scheduling',
+#                       'validation_scripts/non_mandatory_tour_destination_choice',
+#                       'validation_scripts/atwork_subtours_frequency',
+    #                     'validation_scripts/atwork_subtours_destination_choice',
+                        'validation_scripts/atwork_subtours_scheduling',
+                        'validation_scripts/atwork_subtour_mode',
+    #                     'validation_scripts/intermediate_stop_frequency',
+#                       'validation_scripts/joint_tour_frequency',
+#                       'validation_scripts/joint_tour_composition']
 
 
 # color palatte for plots
