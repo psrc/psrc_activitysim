@@ -13,6 +13,7 @@ class ValidationData():
         self.persons_data = self._get_persons_data(False)
         self.land_use = self._get_landuse_data()
         self.tours = self._get_tours_data(False)
+        self.tours_cleaned = self._get_tours_data(cleaned=True)
         self.trips = self._get_trips_data(False)
 
     def _get_hh_data(self, uncloned = True):
@@ -85,7 +86,7 @@ class ValidationData():
     def _get_landuse_data(self):
         return pd.read_parquet(Path(self.config['p_model_path']) / self.config['p_landuse']).reset_index()
     
-    def _get_tours_data(self, uncloned=True):
+    def _get_tours_data(self, uncloned=True, cleaned=False):
         
         # model data
         model = pd.read_parquet(Path(self.config['p_model_path']) / self.config['p_model_tours'], columns=self.config['tours_columns']).reset_index()
@@ -94,11 +95,21 @@ class ValidationData():
 
         # survey data
         # get tour weights from average trip weights
-        survey_cols = self.config['tours_columns'] + ['survey_tour_id','tour_weight']
+        # TODO: config['tours_survey_columns'] = config['tours_columns'] without 'atwork_subtour_frequency'
+        survey_cols = self.config['tours_survey_columns'] + ['survey_tour_id','tour_weight']
 
         if uncloned:
-            survey = pd.read_csv(self.config['p_survey_tours_uncloned'], usecols=survey_cols). \
-                rename(columns={"survey_tour_id": "tour_id"})
+            # survey = pd.read_csv(self.config['p_survey_tours_uncloned'], usecols=survey_cols). \
+            #     rename(columns={"survey_tour_id": "tour_id"})
+            if cleaned:
+                survey_cols = self.config['tours_columns'] + ['survey_tour_id']
+                survey = pd.read_csv(self.config['p_survey_tours_cleaned'], usecols=survey_cols). \
+                    rename(columns={"survey_tour_id": "tour_id"})
+                # TODO: no 'tour_weight' in cleaned data
+                survey['tour_weight'] = np.repeat(1, len(survey))
+            else:
+                survey = pd.read_csv(self.config['p_survey_tours_uncloned'], usecols=survey_cols). \
+                    rename(columns={"survey_tour_id": "tour_id"})
         else:
             survey = pd.read_csv(self.config['p_survey_tours'], usecols=survey_cols). \
                 rename(columns={"survey_tour_id": "tour_id"})
@@ -124,7 +135,7 @@ class ValidationData():
 
         # survey data
         # get tour weights from average trip weights
-        survey_cols = self.config['trips_columns'] + ['trip_weight']  
+        survey_cols = self.config['trips_columns'] + ['survey_tour_id','trip_weight']
 
         if uncloned:
             survey = pd.read_csv(self.config['p_survey_trips_uncloned'], usecols=survey_cols)

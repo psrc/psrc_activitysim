@@ -14,12 +14,14 @@ p_survey_persons_uncloned =    "R:/e2projects_two/2023_base_year/2023_survey/act
 p_survey_tours_uncloned =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/uncloned/override_tours.csv"
 p_survey_trips_uncloned =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/uncloned/override_trips.csv"
 
+# cleaned survey data
+p_survey_tours_cleaned =  "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/cleaned/override_tours.csv"
+
 # survey data
 p_survey_households = "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/override_households.csv"
 p_survey_persons =    "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/override_persons.csv"
 p_survey_tours =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/override_tours.csv"
 p_survey_trips =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/skims_attached/override_trips.csv"
-#p_survey_tours_temp = "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/survey_outputs/tour_mode_choice/tour_mode_choice_values_combined.csv"
 
 # model results
 #p_model_path = "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs"
@@ -42,9 +44,23 @@ p_output_dir = "outputs/validation"
 psrc_color = ["#91268F", "#00A7A0", "#8CC63E", "#F05A28", "#4C4C4C", "#630460", "#9f3913", "#588527", "#00716c", "#3e4040"]
 
 hh_columns = ['home_zone_id','household_id', 'auto_ownership','hhsize','num_workers','num_adults','num_drivers','income']
-persons_columns = ['home_zone_id', 'workplace_zone_id', 'person_id', 'ptype', 'pemploy', 'household_id', 
-                    'telecommute_frequency', 'work_from_home', 'is_worker', 'is_highschool', 'is_university', 
-                    'is_student', 'is_gradeschool', 'distance_to_work', 'free_parking_at_work', 'distance_to_school', 
-                    'cdap_activity']
-tours_columns = ['person_id', 'household_id','tour_category', 'tour_type', 'tour_mode', 'start', 'end']
-trips_columns = ['person_id', 'trip_mode', 'purpose']
+# num_hh_joint_tours: not in survey data
+
+persons_columns = ['home_zone_id', 'workplace_zone_id', 'person_id', 'ptype', 'pemploy', 'household_id',
+    'telecommute_frequency', 'work_from_home', 'is_worker', 'is_highschool', 'is_university',
+    'is_student', 'is_gradeschool', 'distance_to_work', 'free_parking_at_work', 'distance_to_school',
+    'cdap_activity']
+# num_non_mand: not in survey data
+
+tours_columns = ['person_id', 'household_id','tour_category', 'tour_type', 'tour_mode', 'start', 'end',
+    'composition', 'stop_frequency', 'atwork_subtour_frequency']
+# 'tour_distance': not in model data
+# 'atwork_subtour_frequency' (in cleaned survey data), 'tour_distance_one_way': not in survey data
+tours_survey_columns = ['person_id', 'household_id','tour_category', 'tour_type', 'tour_mode', 'start', 'end',
+    'composition', 'stop_frequency']
+
+
+trips_columns = ['person_id', 'household_id', 'trip_mode', 'purpose', 'outbound']
+# 'tour_id': called 'survey_tour_id' in survey data -> how to join trips to tours?
+# - after -> fix tour_type and tour_direction segment in trip_purpose.ipynb
+# 'trip_distance': called 'od_dist_drive' in model data
