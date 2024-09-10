@@ -69,9 +69,9 @@ p_output_dir = "outputs/validation"
 
 run_validation_nb = ['validation_scripts/get_data',
                         #'validation_scripts/tour_mode_choice',
-                        #'validation_scripts/trip_mode_choice',
+                        'validation_scripts/trip_mode_choice',
                         'validation_scripts/trip_purpose',
-    #                     'validation_scripts/trip_destination_choice',
+                        'validation_scripts/trip_destination_choice',
                         'validation_scripts/auto_ownership',
                         'validation_scripts/mandatory_tour_frequency',
                         'validation_scripts/mandatory_tour_scheduling',
@@ -83,9 +83,9 @@ run_validation_nb = ['validation_scripts/get_data',
                         'validation_scripts/telecommute_frequency',
 #                       'validation_scripts/non_mandatory_tour_frequency',
                         'validation_scripts/non_mandatory_tour_scheduling',
-#                       'validation_scripts/non_mandatory_tour_destination_choice',
+                        'validation_scripts/non_mandatory_tour_destination_choice',
                         'validation_scripts/atwork_subtours_frequency',
-    #                     'validation_scripts/atwork_subtours_destination_choice',
+                        'validation_scripts/atwork_subtours_destination_choice',
                         'validation_scripts/atwork_subtours_scheduling',
                         'validation_scripts/atwork_subtour_mode',
                         'validation_scripts/intermediate_stop_frequency',
@@ -102,7 +102,8 @@ persons_columns = ['home_zone_id', 'workplace_zone_id', 'person_id', 'ptype', 'p
     'is_student', 'is_gradeschool', 'distance_to_work', 'free_parking_at_work', 'distance_to_school',
     'cdap_activity']
 tours_columns = ['person_id', 'household_id','tour_category', 'tour_type', 'tour_mode', 'start', 'end',
-    'composition', 'stop_frequency', 'atwork_subtour_frequency']
+    'composition', 'stop_frequency', 'atwork_subtour_frequency','tour_distance_one_way']
 tours_survey_columns = ['person_id', 'household_id','tour_category', 'tour_type', 'tour_mode', 'start', 'end',
-    'composition', 'stop_frequency']
-trips_columns = ['person_id', 'household_id', 'trip_mode', 'purpose', 'outbound']
+    'composition', 'stop_frequency','tour_distance']
+trips_columns = ['person_id', 'household_id', 'trip_mode', 'purpose', 'outbound','od_dist_drive']
+trips_survey_columns = ['person_id', 'household_id', 'trip_mode', 'purpose', 'outbound','trip_distance']

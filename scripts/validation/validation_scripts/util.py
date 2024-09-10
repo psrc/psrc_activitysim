@@ -89,7 +89,8 @@ class ValidationData():
     def _get_tours_data(self, uncloned=True, cleaned=False):
         
         # model data
-        model = pd.read_parquet(Path(self.config['p_model_path']) / self.config['p_model_tours'], columns=self.config['tours_columns']).reset_index()
+        model_cols = self.config['tours_columns'] + ['tour_id']
+        model = pd.read_parquet(Path(self.config['p_model_path']) / self.config['p_model_tours'], columns=model_cols).reset_index()
         model['tour_weight'] = np.repeat(1, len(model))
         model['source'] = "model results"
 
@@ -102,7 +103,7 @@ class ValidationData():
             # survey = pd.read_csv(self.config['p_survey_tours_uncloned'], usecols=survey_cols). \
             #     rename(columns={"survey_tour_id": "tour_id"})
             if cleaned:
-                survey_cols = self.config['tours_columns'] + ['survey_tour_id']
+                survey_cols = self.config['tours_survey_columns'] + ['survey_tour_id']
                 survey = pd.read_csv(self.config['p_survey_tours_cleaned'], usecols=survey_cols). \
                     rename(columns={"survey_tour_id": "tour_id"})
                 # TODO: no 'tour_weight' in cleaned data
@@ -129,18 +130,23 @@ class ValidationData():
     def _get_trips_data(self, uncloned=True):
         
         # model data
-        model = pd.read_parquet(Path(self.config['p_model_path']) / self.config['p_model_trips'], columns=self.config['trips_columns']).reset_index()
+        model_cols = self.config['trips_columns'] + ['trip_id', 'tour_id']
+        model = pd.read_parquet(Path(self.config['p_model_path']) / self.config['p_model_trips'], columns=model_cols).reset_index()
         model['trip_weight'] = np.repeat(1, len(model))
         model['source'] = "model results"
 
         # survey data
         # get tour weights from average trip weights
-        survey_cols = self.config['trips_columns'] + ['survey_tour_id','trip_weight']
+        survey_cols = self.config['trips_survey_columns'] + ['survey_tour_id','survey_trip_id','trip_weight']
 
         if uncloned:
-            survey = pd.read_csv(self.config['p_survey_trips_uncloned'], usecols=survey_cols)
+            survey = pd.read_csv(self.config['p_survey_trips_uncloned'], usecols=survey_cols). \
+                rename(columns={"survey_tour_id": "tour_id",
+                                "survey_trip_id": "trip_id"})
         else:
-            survey = pd.read_csv(self.config['p_survey_trips'], usecols=survey_cols)
+            survey = pd.read_csv(self.config['p_survey_trips'], usecols=survey_cols). \
+                rename(columns={"survey_tour_id": "tour_id",
+                                "survey_trip_id": "trip_id"})
 
         survey['source'] = "survey data"
 
