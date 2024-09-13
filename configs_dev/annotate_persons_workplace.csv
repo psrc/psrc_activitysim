@@ -35,3 +35,6 @@ workplace HER employment share,workplace_HEREMPN_share,"np.where(reindex(land_us
 workplace MWT employment share,workplace_MWTEMPN_share,"np.where(reindex(land_use.TOTEMP, persons.workplace_zone_id)>0, reindex(land_use.MWTEMPN, persons.workplace_zone_id) / reindex(land_use.TOTEMP, persons.workplace_zone_id), 0)"
 workplace OTH employment share,workplace_OTHEMPN_share,"np.where(reindex(land_use.TOTEMP, persons.workplace_zone_id)>0, reindex(land_use.OTHEMPN, persons.workplace_zone_id) / reindex(land_use.TOTEMP, persons.workplace_zone_id), 0)"
 workplace RET employment share,workplace_RETEMPN_share,"np.where(reindex(land_use.TOTEMP, persons.workplace_zone_id)>0, reindex(land_use.RETEMPN, persons.workplace_zone_id) / reindex(land_use.TOTEMP, persons.workplace_zone_id), 0)"
+,_dest_hourly_peak_parking_cost,"reindex(land_use.PRKCST, persons.workplace_zone_id)"
+pay to park at work,pay_to_park_at_work,"np.where(_dest_hourly_peak_parking_cost>0, 1,0)"
+employment density at work,log_employment_density_at_work,"reindex(land_use.log_emptot_1, persons.workplace_zone_id)"
