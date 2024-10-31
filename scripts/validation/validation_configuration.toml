@@ -25,7 +25,7 @@ p_survey_trips =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_
 p_survey_tours_cleaned =  "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/cleaned/override_tours.csv"
 
 # model results
-#p_model_path = "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs"
+# p_model_path = "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs"
 p_model_path = "C:/temp/asim_summaries_data"
 
 p_model_households = "final_households.parquet"
@@ -44,29 +44,6 @@ p_output_dir = "outputs/validation"
 ################################################################
 # run validation notebooks
 ################################################################
-#run_validation_nb = ['validation_scripts/get_data',
-#                     'validation_scripts/cdap',
-#                     'validation_scripts/school_location_unweighted',
-#                     'validation_scripts/work_location',
-#                     'validation_scripts/free_parking',
-#                     'validation_scripts/mandatory_tour_frequency',
-#                     'validation_scripts/mandatory_tour_scheduling',
-#                     'validation_scripts/non_mandatory_tour_frequency',
-#                     'validation_scripts/non_mandatory_tour_scheduling',
-#                     'validation_scripts/telecommute_frequency',
-#                     'validation_scripts/joint_tour_frequency',
-#                     'validation_scripts/joint_tour_composition',
-#                     'validation_scripts/tour_mode_choice',
-#                     'validation_scripts/trip_mode_choice',
-#                     'validation_scripts/non_mandatory_tour_destination_choice',
-#                     'validation_scripts/atwork_subtours_frequency',
-#                     'validation_scripts/atwork_subtours_destination_choice',
-#                     'validation_scripts/atwork_subtours_scheduling',
-#                     'validation_scripts/atwork_subtour_mode',
-#                     'validation_scripts/intermediate_stop_frequency',
-#                     'validation_scripts/trip_purpose',
-#                     'validation_scripts/trip_destination_choice']
-
 run_validation_nb = ['validation_scripts/get_data',
                         'validation_scripts/tour_mode_choice',
                         'validation_scripts/trip_mode_choice',
