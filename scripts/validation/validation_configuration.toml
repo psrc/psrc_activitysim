@@ -25,8 +25,8 @@ p_survey_trips =      "R:/e2projects_two/2023_base_year/2023_survey/activitysim_
 p_survey_tours_cleaned =  "R:/e2projects_two/2023_base_year/2023_survey/activitysim_format/cleaned/override_tours.csv"
 
 # model results
-# p_model_path = "R:/e2projects_two/activitysim/estimation/2017_2019_data/validation_data/model_outputs"
-p_model_path = "C:/temp/asim_summaries_data"
+p_model_path = "//modelstation3/c$/Workspace/asim_run_dir/outputs/sharrow"
+# p_model_path = "C:/temp/asim_summaries_data"
 
 p_model_households = "final_households.parquet"
 p_model_persons =    "final_persons.parquet"
