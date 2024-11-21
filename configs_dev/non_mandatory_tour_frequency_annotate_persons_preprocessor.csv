@@ -2,9 +2,10 @@ Description,Target,Expression
 #,,
 ,max_window,person_max_window(persons)
 ,log_max_window,np.log1p(max_window)
-,medium_low_income,(persons.income_in_thousands > 20) & (persons.income_in_thousands <= 50)
-,medium_high_income,(persons.income_in_thousands > 50) & (persons.income_in_thousands <= 100)
-,high_income,(persons.income_in_thousands > 100)
+,low_income,(persons.income_in_thousands <= 25)
+,medium_low_income,(persons.income_in_thousands > 25) & (persons.income_in_thousands <= 50)
+,medium_high_income,(persons.income_in_thousands > 100) & (persons.income_in_thousands <= 150)
+,high_income,(persons.income_in_thousands > 150)
 ,no_cars,(persons.auto_ownership == 0)
 ,car_sufficiency,persons.auto_ownership-persons.num_workers
 #,,
