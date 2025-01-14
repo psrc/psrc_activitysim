@@ -70,6 +70,7 @@ input_table_list:
       - pemploy
       - pstudent
       - ptype
+      - telework_time
   - tablename: land_use
     filename: land_use.csv
     index_col: zone_id

@@ -99,6 +99,12 @@ Part-time worker interaction with telecommutes 4 days per week,(ptype == 2) & (t
 #University student interaction with telecommutes 1 day per week,(ptype == 3) & (pemploy == 2) & (telecommute_frequency=='1_day_week'),,coef_university_student_interaction_with_telecommute_1_day_week_N,coef_university_student_interaction_with_telecommute_1_day_week_H
 #University student interaction with telecommutes 2-3 days per week,(ptype == 3) & (pemploy == 2) & (telecommute_frequency=='2_3_days_week'),,coef_university_student_interaction_with_telecommute_2_3_days_week_N,coef_university_student_interaction_with_telecommute_2_3_days_week_H
 #University student interaction with telecommutes 4 days per week,(ptype == 3) & (pemploy == 2) & (telecommute_frequency=='4_days_week'),,coef_university_student_interaction_with_telecommute_4_days_week_N,coef_university_student_interaction_with_telecommute_4_days_week_H
+Full-time worker interaction with telecommuting 3+ hours,(ptype == 1) & (is_telecommuter),,coef_full_time_worker_interaction_with_telecommuter_N,coef_full_time_worker_interaction_with_telecommuter_H
+Part-time worker interaction with telecommuting 3+ hours,(ptype == 2) & (is_telecommuter),,coef_part_time_worker_interaction_with_telecommuter_N,coef_part_time_worker_interaction_with_telecommuter_H
+University student interaction with telecommuing 3+ hours,(ptype == 3) & (pemploy == 2) & (is_telecommuter),,coef_university_student_interaction_with_telecommuter_N,coef_university_student_interaction_with_telecommuter_H
+Full-time worker interaction with telecommuting hours,(ptype == 1) & (telework_time),,coef_full_time_worker_interaction_with_telecommute_hours_N,coef_full_time_worker_interaction_with_telecommute_hours_week_H
+Part-time worker interaction with telecommuting hours,(ptype == 2) & (telework_time),,coef_part_time_worker_interaction_with_telecommute_hours_N,coef_part_time_worker_interaction_with_telecommute_hours_week_H
+University student interaction with telecommuing hours,(ptype == 3) & (pemploy == 2) & (telework_time),,coef_university_student_interaction_with_telecommute_hours_N,coef_university_student_interaction_with_telecommute_hours_week_H
 Full time worker who works from home,(ptype == 1)&(work_from_home),coef_UNAVAILABLE,coef_full_time_worker_interaction_with_work_from_home_N,
 Part time worker who works from home,(ptype == 2)&(work_from_home),coef_UNAVAILABLE,,
 #University student workers who works from home,(ptype == 3)&(work_from_home),,,
