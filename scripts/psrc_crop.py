@@ -216,41 +216,45 @@ for file_name in ["maz_to_maz_walk.csv", "maz_to_maz_bike.csv"]:
 #
 # skims
 #
-omx_infile_name = 'skims.omx'
+omx_infile_name_list = ['Skims_5to9.omx','Skims_9to15.omx','Skims_15to18.omx',
+                        'Skims_18to20.omx','Skims_20to5.omx']
+# omx_infile_name = 'skims.omx'
 skim_data_type = np.float32
 
-omx_in = omx.open_file(input_path(omx_infile_name))
-print(f"omx_in shape {omx_in.shape()}")
-
-assert not omx_in.listMappings()
 taz = taz.sort_values('TAZ')
 taz.index = taz.TAZ - 1
 tazs_indexes = taz.index.tolist()  # index of TAZ in skim (zero-based, no mapping)
 taz_labels = taz.TAZ.tolist()  # TAZ zone_ids in omx index order
 
-# create
-num_outfiles = 4 if segment_name == 'full' else 1
-if num_outfiles == 1:
-    omx_out = [omx.open_file(output_path(f"skims.omx"), 'w')]
-else:
-    omx_out = [omx.open_file(output_path(f"skims{i+1}.omx"), 'w') for i in range(num_outfiles)]
+for omx_infile_name in omx_infile_name_list:
+    omx_in = omx.open_file(input_path(omx_infile_name))
+    print(f"omx_in shape {omx_in.shape()}")
 
-for omx_file in omx_out:
-    omx_file.create_mapping('ZONE', taz_labels)
+    # assert not omx_in.listMappings()
+    # Drop ZONE table if it exists
 
-iskim = 0
-for mat_name in omx_in.list_matrices():
+    # # create
+    # num_outfiles = 4 if segment_name == 'full' else 1
+    # if num_outfiles == 1:
+    #     omx_out = [omx.open_file(output_path(f"skims.omx"), 'w')]
+    # else:
+    #     omx_out = [omx.open_file(output_path(f"skims{i+1}.omx"), 'w') for i in range(num_outfiles)]
 
-    # make sure we have a vanilla numpy array, not a CArray
-    m = np.asanyarray(omx_in[mat_name]).astype(skim_data_type)
-    m = m[tazs_indexes, :][:, tazs_indexes]
-    print(f"{mat_name} {m.shape}")
+    omx_out = omx.open_file(output_path(omx_infile_name), 'w')
 
-    omx_file = omx_out[iskim % num_outfiles]
-    omx_file[mat_name] = m
-    iskim += 1
+    omx_out.create_mapping('ZONE', taz_labels, overwrite=True)
 
+    iskim = 0
+    for mat_name in omx_in.list_matrices():
 
-omx_in.close()
-for omx_file in omx_out:
-    omx_file.close()
+        # make sure we have a vanilla numpy array, not a CArray
+        m = np.asanyarray(omx_in[mat_name]).astype(skim_data_type)
+        m = m[tazs_indexes, :][:, tazs_indexes]
+        print(f"{mat_name} {m.shape}")
+
+        omx_out[mat_name] = m
+        # omx_file[mat_name] = m
+        iskim += 1
+
+    omx_out.close()
+    omx_in.close()
