@@ -2,11 +2,9 @@
 #sharrow: require
 
 # activitysim run -c configs -d data -o output
-
+expression_profile: True
 
 # number of households to simulate
-#households_sample_size:  100
-# simulate all households
 households_sample_size: 0
 disable_zarr: True
 #chunk_size: 
@@ -30,7 +28,8 @@ want_dest_choice_sample_tables: False
 
 # trace household id; comment out or leave empty for no trace
 # households with all tour types
-#trace_hh_id: 251535
+trace_hh_id: 562656
+cleanup_trace_files_on_resume: True
 
 
 # trace origin, destination in accessibility calculation; comment out or leave empty for no trace
@@ -46,7 +45,6 @@ input_table_list:
       HHID: household_id
       PERSONS: hhsize
       workers: num_workers
-      VEHICL: auto_ownership
       MAZ: home_zone_id
     recode_columns:
       home_zone_id: land_use.zone_id
@@ -118,8 +116,7 @@ input_table_list:
     recode_columns:
       TAZ: zero-based
 # to resume after last successful checkpoint, specify resume_after: _
-#resume_after: trip_scheduling
-
+#resume_after: auto_ownership_simulate
 models:
   ## Disaggregate Accessibility steps
   - initialize_proto_population # Separate step so proto tables can be split for multiprocess.
@@ -158,7 +155,7 @@ models:
   - trip_mode_choice
   - write_data_dictionary
   - track_skim_usage
-#  - write_trip_matrices
+  - write_trip_matrices
   - write_tables
 
 
