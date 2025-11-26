@@ -6,8 +6,7 @@ expression_profile: True
 
 # number of households to simulate
 households_sample_size: 0
-
-
+disable_zarr: True
 #chunk_size: 
 #chunk_size: 123_000_000_000
 chunk_training_mode: explicit
@@ -131,6 +130,7 @@ models:
   - workplace_location
   - free_parking
   - telecommute_frequency
+  - telecommute_status
   - cdap_simulate
   - mandatory_tour_frequency
   - mandatory_tour_scheduling
