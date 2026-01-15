@@ -1,31 +1,16 @@
 ---
-title: Quarto tips
+title: ActivitySim Outputs
 date: today
 ---
 
+```{python}
+import toml
+from pathlib import Path
 
-## Install Quarto
+config = toml.load(Path.cwd()/ 'validation_scripts/validation_configuration.toml')
 
-https://quarto.org/docs/get-started/
+# Relative path between notebooks and goruped output directories
+output_path = Path(config["p_model_path"])
 
-## Render full Quarto book
-
-use the `render` command at the project location to render all files
-``` {.bash filename="Terminal"}
-quarto render
-```
-
-## To render individual Jupyter Notebooks
-
-``` {.bash filename="Terminal"}
-quarto render notebook.ipynb
-```
-Even though you are rendering only one script in the project, the entire book is still produced using previously rendered versions of the other chapters.
-
-- Note that when rendering an `.ipynb` Quarto will not execute the cells within the notebook by default:
-    - either you already executed them while editing the notebook
-    - or you can execute the cells by passing the `--execute` flag to render:
-
-``` {.bash filename="Terminal"}
-quarto render notebook.ipynb --execute
+print(f"Run location: {output_path}")
 ```

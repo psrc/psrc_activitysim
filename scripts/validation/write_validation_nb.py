@@ -3,7 +3,7 @@ import toml
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 
-config = toml.load(os.path.join(os.getcwd(), 'validation_configuration.toml'))
+config = toml.load(os.path.join(os.getcwd(), 'scripts', 'validation','validation_configuration.toml'))
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
