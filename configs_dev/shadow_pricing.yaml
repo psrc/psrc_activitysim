@@ -35,7 +35,7 @@ school_segmentation_targets:
   university: COLLFTE
   highschool: HSENROLL
   gradeschool: GSENROLL
-#  preschool: preschool_target
+  preschool: preschool_target
 
 # if target names are the same, they will be combined together
 workplace_segmentation_targets:

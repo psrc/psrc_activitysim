@@ -23,8 +23,6 @@ coef_lndist_ps,4.3415,F
 coef_sqrtdist_ps,-7.38,F
 coef_sqrddist_ps,0.0125,F
 coef_cubeddist_ps,-0.0004,F
-coef_lowincdist_ps,-0.0956,F
-coef_age03dist_ps,-0.007,F
 coef_univ_dist_0_1,-4.041168201,F
 coef_univ_dist_1_2,-2.727947472,F
 coef_univ_dist_2_5,-0.803262584,F
